@@ -124,8 +124,8 @@ const Contact = () => {
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Address</h3>
                     <p className="text-muted-foreground">
-                      Nidhi Graph Udhyog<br />
-                      India
+                      7, Industrial Area, Runija Road, Barnagar. PIN-456771 <br />
+                      Ujjain, MP, India
                     </p>
                   </div>
                 </div>
@@ -136,7 +136,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Phone</h3>
-                    <p className="text-muted-foreground">+91 XXXXX XXXXX</p>
+                    <p className="text-muted-foreground">+91 93029 22251</p>
                   </div>
                 </div>
 

@@ -35,7 +35,7 @@ const About = () => {
       <section className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            About Nidhi Graph Udhyog
+            About Nidhi Grah Udyog
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Bringing authentic Indian flavors to your kitchen since years
@@ -53,7 +53,7 @@ const About = () => {
               </h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  Nidhi Graph Udhyog was founded with a simple mission: to bring the authentic taste of traditional Indian spices to every household. Our journey began with a passion for preserving the rich culinary heritage of India.
+                  Nidhi Grah Udyog was founded with a simple mission: to bring the authentic taste of traditional Indian spices to every household. Our journey began with a passion for preserving the rich culinary heritage of India.
                 </p>
                 <p>
                   Over the years, we have grown from a small family business to a trusted name in the spice industry. Our commitment to quality, authenticity, and customer satisfaction has remained unwavering.
@@ -108,7 +108,7 @@ const About = () => {
               <div className="text-muted-foreground">Premium Products</div>
             </div>
             <div>
-              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">10K+</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">1.1M+</div>
               <div className="text-muted-foreground">Happy Customers</div>
             </div>
             <div>
@@ -116,7 +116,7 @@ const About = () => {
               <div className="text-muted-foreground">Pure & Natural</div>
             </div>
             <div>
-              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">15+</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">30+</div>
               <div className="text-muted-foreground">Years Experience</div>
             </div>
           </div>

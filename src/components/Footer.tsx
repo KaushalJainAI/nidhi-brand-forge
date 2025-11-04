@@ -9,7 +9,7 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
-              Nidhi Graph Udhyog
+              Nidhi Grah Udyog
             </h3>
             <p className="text-muted-foreground mb-4">
               Premium quality spices and masalas for authentic Indian flavors
@@ -21,9 +21,9 @@ const Footer = () => {
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              {/* <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
                 <Twitter className="h-5 w-5" />
-              </a>
+              </a> */}
             </div>
           </div>
 
@@ -87,15 +87,16 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start space-x-3 text-muted-foreground">
                 <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                <span>Nidhi Graph Udhyog, India</span>
+                <span>7, Industrial Area, Runija Road, Barnagar. PIN-456771 <br />
+                      Ujjain, MP, India</span>
               </li>
               <li className="flex items-center space-x-3 text-muted-foreground">
                 <Phone className="h-5 w-5 flex-shrink-0" />
-                <span>+91 XXXXX XXXXX</span>
+                <span>+91 93029 22251</span>
               </li>
               <li className="flex items-center space-x-3 text-muted-foreground">
                 <Mail className="h-5 w-5 flex-shrink-0" />
-                <span>info@nidhimasala.com</span>
+                <span>www.nidhigrahudyog.com</span>
               </li>
             </ul>
           </div>
