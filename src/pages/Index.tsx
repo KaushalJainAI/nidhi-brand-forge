@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import ProductCard from "@/components/ProductCard";
+import VideoStorySection from "@/components/VideoStorySection";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Clock, Award } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -14,37 +15,98 @@ import product5 from "@/assets/product-5.jpg";
 const Index = () => {
   const featuredProducts = [
     {
+      id: 1,
       name: "Garadu Masala",
       image: product1,
       price: 120,
       originalPrice: 150,
+      weight: "100g",
       badge: "Best Seller"
     },
     {
+      id: 2,
       name: "Kitchen King Masala",
       image: product2,
       price: 135,
       originalPrice: 170,
+      weight: "100g",
       badge: "New"
     },
     {
+      id: 3,
       name: "Pav Bhaji Masala",
       image: product3,
       price: 125,
       originalPrice: 155,
+      weight: "50g"
     },
     {
+      id: 4,
       name: "Sambhar Masala",
       image: product4,
       price: 130,
       originalPrice: 160,
+      weight: "100g"
     },
+  ];
+
+  const newlyLaunched = [
     {
+      id: 5,
       name: "Tea Masala",
       image: product5,
       price: 95,
       originalPrice: 120,
-      badge: "Popular"
+      weight: "50g",
+      badge: "New"
+    },
+    {
+      id: 6,
+      name: "Chat Masala",
+      image: product1,
+      price: 85,
+      originalPrice: 110,
+      weight: "50g",
+      badge: "New"
+    },
+    {
+      id: 7,
+      name: "Tandoori Masala",
+      image: product2,
+      price: 140,
+      originalPrice: 175,
+      weight: "100g",
+      badge: "New"
+    },
+    {
+      id: 8,
+      name: "Biryani Masala",
+      image: product3,
+      price: 150,
+      originalPrice: 190,
+      weight: "100g",
+      badge: "New"
+    },
+  ];
+
+  const combos = [
+    {
+      id: 9,
+      name: "Combo Pack - Kitchen Essentials",
+      image: product4,
+      price: 399,
+      originalPrice: 550,
+      weight: "5 items",
+      badge: "Combo"
+    },
+    {
+      id: 10,
+      name: "Combo Pack - Premium Masalas",
+      image: product5,
+      price: 599,
+      originalPrice: 800,
+      weight: "8 items",
+      badge: "Combo"
     },
   ];
 
@@ -93,13 +155,16 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Video Story Section */}
+      <VideoStorySection />
+
+      {/* Best Selling Products */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-12">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                Everyone's Favorite
+                Best Selling Products
               </h2>
               <p className="text-muted-foreground">Discover our most loved spices and masalas</p>
             </div>
@@ -112,9 +177,93 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {featuredProducts.map((product, index) => (
-              <ProductCard key={index} {...product} />
+            {featuredProducts.map((product) => (
+              <ProductCard key={product.id} {...product} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Newly Launched */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+                Newly Launched
+              </h2>
+              <p className="text-muted-foreground">Fresh arrivals for your kitchen</p>
+            </div>
+            <Button variant="outline" className="group">
+              <Link to="/products" className="flex items-center">
+                View All
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {newlyLaunched.map((product) => (
+              <ProductCard key={product.id} {...product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Combo Offers */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Special Combo Offers
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Save more with our specially curated combo packs
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {combos.map((product) => (
+              <ProductCard key={product.id} {...product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Our Specialty */}
+      <section className="py-16 bg-gradient-to-r from-primary/10 to-accent/10">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Our Specialty
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              What makes us unique in the world of spices
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-card rounded-xl p-8 text-center border border-border">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">100% Pure</h3>
+              <p className="text-muted-foreground">No artificial colors or preservatives</p>
+            </div>
+            <div className="bg-card rounded-xl p-8 text-center border border-border">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">Award Winning</h3>
+              <p className="text-muted-foreground">Recognized for quality and taste</p>
+            </div>
+            <div className="bg-card rounded-xl p-8 text-center border border-border">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Truck className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">Fast Delivery</h3>
+              <p className="text-muted-foreground">Quick and reliable shipping</p>
+            </div>
           </div>
         </div>
       </section>

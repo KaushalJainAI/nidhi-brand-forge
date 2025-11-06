@@ -61,9 +61,9 @@ const ProductCard = ({ id = 1, name, image, price, originalPrice, badge, weight 
           <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2 hover:text-primary transition-colors cursor-pointer">{name}</h3>
         </Link>
         
-        {weight && (
-          <p className="text-sm text-muted-foreground mb-2">Weight: {weight}</p>
-        )}
+        <p className="text-sm text-muted-foreground mb-2">
+          Weight: {weight || "100g"}
+        </p>
         
         <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl font-bold text-primary">₹{price}</span>

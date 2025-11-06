@@ -15,7 +15,11 @@ import Cart from "./pages/Cart";
 import Billing from "./pages/Billing";
 import ChatSupport from "./pages/ChatSupport";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Favorites from "./pages/Favorites";
+import VoiceOrder from "./pages/VoiceOrder";
 import FloatingChatIcon from "./components/FloatingChatIcon";
+import FloatingVoiceButton from "./components/FloatingVoiceButton";
 
 
 const queryClient = new QueryClient();
@@ -37,10 +41,15 @@ const App = () => (
           <Route path="/cart" element={<Cart />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/chat-support" element={<ChatSupport />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/voice-order" element={<VoiceOrder />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <FloatingChatIcon />
+        <FloatingVoiceButton />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

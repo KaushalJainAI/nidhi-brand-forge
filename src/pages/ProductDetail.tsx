@@ -4,6 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ShoppingCart, Heart, Share2, Star } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import ProductCard from "@/components/ProductCard";
@@ -68,21 +70,39 @@ const ProductDetail = () => {
 
         {/* Product Details */}
         <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {/* Image */}
-          <div className="relative">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full rounded-lg shadow-lg"
-            />
-            <button
-              onClick={() => setIsFavorite(!isFavorite)}
-              className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm p-3 rounded-full shadow-md"
-            >
-              <Heart
-                className={`h-6 w-6 ${isFavorite ? "fill-primary text-primary" : "text-muted-foreground"}`}
+          {/* Image Gallery */}
+          <div className="space-y-4">
+            <div className="relative aspect-square overflow-hidden rounded-lg border border-border max-w-md">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover"
               />
-            </button>
+              <button
+                onClick={() => setIsFavorite(!isFavorite)}
+                className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm p-3 rounded-full shadow-md"
+              >
+                <Heart
+                  className={`h-6 w-6 ${isFavorite ? "fill-primary text-primary" : "text-muted-foreground"}`}
+                />
+              </button>
+            </div>
+            
+            {/* Thumbnail Gallery */}
+            <div className="grid grid-cols-4 gap-2 max-w-md">
+              {[product.image, product.image, product.image, product.image].map((img, idx) => (
+                <button
+                  key={idx}
+                  className="relative aspect-square overflow-hidden rounded border border-border hover:border-primary transition-colors"
+                >
+                  <img
+                    src={img}
+                    alt={`${product.name} view ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Info */}
@@ -191,7 +211,7 @@ const ProductDetail = () => {
         </div>
 
         {/* Similar Products Carousel */}
-        <section>
+        <section className="mb-16">
           <h2 className="text-3xl font-bold mb-8">People Also Buy</h2>
           <Carousel opts={{ align: "start" }} className="w-full">
             <CarouselContent>
@@ -204,6 +224,50 @@ const ProductDetail = () => {
             <CarouselPrevious />
             <CarouselNext />
           </Carousel>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
+          
+          <div className="space-y-4 mb-8">
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="font-semibold text-lg mb-2">What is the shelf life of this product?</h3>
+              <p className="text-muted-foreground">Our masalas have a shelf life of 12 months when stored in a cool, dry place away from direct sunlight.</p>
+            </div>
+            
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="font-semibold text-lg mb-2">Is this product organic?</h3>
+              <p className="text-muted-foreground">Yes, all our products are made from 100% organic and natural ingredients without any artificial additives.</p>
+            </div>
+            
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="font-semibold text-lg mb-2">How should I store this masala?</h3>
+              <p className="text-muted-foreground">Store in an airtight container in a cool, dry place. Avoid exposure to moisture and direct sunlight.</p>
+            </div>
+
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="font-semibold text-lg mb-2">Do you offer bulk orders?</h3>
+              <p className="text-muted-foreground">Yes, we offer special pricing for bulk orders. Please contact our customer support for more details.</p>
+            </div>
+          </div>
+
+          {/* Ask a Question */}
+          <div className="bg-card border border-border rounded-lg p-6">
+            <h3 className="font-semibold text-lg mb-4">Have a Question?</h3>
+            <p className="text-muted-foreground mb-4">Can't find the answer you're looking for? Ask us directly!</p>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="questionEmail">Your Email</Label>
+                <Input id="questionEmail" placeholder="your@email.com" type="email" />
+              </div>
+              <div>
+                <Label htmlFor="question">Your Question</Label>
+                <Input id="question" placeholder="Type your question here..." />
+              </div>
+              <Button className="w-full">Submit Question</Button>
+            </div>
+          </div>
         </section>
       </div>
 

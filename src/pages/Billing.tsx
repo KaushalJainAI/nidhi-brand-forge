@@ -138,6 +138,28 @@ const Billing = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Coupon Code */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Apply Coupon Code</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2">
+                    <Input 
+                      id="couponCode" 
+                      placeholder="Enter coupon code" 
+                      className="flex-1"
+                    />
+                    <Button type="button" variant="outline">
+                      Apply
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Get up to 20% off with valid coupon codes
+                  </p>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Order Summary */}
