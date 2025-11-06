@@ -61,7 +61,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Search & Actions */}
+          {/* Search & Actions - Always visible on desktop */}
           <div className="hidden md:flex items-center space-x-4">
             <form onSubmit={handleSearch}>
               <div className="relative">
@@ -110,18 +110,26 @@ const Navbar = () => {
           </Button>
         </div>
 
+        {/* Mobile Search - Always visible */}
+        <div className="md:hidden py-3 border-t border-border">
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input 
+                type="search" 
+                placeholder="Search products..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </form>
+        </div>
+
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col space-y-4">
-              <form onSubmit={handleSearch}>
-                <Input 
-                  type="search" 
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </form>
               <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">
                 Home
               </Link>

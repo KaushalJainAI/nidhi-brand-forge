@@ -2,19 +2,22 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext"; // <-- import the context
 
 
 interface ProductCardProps {
+  id?: number;
   name: string;
   image: string;
   price: number;
   originalPrice?: number;
   badge?: string;
+  weight?: string;
 }
 
 
-const ProductCard = ({ name, image, price, originalPrice, badge }: ProductCardProps) => {
+const ProductCard = ({ id = 1, name, image, price, originalPrice, badge, weight }: ProductCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
 
@@ -67,6 +70,16 @@ const ProductCard = ({ name, image, price, originalPrice, badge }: ProductCardPr
         />
       </button>
       {/* Image */}
+      <Link to={`/products/${id}`}>
+        <div className="relative overflow-hidden bg-muted cursor-pointer">
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+        </div>
+      </Link>
+
       <div className="relative overflow-hidden bg-muted">
         <img
           src={image}
@@ -76,6 +89,14 @@ const ProductCard = ({ name, image, price, originalPrice, badge }: ProductCardPr
       </div>
       {/* Content */}
       <div className="p-6">
+        <Link to={`/products/${id}`}>
+          <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2 hover:text-primary transition-colors cursor-pointer">{name}</h3>
+        </Link>
+        
+        {weight && (
+          <p className="text-sm text-muted-foreground mb-2">Weight: {weight}</p>
+        )}
+        
         <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2">{name}</h3>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl font-bold text-primary">₹{price}</span>
