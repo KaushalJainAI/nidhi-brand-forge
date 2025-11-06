@@ -11,18 +11,18 @@ import product5 from "@/assets/product-5.jpg";
 
 const Products = () => {
   const products = [
-    { name: "Garadu Masala", image: product1, price: 120, originalPrice: 150, badge: "Best Seller" },
-    { name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, badge: "New" },
-    { name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155 },
-    { name: "Sambhar Masala", image: product4, price: 130, originalPrice: 160 },
-    { name: "Tea Masala", image: product5, price: 95, originalPrice: 120, badge: "Popular" },
-    { name: "Chana Masala", image: product1, price: 115, originalPrice: 145 },
-    { name: "Garam Masala", image: product2, price: 140, originalPrice: 175 },
-    { name: "Biryani Masala", image: product3, price: 150, originalPrice: 185 },
-    { name: "Chaat Masala", image: product4, price: 90, originalPrice: 115 },
-    { name: "Paneer Masala", image: product5, price: 128, originalPrice: 160 },
-    { name: "Chole Masala", image: product1, price: 118, originalPrice: 148 },
-    { name: "Rajma Masala", image: product2, price: 122, originalPrice: 152 },
+    { id: 1, name: "Garadu Masala", image: product1, price: 120, originalPrice: 150, badge: "Best Seller", weight: "100g" },
+    { id: 2, name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, badge: "New", weight: "100g" },
+    { id: 3, name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155, weight: "100g" },
+    { id: 4, name: "Sambhar Masala", image: product4, price: 130, originalPrice: 160, weight: "100g" },
+    { id: 5, name: "Tea Masala", image: product5, price: 95, originalPrice: 120, badge: "Popular", weight: "50g" },
+    { id: 6, name: "Chana Masala", image: product1, price: 115, originalPrice: 145, weight: "100g" },
+    { id: 7, name: "Garam Masala", image: product2, price: 140, originalPrice: 175, weight: "100g" },
+    { id: 8, name: "Biryani Masala", image: product3, price: 150, originalPrice: 185, weight: "100g" },
+    { id: 9, name: "Chaat Masala", image: product4, price: 90, originalPrice: 115, weight: "50g" },
+    { id: 10, name: "Paneer Masala", image: product5, price: 128, originalPrice: 160, weight: "100g" },
+    { id: 11, name: "Chole Masala", image: product1, price: 118, originalPrice: 148, weight: "100g" },
+    { id: 12, name: "Rajma Masala", image: product2, price: 122, originalPrice: 152, weight: "100g" },
   ];
 
   const categories = ["All Products", "Blended Masalas", "Whole Spices", "Powdered Spices", "Tea Masala"];

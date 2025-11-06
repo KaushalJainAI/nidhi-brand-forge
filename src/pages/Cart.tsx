@@ -6,6 +6,12 @@ import { Separator } from "@/components/ui/separator";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import ProductCard from "@/components/ProductCard";
+import product1 from "@/assets/product-1.jpg";
+import product2 from "@/assets/product-2.jpg";
+import product3 from "@/assets/product-3.jpg";
+import product4 from "@/assets/product-4.jpg";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([
@@ -36,6 +42,13 @@ const Cart = () => {
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const tax = subtotal * 0.1;
   const total = subtotal + tax;
+
+  const recommendedProducts = [
+    { id: 2, name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, weight: "100g" },
+    { id: 3, name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155, weight: "100g" },
+    { id: 4, name: "Sambhar Masala", image: product4, price: 130, originalPrice: 160, weight: "100g" },
+    { id: 6, name: "Chana Masala", image: product1, price: 115, originalPrice: 145, weight: "100g" },
+  ];
 
   return (
     <>
@@ -118,13 +131,33 @@ const Cart = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full" size="lg">
-                    Proceed to Checkout
-                  </Button>
+                  <Link to="/billing" className="w-full">
+                    <Button className="w-full" size="lg">
+                      Proceed to Checkout
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             </div>
           </div>
+        )}
+
+        {/* People Also Buy Carousel */}
+        {cartItems.length > 0 && (
+          <section className="mt-16">
+            <h2 className="text-3xl font-bold mb-8">People Also Buy</h2>
+            <Carousel opts={{ align: "start" }} className="w-full">
+              <CarouselContent>
+                {recommendedProducts.map((product) => (
+                  <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/4">
+                    <ProductCard {...product} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </section>
         )}
       </div>
     </>
