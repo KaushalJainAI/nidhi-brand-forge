@@ -3,16 +3,31 @@ import { ShoppingCart, User, Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { cart } = useCart();
+  const { isLoggedIn } = useAuth();
+
+  // Calculate total quantity
+  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/products?search=${searchQuery}`);
+    }
+  };
+
+  const handleProfileClick = () => {
+    if (isLoggedIn) {
+      navigate('/profile');
+    } else {
+      navigate('/login', { state: { from: '/profile' } });
     }
   };
 
@@ -64,7 +79,7 @@ const Navbar = () => {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => navigate('/profile')}
+              onClick={handleProfileClick}
             >
               <User className="h-5 w-5" />
             </Button>
@@ -76,9 +91,11 @@ const Navbar = () => {
               onClick={() => navigate('/cart')}
             >
               <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                0
-              </span>
+              {totalQuantity > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  {totalQuantity}
+                </span>
+              )}
             </Button>
           </div>
 
@@ -120,6 +137,12 @@ const Navbar = () => {
               <Link to="/track-order" className="text-foreground hover:text-primary transition-colors font-medium">
                 Track Order
               </Link>
+              <button 
+                onClick={handleProfileClick}
+                className="text-foreground hover:text-primary transition-colors font-medium text-left"
+              >
+                Profile
+              </button>
             </div>
           </div>
         )}

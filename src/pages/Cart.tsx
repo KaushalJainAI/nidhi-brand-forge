@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,36 +5,29 @@ import { Separator } from "@/components/ui/separator";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import { useCart } from "@/context/CartContext";
+
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([
-    { id: 1, name: "Standard Business Cards", price: 29.99, quantity: 2 },
-    { id: 2, name: "Tri-Fold Brochure", price: 89.99, quantity: 1 },
-  ]);
+  const { cart, updateQuantity, removeFromCart } = useCart();
 
-  const updateQuantity = (id: number, delta: number) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
-  };
 
-  const removeItem = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id));
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const tax = subtotal * 0.1;
+  const total = subtotal + tax;
+
+
+  const handleRemoveItem = (name: string) => {
+    removeFromCart(name);
     toast.success("Item removed from cart");
   };
 
-  const clearCart = () => {
-    setCartItems([]);
+
+  const handleClearCart = () => {
+    cart.forEach(item => removeFromCart(item.name));
     toast.success("Cart cleared");
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
 
   return (
     <>
@@ -43,7 +35,8 @@ const Cart = () => {
       <div className="container py-8">
         <h1 className="text-4xl font-bold mb-8">Shopping Cart</h1>
 
-        {cartItems.length === 0 ? (
+
+        {cart.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
               <p className="text-xl text-muted-foreground mb-4">Your cart is empty</p>
@@ -55,21 +48,28 @@ const Cart = () => {
         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
-              {cartItems.map((item) => (
-                <Card key={item.id}>
+              {cart.map((item) => (
+                <Card key={item.name}>
                   <CardContent className="flex items-center gap-4 p-6">
-                    <div className="w-24 h-24 bg-muted rounded-md flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground">Image</span>
-                    </div>
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-24 h-24 bg-muted rounded-md object-cover"
+                    />
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{item.name}</h3>
                       <p className="text-primary font-bold">${item.price}</p>
+                      {item.originalPrice && (
+                        <p className="text-sm text-muted-foreground line-through">
+                          ${item.originalPrice}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.id, -1)}
+                        onClick={() => updateQuantity(item.name, item.quantity - 1)}
                       >
                         -
                       </Button>
@@ -77,7 +77,7 @@ const Cart = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.id, 1)}
+                        onClick={() => updateQuantity(item.name, item.quantity + 1)}
                       >
                         +
                       </Button>
@@ -85,17 +85,18 @@ const Cart = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => handleRemoveItem(item.name)}
                     >
                       <Trash2 className="h-5 w-5 text-destructive" />
                     </Button>
                   </CardContent>
                 </Card>
               ))}
-              <Button variant="outline" onClick={clearCart} className="w-full">
+              <Button variant="outline" onClick={handleClearCart} className="w-full">
                 Clear Cart
               </Button>
             </div>
+
 
             <div>
               <Card>
@@ -108,7 +109,7 @@ const Cart = () => {
                     <span className="font-semibold">${subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tax</span>
+                    <span className="text-muted-foreground">Tax (10%)</span>
                     <span className="font-semibold">${tax.toFixed(2)}</span>
                   </div>
                   <Separator />
@@ -130,5 +131,6 @@ const Cart = () => {
     </>
   );
 };
+
 
 export default Cart;
