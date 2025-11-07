@@ -10,6 +10,7 @@ import { ShoppingCart, Heart, Share2, Star } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import ProductCard from "@/components/ProductCard";
 import { toast } from "sonner";
+import { useCart } from "@/context/CartContext"; // Import the useCart hook
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -20,10 +21,11 @@ const ProductDetail = () => {
   const { id } = useParams();
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
+  const { addToCart } = useCart(); // Get addToCart from context
 
   // Mock product data
   const product = {
-    id: parseInt(id || "1"),
+    id: id || "1",
     name: "Garadu Masala",
     image: product1,
     price: 120,
@@ -51,7 +53,17 @@ const ProductDetail = () => {
   ];
 
   const handleAddToCart = () => {
-    toast.success("Added to cart successfully!");
+    // Add multiple items based on quantity
+    for (let i = 0; i < quantity; i++) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        originalPrice: product.originalPrice,
+      });
+    }
+    toast.success(`${quantity} ${quantity > 1 ? 'items' : 'item'} added to cart successfully!`);
   };
 
   return (
@@ -172,7 +184,12 @@ const ProductDetail = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-4 mb-8">
-              <Button size="lg" className="flex-1" onClick={handleAddToCart}>
+              <Button 
+                size="lg" 
+                className="flex-1" 
+                onClick={handleAddToCart}
+                disabled={!product.inStock}
+              >
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 Add to Cart
               </Button>
