@@ -44,10 +44,10 @@ const ProductDetail = () => {
   };
 
   const similarProducts = [
-    { id: 2, name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, weight: "100g" },
-    { id: 3, name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155, weight: "100g" },
-    { id: 4, name: "Sambhar Masala", image: product4, price: 130, originalPrice: 160, weight: "100g" },
-    { id: 5, name: "Tea Masala", image: product5, price: 95, originalPrice: 120, weight: "50g" },
+    { id: "2", name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, weight: "100g" },
+    { id: "3", name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155, weight: "100g" },
+    { id: "4", name: "Sambhar Masala", image: product4, price: 130, originalPrice: 160, weight: "100g" },
+    { id: "5", name: "Tea Masala", image: product5, price: 95, originalPrice: 120, weight: "50g" },
   ];
 
   const handleAddToCart = () => {

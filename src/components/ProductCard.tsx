@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext"; // <-- import the context
-
+import { useCart } from "../context/CartContext";
 
 interface ProductCardProps {
-  id?: number;
+  id?: string;
   name: string;
   image: string;
   price: number;
@@ -16,26 +15,38 @@ interface ProductCardProps {
   weight?: string;
 }
 
-
-const ProductCard = ({ id = 1, name, image, price, originalPrice, badge, weight }: ProductCardProps) => {
+const ProductCard = ({
+  id = "1",
+  name,
+  image,
+  price,
+  originalPrice,
+  badge,
+  weight,
+}: ProductCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
 
-
-  const cartItem = cart.find(item => item.name === name);
+  const cartItem = cart.find((item) => item.name === name);
   const quantity = cartItem?.quantity || 0;
-  const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
-
+  const discount = originalPrice
+    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+    : 0;
 
   const handleAddToCart = () => {
-    addToCart({ name, image, price, originalPrice, badge });
+    addToCart({
+      id,
+      name,
+      image,
+      price,
+      originalPrice,
+      badge,
+    });
   };
-
 
   const incrementQty = () => {
     updateQuantity(name, quantity + 1);
   };
-
 
   const decrementQty = () => {
     if (quantity > 1) {
@@ -44,7 +55,6 @@ const ProductCard = ({ id = 1, name, image, price, originalPrice, badge, weight 
       removeFromCart(name);
     }
   };
-
 
   return (
     <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl border-border">
@@ -63,13 +73,15 @@ const ProductCard = ({ id = 1, name, image, price, originalPrice, badge, weight 
       {/* Favorite Button */}
       <button
         onClick={() => setIsFavorite(!isFavorite)}
-        className="absolute top-4 right-4 z-10 bg-card/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-12 right-4 z-10 bg-card/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
       >
         <Heart
-          className={`h-5 w-5 ${isFavorite ? "fill-primary text-primary" : "text-muted-foreground"}`}
+          className={`h-5 w-5 ${
+            isFavorite ? "fill-primary text-primary" : "text-muted-foreground"
+          }`}
         />
       </button>
-      {/* Image */}
+      {/* Product Image and Link */}
       <Link to={`/products/${id}`}>
         <div className="relative overflow-hidden bg-muted cursor-pointer">
           <img
@@ -79,39 +91,34 @@ const ProductCard = ({ id = 1, name, image, price, originalPrice, badge, weight 
           />
         </div>
       </Link>
-
-      <div className="relative overflow-hidden bg-muted">
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
-        />
-      </div>
       {/* Content */}
       <div className="p-6">
         <Link to={`/products/${id}`}>
-          <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2 hover:text-primary transition-colors cursor-pointer">{name}</h3>
+          <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2 hover:text-primary transition-colors cursor-pointer">
+            {name}
+          </h3>
         </Link>
-        
         <p className="text-sm text-muted-foreground mb-2">
           Weight: {weight || "100g"}
         </p>
-        
-        <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2">{name}</h3>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl font-bold text-primary">₹{price}</span>
           {originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">₹{originalPrice}</span>
+            <span className="text-sm text-muted-foreground line-through">
+              ₹{originalPrice}
+            </span>
           )}
         </div>
-
-
         {/* Quantity Controls - Show if item is in cart */}
         {cartItem ? (
           <div className="flex items-center justify-center gap-2 w-full mb-4">
-            <Button size="sm" className="flex-1" onClick={decrementQty}>-</Button>
+            <Button size="sm" className="flex-1" onClick={decrementQty}>
+              -
+            </Button>
             <span className="font-bold flex-1 py-2 text-center">{quantity}</span>
-            <Button size="sm" className="flex-1" onClick={incrementQty}>+</Button>
+            <Button size="sm" className="flex-1" onClick={incrementQty}>
+              +
+            </Button>
           </div>
         ) : (
           <Button className="w-full group/btn" onClick={handleAddToCart}>
@@ -119,11 +126,9 @@ const ProductCard = ({ id = 1, name, image, price, originalPrice, badge, weight 
             Add to Cart
           </Button>
         )}
-
       </div>
     </Card>
   );
 };
-
 
 export default ProductCard;

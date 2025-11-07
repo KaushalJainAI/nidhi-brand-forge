@@ -20,37 +20,43 @@ import Favorites from "./pages/Favorites";
 import VoiceOrder from "./pages/VoiceOrder";
 import FloatingChatIcon from "./components/FloatingChatIcon";
 import FloatingVoiceButton from "./components/FloatingVoiceButton";
-
+import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+import ScrollToTop from "./functions/ScrollToTop";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/track-order" element={<TrackOrder />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/billing" element={<Billing />} />
-          <Route path="/chat-support" element={<ChatSupport />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/voice-order" element={<VoiceOrder />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <FloatingChatIcon />
-        <FloatingVoiceButton />
-      </BrowserRouter>
+      <CartProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ScrollToTop />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/products/:id" element={<ProductDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/track-order" element={<TrackOrder />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/billing" element={<Billing />} />
+              <Route path="/chat-support" element={<ChatSupport />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/voice-order" element={<VoiceOrder />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <FloatingChatIcon />
+            <FloatingVoiceButton />
+          </BrowserRouter>
+        </AuthProvider>
+      </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

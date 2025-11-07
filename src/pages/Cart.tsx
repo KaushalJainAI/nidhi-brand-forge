@@ -11,30 +11,24 @@ import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
+import { useCart } from "@/context/CartContext";
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart } = useCart();
 
-
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const tax = subtotal * 0.1;
   const total = subtotal + tax;
-
 
   const handleRemoveItem = (name: string) => {
     removeFromCart(name);
     toast.success("Item removed from cart");
   };
 
-
   const handleClearCart = () => {
     cart.forEach(item => removeFromCart(item.name));
     toast.success("Cart cleared");
   };
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
 
   const recommendedProducts = [
     { id: 2, name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, weight: "100g" },
@@ -48,7 +42,6 @@ const Cart = () => {
       <Navbar />
       <div className="container py-8">
         <h1 className="text-4xl font-bold mb-8">Shopping Cart</h1>
-
 
         {cart.length === 0 ? (
           <Card>
@@ -111,7 +104,6 @@ const Cart = () => {
               </Button>
             </div>
 
-
             <div>
               <Card>
                 <CardHeader>
@@ -145,7 +137,7 @@ const Cart = () => {
         )}
 
         {/* People Also Buy Carousel */}
-        {cartItems.length > 0 && (
+        {cart.length > 0 && (
           <section className="mt-16">
             <h2 className="text-3xl font-bold mb-8">People Also Buy</h2>
             <Carousel opts={{ align: "start" }} className="w-full">
@@ -165,6 +157,5 @@ const Cart = () => {
     </>
   );
 };
-
 
 export default Cart;
