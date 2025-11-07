@@ -9,7 +9,7 @@ import product3 from "@/assets/product-3.jpg";
 const Favorites = () => {
   const [favorites] = useState([
     {
-      id: 1,
+      id: "1",
       name: "Garadu Masala",
       image: product1,
       price: 120,
@@ -18,7 +18,7 @@ const Favorites = () => {
       badge: "Best Seller"
     },
     {
-      id: 2,
+      id: "2",
       name: "Kitchen King Masala",
       image: product2,
       price: 135,
@@ -27,7 +27,7 @@ const Favorites = () => {
       badge: "New"
     },
     {
-      id: 3,
+      id: "3",
       name: "Pav Bhaji Masala",
       image: product3,
       price: 125,

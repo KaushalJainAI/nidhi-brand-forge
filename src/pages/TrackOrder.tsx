@@ -1,12 +1,21 @@
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Package, Search } from "lucide-react";
-import { useState } from "react";
 
 const TrackOrder = () => {
+  const [searchParams] = useSearchParams();
   const [orderId, setOrderId] = useState("");
+
+  useEffect(() => {
+    const id = searchParams.get("id");
+    if (id) {
+      setOrderId(id);
+    }
+  }, [searchParams]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

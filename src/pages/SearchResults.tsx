@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
@@ -10,11 +10,12 @@ import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
 import product5 from "@/assets/product-5.jpg";
 
-const Products = () => {
-  const [selectedCategory, setSelectedCategory] = useState("All Products");
+const SearchResults = () => {
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
   const [sortBy, setSortBy] = useState("featured");
 
-  const products = [
+  const allProducts = [
     { id: "1", name: "Garadu Masala", image: product1, price: 120, originalPrice: 150, badge: "Best Seller", weight: "100g" },
     { id: "2", name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, badge: "New", weight: "100g" },
     { id: "3", name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155, weight: "100g" },
@@ -29,13 +30,12 @@ const Products = () => {
     { id: "12", name: "Rajma Masala", image: product2, price: 122, originalPrice: 152, weight: "100g" },
   ];
 
-  const categories = ["All Products", "Blended Masalas", "Whole Spices", "Powdered Spices", "Tea Masala"];
+  // Filter products based on search query
+  const filteredProducts = allProducts.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  // Filter and sort products
-  const filteredProducts = selectedCategory === "All Products" 
-    ? products 
-    : products.filter(p => p.name.toLowerCase().includes(selectedCategory.toLowerCase()));
-
+  // Sort products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
@@ -53,36 +53,23 @@ const Products = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      {/* Hero Banner */}
+      {/* Search Results Header */}
       <section className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Our Premium Products
+            Search Results
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover our complete range of authentic Indian spices and masalas
+          <p className="text-lg text-muted-foreground">
+            {filteredProducts.length} result{filteredProducts.length !== 1 ? 's' : ''} for "{searchQuery}"
           </p>
         </div>
       </section>
 
-      {/* Filters & Products */}
+      {/* Results & Products */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          {/* Filters */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category, index) => (
-                <Button
-                  key={index}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-            
+          {/* Sort */}
+          <div className="flex justify-end items-center mb-8">
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Sort by" />
@@ -97,11 +84,18 @@ const Products = () => {
           </div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {sortedProducts.map((product, index) => (
-              <ProductCard key={index} {...product} />
-            ))}
-          </div>
+          {sortedProducts.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {sortedProducts.map((product) => (
+                <ProductCard key={product.id} {...product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <p className="text-xl text-muted-foreground mb-4">No products found matching your search</p>
+              <p className="text-muted-foreground">Try searching with different keywords</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -110,4 +104,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default SearchResults;

@@ -10,6 +10,12 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
+import SearchResults from "./pages/SearchResults";
+import MyOrders from "./pages/MyOrders";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import ReturnPolicy from "./pages/ReturnPolicy";
+import OrderSuccess from "./pages/OrderSuccess";
+import OfferZone from "./pages/OfferZone";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Billing from "./pages/Billing";
@@ -48,6 +54,12 @@ const App = () => (
               <Route path="/chat-support" element={<ChatSupport />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/voice-order" element={<VoiceOrder />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/shipping-policy" element={<ShippingPolicy />} />
+              <Route path="/return-policy" element={<ReturnPolicy />} />
+              <Route path="/order-success" element={<OrderSuccess />} />
+              <Route path="/offer-zone" element={<OfferZone />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="*" element={<NotFound />} />

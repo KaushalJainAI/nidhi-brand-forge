@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShoppingCart, Heart, Share2, Star } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import ProductCard from "@/components/ProductCard";
 import { toast } from "sonner";
-import { useCart } from "@/context/CartContext"; // Import the useCart hook
+import { useCart } from "@/context/CartContext";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -243,29 +244,52 @@ const ProductDetail = () => {
           </Carousel>
         </section>
 
-        {/* FAQ Section */}
+        {/* FAQ & Reviews Section */}
         <section className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
+          <h2 className="text-3xl font-bold mb-8">FAQs & Reviews</h2>
           
-          <div className="space-y-4 mb-8">
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="font-semibold text-lg mb-2">What is the shelf life of this product?</h3>
-              <p className="text-muted-foreground">Our masalas have a shelf life of 12 months when stored in a cool, dry place away from direct sunlight.</p>
-            </div>
-            
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="font-semibold text-lg mb-2">Is this product organic?</h3>
-              <p className="text-muted-foreground">Yes, all our products are made from 100% organic and natural ingredients without any artificial additives.</p>
-            </div>
-            
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="font-semibold text-lg mb-2">How should I store this masala?</h3>
-              <p className="text-muted-foreground">Store in an airtight container in a cool, dry place. Avoid exposure to moisture and direct sunlight.</p>
-            </div>
+          <Accordion type="single" collapsible className="mb-8">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>What is the shelf life of this product?</AccordionTrigger>
+              <AccordionContent>
+                Our masalas have a shelf life of 12 months when stored in a cool, dry place away from direct sunlight.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2">
+              <AccordionTrigger>Is this product organic?</AccordionTrigger>
+              <AccordionContent>
+                Yes, all our products are made from 100% organic and natural ingredients without any artificial additives.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-3">
+              <AccordionTrigger>How should I store this masala?</AccordionTrigger>
+              <AccordionContent>
+                Store in an airtight container in a cool, dry place. Avoid exposure to moisture and direct sunlight.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-4">
+              <AccordionTrigger>Do you offer bulk orders?</AccordionTrigger>
+              <AccordionContent>
+                Yes, we offer special pricing for bulk orders. Please contact our customer support for more details.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="font-semibold text-lg mb-2">Do you offer bulk orders?</h3>
-              <p className="text-muted-foreground">Yes, we offer special pricing for bulk orders. Please contact our customer support for more details.</p>
+          {/* Reviews */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-6">Customer Reviews</h3>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-card border border-border rounded-lg p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    {[...Array(5)].map((_, index) => (
+                      <Star key={index} className="h-4 w-4 fill-primary text-primary" />
+                    ))}
+                  </div>
+                  <p className="font-semibold mb-1">Great Product!</p>
+                  <p className="text-sm text-muted-foreground">Excellent quality and taste. Highly recommended!</p>
+                </div>
+              ))}
             </div>
           </div>
 

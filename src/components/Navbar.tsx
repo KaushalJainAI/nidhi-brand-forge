@@ -36,7 +36,10 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-lg">NG</span>
+            </div>
             <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Nidhi Grah Udyog
             </div>
@@ -56,8 +59,11 @@ const Navbar = () => {
             <Link to="/contact" className="text-foreground hover:text-primary transition-colors font-medium">
               Contact
             </Link>
-            <Link to="/track-order" className="text-foreground hover:text-primary transition-colors font-medium">
-              Track Order
+            <Link to="/my-orders" className="text-foreground hover:text-primary transition-colors font-medium">
+              My Orders
+            </Link>
+            <Link to="/offer-zone" className="text-foreground hover:text-primary transition-colors font-medium">
+              Offers
             </Link>
           </div>
 

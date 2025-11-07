@@ -14,7 +14,7 @@ import product5 from "@/assets/product-5.jpg";
 
 const featuredProducts = [
   {
-    id: 1,
+    id: "1",
     name: "Garadu Masala",
     image: product1,
     price: 120,
@@ -23,7 +23,7 @@ const featuredProducts = [
     badge: "Best Seller"
   },
   {
-    id: 2,
+    id: "2",
     name: "Kitchen King Masala",
     image: product2,
     price: 135,
@@ -32,7 +32,7 @@ const featuredProducts = [
     badge: "New"
   },
   {
-    id: 3,
+    id: "3",
     name: "Pav Bhaji Masala",
     image: product3,
     price: 125,
@@ -40,7 +40,7 @@ const featuredProducts = [
     weight: "50g"
   },
   {
-    id: 4,
+    id: "4",
     name: "Sambhar Masala",
     image: product4,
     price: 130,
@@ -51,7 +51,7 @@ const featuredProducts = [
 
 const newlyLaunched = [
   {
-    id: 5,
+    id: "5",
     name: "Tea Masala",
     image: product5,
     price: 95,
@@ -60,7 +60,7 @@ const newlyLaunched = [
     badge: "New"
   },
   {
-    id: 6,
+    id: "6",
     name: "Chat Masala",
     image: product1,
     price: 85,
@@ -69,7 +69,7 @@ const newlyLaunched = [
     badge: "New"
   },
   {
-    id: 7,
+    id: "7",
     name: "Tandoori Masala",
     image: product2,
     price: 140,
@@ -78,7 +78,7 @@ const newlyLaunched = [
     badge: "New"
   },
   {
-    id: 8,
+    id: "8",
     name: "Biryani Masala",
     image: product3,
     price: 150,
@@ -90,7 +90,7 @@ const newlyLaunched = [
 
 const combos = [
   {
-    id: 9,
+    id: "9",
     name: "Combo Pack - Kitchen Essentials",
     image: product4,
     price: 399,
@@ -99,7 +99,7 @@ const combos = [
     badge: "Combo"
   },
   {
-    id: 10,
+    id: "10",
     name: "Combo Pack - Premium Masalas",
     image: product5,
     price: 599,
@@ -111,7 +111,7 @@ const combos = [
 
 const specials = [
   {
-    id: 20,
+    id: "20",
     name: "Premium Garam Masala",
     image: product2,
     price: 160,
@@ -120,7 +120,7 @@ const specials = [
     badge: "Our Special"
   },
   {
-    id: 21,
+    id: "21",
     name: "Exotic Biryani Mix",
     image: product4,
     price: 210,
@@ -132,7 +132,7 @@ const specials = [
 
 const recentlyBought = [
   {
-    id: 30,
+    id: "30",
     name: "Chole Masala",
     image: product1,
     price: 99,
@@ -141,7 +141,7 @@ const recentlyBought = [
     badge: "Popular"
   },
   {
-    id: 31,
+    id: "31",
     name: "Paneer Tikka Masala",
     image: product3,
     price: 145,

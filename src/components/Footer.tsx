@@ -59,19 +59,19 @@ const Footer = () => {
             <h4 className="font-semibold text-foreground mb-4">Customer Service</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/track-order" className="text-muted-foreground hover:text-primary transition-colors">
-                  Track Order
+                <Link to="/my-orders" className="text-muted-foreground hover:text-primary transition-colors">
+                  My Orders
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/shipping-policy" className="text-muted-foreground hover:text-primary transition-colors">
                   Shipping Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/return-policy" className="text-muted-foreground hover:text-primary transition-colors">
                   Return Policy
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
