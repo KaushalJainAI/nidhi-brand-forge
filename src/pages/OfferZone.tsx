@@ -1,8 +1,11 @@
+import { useCart } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Minus, Plus, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -10,6 +13,8 @@ import product4 from "@/assets/product-4.jpg";
 import product5 from "@/assets/product-5.jpg";
 
 const OfferZone = () => {
+  const { cart, addToCart, updateQuantity } = useCart();
+
   const offerProducts = [
     { id: "1", name: "Garadu Masala", image: product1, price: 120, originalPrice: 150, badge: "30% OFF", weight: "100g" },
     { id: "2", name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, badge: "20% OFF", weight: "100g" },
@@ -28,7 +33,7 @@ const OfferZone = () => {
       description: "Get 5 masalas at 40% off",
       price: 450,
       originalPrice: 750,
-      badge: "COMBO DEAL"
+      badge: "COMBO DEAL",
     },
     {
       id: "combo-2",
@@ -36,14 +41,13 @@ const OfferZone = () => {
       description: "3 must-have masalas bundle",
       price: 320,
       originalPrice: 450,
-      badge: "BEST VALUE"
+      badge: "BEST VALUE",
     },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary via-accent to-secondary py-20">
         <div className="container mx-auto px-4 text-center">
@@ -79,25 +83,73 @@ const OfferZone = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8 text-center">Combo Offers</h2>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
-            {comboOffers.map((combo) => (
-              <div key={combo.id} className="bg-card border border-border rounded-2xl p-8 hover:shadow-xl transition-shadow">
-                <Badge className="mb-4">{combo.badge}</Badge>
-                <h3 className="text-2xl font-bold text-foreground mb-2">{combo.title}</h3>
-                <p className="text-muted-foreground mb-6">{combo.description}</p>
-                <div className="flex items-baseline gap-3 mb-6">
-                  <span className="text-3xl font-bold text-primary">₹{combo.price}</span>
-                  <span className="text-xl text-muted-foreground line-through">₹{combo.originalPrice}</span>
-                  <Badge variant="secondary">
-                    {Math.round(((combo.originalPrice - combo.price) / combo.originalPrice) * 100)}% OFF
+            {comboOffers.map((combo) => {
+              const itemInCart = cart.find(item => item.id === combo.id);
+              return (
+                <div key={combo.id} className="bg-card border border-border rounded-2xl p-8 hover:shadow-xl transition-shadow flex flex-col h-full">
+                  {/* Badge with small/capped size */}
+                  <Badge className="mb-4 text-xs px-2 py-1 max-w-[100px] truncate text-center">
+                    {combo.badge}
                   </Badge>
+                  <h3 className="text-2xl font-bold text-foreground mb-2">{combo.title}</h3>
+                  <p className="text-muted-foreground mb-6">{combo.description}</p>
+                  <div className="flex items-baseline gap-3 mb-6">
+                    <span className="text-3xl font-bold text-primary">₹{combo.price}</span>
+                    <span className="text-xl text-muted-foreground line-through">₹{combo.originalPrice}</span>
+                    <Badge variant="secondary">
+                      {Math.round(((combo.originalPrice - combo.price) / combo.originalPrice) * 100)}% OFF
+                    </Badge>
+                  </div>
+                  <div className="mt-auto">
+                    {itemInCart ? (
+                      <div className="flex items-center justify-between gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            updateQuantity(combo.title, itemInCart.quantity - 1)
+                          }
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="font-medium text-foreground min-w-[1.5rem] text-center text-base">
+                          {itemInCart.quantity}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            updateQuantity(combo.title, itemInCart.quantity + 1)
+                          }
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={() => {
+                          addToCart({
+                            id: combo.id,
+                            name: combo.title,
+                            image: "",
+                            price: combo.price,
+                            originalPrice: combo.originalPrice,
+                            badge: combo.badge,
+                          });
+                          toast.success("Added to cart");
+                        }}
+                        className="w-full py-3 font-semibold"
+                      >
+                        Add to Cart
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 rounded-lg font-semibold transition-colors">
-                  Add to Cart
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
+          {/* Hot Deals */}
           <h2 className="text-3xl font-bold mb-8 text-center">Hot Deals</h2>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {offerProducts.map((product) => (
@@ -106,7 +158,6 @@ const OfferZone = () => {
           </div>
         </div>
       </section>
-
       <Footer />
     </div>
   );

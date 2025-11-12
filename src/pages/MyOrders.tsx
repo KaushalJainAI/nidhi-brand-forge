@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+// Update these imports with your actual images
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 
@@ -17,7 +18,7 @@ const MyOrders = () => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
 
-  // Mock orders data
+  // Mock orders data with weights
   const orders = [
     {
       id: "ORD-2024-001",
@@ -25,8 +26,8 @@ const MyOrders = () => {
       status: "Delivered",
       total: 450,
       items: [
-        { name: "Garadu Masala", image: product1, quantity: 2, price: 120 },
-        { name: "Kitchen King Masala", image: product2, quantity: 1, price: 135 },
+        { name: "Garadu Masala", image: product1, quantity: 2, price: 120, weight: "100g" },
+        { name: "Kitchen King Masala", image: product2, quantity: 1, price: 135, weight: "200g" },
       ],
     },
     {
@@ -35,21 +36,21 @@ const MyOrders = () => {
       status: "In Transit",
       total: 260,
       items: [
-        { name: "Pav Bhaji Masala", image: product1, quantity: 2, price: 125 },
+        { name: "Pav Bhaji Masala", image: product1, quantity: 2, price: 125, weight: "100g" },
       ],
     },
   ];
 
-  const handleTrackOrder = (orderId: string) => {
+  const handleTrackOrder = (orderId) => {
     navigate(`/track-order?id=${orderId}`);
   };
 
-  const handleReorder = (order: any) => {
+  const handleReorder = (order) => {
     toast.success("Items added to cart");
     // In production, add items to cart
   };
 
-  const handleDownloadBill = (orderId: string) => {
+  const handleDownloadBill = (orderId) => {
     toast.success(`Downloading bill for ${orderId}`);
     // In production, download invoice
   };
@@ -67,7 +68,7 @@ const MyOrders = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 py-20">
         <div className="container mx-auto px-4 text-center">
@@ -115,6 +116,9 @@ const MyOrders = () => {
                             <h4 className="font-medium">{item.name}</h4>
                             <p className="text-sm text-muted-foreground">
                               Quantity: {item.quantity} × ₹{item.price}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Weight: {item.weight}
                             </p>
                           </div>
                         </div>
