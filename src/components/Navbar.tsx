@@ -1,11 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, Search, Menu, X } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,10 +13,8 @@ const Navbar = () => {
   const { cart } = useCart();
   const { isLoggedIn } = useAuth();
 
-
   // Calculate total quantity
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
-
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -26,7 +23,6 @@ const Navbar = () => {
       setIsMenuOpen(false);
     }
   };
-
 
   const handleProfileClick = () => {
     if (isLoggedIn) {
@@ -37,26 +33,24 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
-
   const handleNavClick = () => {
     setIsMenuOpen(false);
   };
 
-
   return (
     <nav className="sticky top-0 z-50 bg-card border-b border-border backdrop-blur-sm">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+        {/* Main Navbar Row */}
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 flex-shrink-0">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">NG</span>
             </div>
-            <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hidden sm:block">
+            <div className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hidden sm:block">
               Nidhi Grah Udyog
             </div>
           </Link>
-
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -80,8 +74,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-
-          {/* Search & Actions - Desktop Only */}
+          {/* Desktop Search & Actions */}
           <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
             <form onSubmit={handleSearch}>
               <div className="relative">
@@ -102,16 +95,14 @@ const Navbar = () => {
               onClick={() => navigate('/favorites')}
               aria-label="Wishlist"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
+              <Heart className="h-5 w-5" />
             </Button>
-
 
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => navigate('/profile')}
+              onClick={handleProfileClick}
+              aria-label="Profile"
             >
               <User className="h-5 w-5" />
             </Button>
@@ -121,6 +112,7 @@ const Navbar = () => {
               size="icon" 
               className="relative"
               onClick={() => navigate('/cart')}
+              aria-label="Cart"
             >
               <ShoppingCart className="h-5 w-5" />
               {totalQuantity > 0 && (
@@ -131,14 +123,32 @@ const Navbar = () => {
             </Button>
           </div>
 
+          {/* Mobile Action Icons */}
+          <div className="md:hidden flex items-center space-x-1">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate('/favorites')}
+              aria-label="Wishlist"
+            >
+              <Heart className="h-5 w-5" />
+            </Button>
 
-          {/* Mobile Menu Button & Action Icons */}
-          <div className="md:hidden flex items-center space-x-2">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={handleProfileClick}
+              aria-label="Profile"
+            >
+              <User className="h-5 w-5" />
+            </Button>
+
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => navigate('/cart')}
               className="relative"
+              aria-label="Cart"
             >
               <ShoppingCart className="h-5 w-5" />
               {totalQuantity > 0 && (
@@ -152,31 +162,28 @@ const Navbar = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Menu"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
 
-
-        {/* Mobile Search - Only when menu is open */}
-        {isMenuOpen && (
-          <div className="py-3 border-t border-border md:hidden">
-            <form onSubmit={handleSearch}>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input 
-                  type="search" 
-                  placeholder="Search products..."
-                  className="pl-10 w-full"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </form>
-          </div>
-        )}
-
+        {/* Mobile Search Bar - Always Visible */}
+        <div className="pb-3 md:hidden">
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input 
+                type="search" 
+                placeholder="Search products..."
+                className="pl-10 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </form>
+        </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
@@ -224,24 +231,6 @@ const Navbar = () => {
               >
                 Offers
               </Link>
-              <div className="border-t border-border pt-4">
-                <button 
-                  onClick={() => {
-                    handleProfileClick();
-                    handleNavClick();
-                  }}
-                  className="text-foreground hover:text-primary transition-colors font-medium text-left w-full"
-                >
-                  Profile
-                </button>
-              </div>
-              <Link 
-                to="/favorites"
-                onClick={handleNavClick}
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Wishlist
-              </Link>
             </div>
           </div>
         )}
@@ -249,6 +238,5 @@ const Navbar = () => {
     </nav>
   );
 };
-
 
 export default Navbar;
