@@ -5,9 +5,9 @@ import { useRef } from "react";
 
 const FloatingVoiceButton = () => {
   const navigate = useNavigate();
-  const pressTimer = useRef<NodeJS.Timeout | null>(null);
+  const pressTimer = useRef(null);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = (e) => {
     if (e.ctrlKey || e.metaKey) {
       navigate("/voice-order", { state: { autoStartMic: true } });
       return;
@@ -36,7 +36,11 @@ const FloatingVoiceButton = () => {
       onMouseUp={handleEnd}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleEnd}
-      className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-40"
+      className="fixed right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-40"
+      style={{
+        // Positioned higher so Chat and Voice buttons don’t overlap footer or each other
+        bottom: 'max(7rem, calc(6rem + env(safe-area-inset-bottom)))'
+      }}
       size="icon"
       aria-label="Voice Order - Click or hold for 500ms"
     >

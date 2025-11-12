@@ -40,3 +40,11 @@
 .read-the-docs {
   color: #888;
 }
+
+@media (max-width: 768px) {
+  footer {
+    padding-bottom: calc(8rem + env(safe-area-inset-bottom));
+  }
+}
+
+
