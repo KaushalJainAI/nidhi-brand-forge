@@ -243,8 +243,6 @@ const Index = () => (
       </section>
     </main>
     <Footer />
-    <MobileFooter />
-
   </div>
 );
 
