@@ -74,7 +74,7 @@ const testimonials = [
 const Index = () => (
   <div className="min-h-screen bg-background flex flex-col">
     <Navbar />
-    <main className="flex-grow pb-20"> {/* pb-20 for space above footer icons */}
+    <main className="flex-grow pb-20">
       <HeroSection />
 
       {/* Newly Launched */}
@@ -247,7 +247,7 @@ const Index = () => (
       </section>
 
       {/* --- Floating Chat Support & Voice Assistant Icons --- */}
-      <div className="fixed right-4 z-50 bottom-24 md:bottom-8 flex flex-col space-y-3">
+      <div className="fixed right-4 z-50 bottom-32 md:bottom-8 flex flex-col space-y-3">
         {/* Chat Support Icon Example */}
         <button
           className="rounded-full bg-primary p-4 text-primary-foreground shadow-lg"
