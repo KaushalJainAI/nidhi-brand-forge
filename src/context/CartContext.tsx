@@ -39,8 +39,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateQuantity = (name: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(name);
+      return;
+    }
     setCart(prev =>
-      prev.map(i => i.name === name ? { ...i, quantity: Math.max(1, quantity) } : i)
+      prev.map(i => i.name === name ? { ...i, quantity } : i)
     );
   };
 
