@@ -5,15 +5,13 @@ import ProductCard from "@/components/ProductCard";
 import MobileFooter from "@/components/MobileFooter";
 import VideoStorySection from "@/components/VideoStorySection";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Truck, Shield, Clock, Award, Mic } from "lucide-react";
+import { ArrowRight, Truck, Shield, Clock, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
 import product5 from "@/assets/product-5.jpg";
-
-// --- DATA ARRAYS ---
 
 const featuredProducts = [
   { id: "1", name: "Garadu Masala", image: product1, price: 120, originalPrice: 150, weight: "100g", badge: "Best Seller" },
@@ -69,12 +67,10 @@ const testimonials = [
   { name: "Anita Patel", review: "Best masalas I've ever used. Will definitely order again!", rating: 5 }
 ];
 
-// --- MAIN COMPONENT ---
-
 const Index = () => (
   <div className="min-h-screen bg-background flex flex-col">
     <Navbar />
-    <main className="flex-grow pb-20">
+    <main className="flex-grow">
       <HeroSection />
 
       {/* Newly Launched */}
@@ -245,24 +241,6 @@ const Index = () => (
           </Button>
         </div>
       </section>
-
-      {/* --- Floating Chat Support & Voice Assistant Icons --- */}
-      <div className="fixed right-4 z-50 bottom-32 md:bottom-8 flex flex-col space-y-3">
-        {/* Chat Support Icon Example */}
-        <button
-          className="rounded-full bg-primary p-4 text-primary-foreground shadow-lg"
-          aria-label="Chat Support"
-        >
-          💬
-        </button>
-        {/* Voice Assistant Icon Example */}
-        <button
-          className="rounded-full bg-accent p-4 text-accent-foreground shadow-lg"
-          aria-label="Voice Assistant"
-        >
-          <Mic className="h-6 w-6" />
-        </button>
-      </div>
     </main>
     <Footer />
   </div>
