@@ -9,17 +9,17 @@ const FloatingVoiceButton = () => {
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.ctrlKey || e.metaKey) {
-      navigate("/voice-order");
+      navigate("/voice-order", { state: { autoStartMic: true } });
       return;
     }
     pressTimer.current = setTimeout(() => {
-      navigate("/voice-order");
+      navigate("/voice-order", { state: { autoStartMic: true } });
     }, 500);
   };
 
   const handleTouchStart = () => {
     pressTimer.current = setTimeout(() => {
-      navigate("/voice-order");
+      navigate("/voice-order", { state: { autoStartMic: true } });
     }, 500);
   };
 

@@ -19,7 +19,8 @@ const Navbar = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/products?search=${searchQuery}`);
+      navigate(`/search?q=${searchQuery}`);
+      setSearchQuery("");
       setIsMenuOpen(false);
     }
   };

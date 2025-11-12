@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Send, Mic, MicOff } from "lucide-react";
 
 const VoiceOrder = () => {
+  const location = useLocation();
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -15,6 +17,12 @@ const VoiceOrder = () => {
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.autoStartMic) {
+      toggleVoiceInput();
+    }
+  }, [location.state]);
 
   const handleSendMessage = () => {
     if (inputMessage.trim()) {

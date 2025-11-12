@@ -28,6 +28,7 @@ import FloatingChatIcon from "./components/FloatingChatIcon";
 import FloatingVoiceButton from "./components/FloatingVoiceButton";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import { FavoritesProvider } from "./context/FavoritesContext";
 import ScrollToTop from "./functions/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -36,11 +37,12 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <CartProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
+        <FavoritesProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/products" element={<Products />} />
@@ -67,7 +69,8 @@ const App = () => (
             <FloatingChatIcon />
             <FloatingVoiceButton />
           </BrowserRouter>
-        </AuthProvider>
+          </AuthProvider>
+        </FavoritesProvider>
       </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>

@@ -79,7 +79,7 @@ const Index = () => (
             <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1">Newly Launched</h2>
             <p className="text-xs sm:text-base text-muted-foreground">Fresh arrivals for your kitchen</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6">
             {newlyLaunched.map(product => <ProductCard key={product.id} {...product} />)}
           </div>
         </div>
@@ -94,7 +94,7 @@ const Index = () => (
               Discover what makes us unique with our curated specialty masalas and blends!
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6 mb-6">
             {specials.map(product => <ProductCard key={product.id} {...product} />)}
           </div>
         </div>
@@ -123,7 +123,7 @@ const Index = () => (
               </Link>
             </Button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6">
             {featuredProducts.map(product => <ProductCard key={product.id} {...product} />)}
           </div>
         </div>
@@ -151,7 +151,7 @@ const Index = () => (
             <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1">Recently Bought</h2>
             <p className="text-xs sm:text-base text-muted-foreground">Hot off the shelf — just bought by other foodies!</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6">
             {recentlyBought.map(product => <ProductCard key={product.id} {...product} />)}
           </div>
         </div>
@@ -166,15 +166,15 @@ const Index = () => (
               Explore our wide range of authentic Indian spices and masalas
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-6">
             {categories.map((category, index) => (
               <Link
                 key={index}
                 to="/products"
-                className="group relative overflow-hidden rounded-xl bg-card border border-border p-8 text-center hover:shadow-xl transition-all duration-300"
+                className="group relative overflow-hidden rounded-lg sm:rounded-xl bg-card border border-border p-3 sm:p-8 text-center hover:shadow-xl transition-all duration-300"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <h3 className="relative font-semibold text-foreground group-hover:text-primary transition-colors">
+                <h3 className="relative font-semibold text-xs sm:text-base text-foreground group-hover:text-primary transition-colors">
                   {category}
                 </h3>
               </Link>
@@ -194,7 +194,7 @@ const Index = () => (
               Save more with our specially curated combo packs
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-8 max-w-4xl mx-auto">
             {combos.map(product => <ProductCard key={product.id} {...product} />)}
           </div>
         </div>

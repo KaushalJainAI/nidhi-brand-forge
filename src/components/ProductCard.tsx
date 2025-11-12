@@ -1,9 +1,11 @@
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart } from "lucide-react";
-import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Minus, Plus, Heart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
 
 interface ProductCardProps {
   id?: string;
@@ -15,23 +17,11 @@ interface ProductCardProps {
   weight?: string;
 }
 
-const ProductCard = ({
-  id = "1",
-  name,
-  image,
-  price,
-  originalPrice,
-  badge,
-  weight,
-}: ProductCardProps) => {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
+const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weight = "100g" }: ProductCardProps) => {
+  const { cart, addToCart, updateQuantity } = useCart();
+  const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
 
-  const cartItem = cart.find((item) => item.name === name);
-  const quantity = cartItem?.quantity || 0;
-  const discount = originalPrice
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
-    : 0;
+  const itemInCart = cart.find(item => item.name === name);
 
   const handleAddToCart = () => {
     addToCart({
@@ -42,87 +32,90 @@ const ProductCard = ({
       originalPrice,
       badge,
     });
+    toast.success("Added to cart");
   };
 
-  const incrementQty = () => {
-    updateQuantity(name, quantity + 1);
-  };
-
-  const decrementQty = () => {
-    if (quantity > 1) {
-      updateQuantity(name, quantity - 1);
-    } else {
-      removeFromCart(name);
-    }
+  const handleToggleFavorite = () => {
+    toggleFavorite({ id, name, image, price, originalPrice, badge, weight });
+    toast.success(checkIsFavorite(id) ? "Removed from favorites" : "Added to favorites");
   };
 
   return (
-    <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl border-border">
-      {/* Badge */}
-      {badge && (
-        <div className="absolute top-4 left-4 z-10 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">
-          {badge}
-        </div>
-      )}
-      {/* Discount Badge */}
-      {discount > 0 && (
-        <div className="absolute top-4 right-4 z-10 bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-xs font-semibold">
-          {discount}% OFF
-        </div>
-      )}
-      {/* Favorite Button */}
-      <button
-        onClick={() => setIsFavorite(!isFavorite)}
-        className="absolute top-12 right-4 z-10 bg-card/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <Heart
-          className={`h-5 w-5 ${
-            isFavorite ? "fill-primary text-primary" : "text-muted-foreground"
-          }`}
-        />
-      </button>
-      {/* Product Image and Link */}
-      <Link to={`/products/${id}`}>
-        <div className="relative overflow-hidden bg-muted cursor-pointer">
-          <img
-            src={image}
-            alt={name}
-            className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
-          />
-        </div>
-      </Link>
-      {/* Content */}
-      <div className="p-6">
-        <Link to={`/products/${id}`}>
-          <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2 hover:text-primary transition-colors cursor-pointer">
-            {name}
-          </h3>
-        </Link>
-        <p className="text-sm text-muted-foreground mb-2">
-          Weight: {weight || "100g"}
-        </p>
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-2xl font-bold text-primary">₹{price}</span>
-          {originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">
-              ₹{originalPrice}
-            </span>
-          )}
-        </div>
-        {/* Quantity Controls - Show if item is in cart */}
-        {cartItem ? (
-          <div className="flex items-center justify-center gap-2 w-full mb-4">
-            <Button size="sm" className="flex-1" onClick={decrementQty}>
-              -
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow group flex flex-col h-full">
+      <Link to={`/products/${id}`} className="flex-grow flex flex-col">
+        <CardContent className="p-0 flex flex-col h-full">
+          <div className="relative">
+            <img
+              src={image}
+              alt={name}
+              className="w-full h-32 sm:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+            {badge && (
+              <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-accent text-accent-foreground text-[10px] sm:text-xs px-1 sm:px-2">
+                {badge}
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`absolute top-1 sm:top-2 right-1 sm:right-2 h-7 w-7 sm:h-9 sm:w-9 bg-background/80 backdrop-blur-sm hover:bg-background ${
+                checkIsFavorite(id) ? "text-red-500" : "text-muted-foreground"
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                handleToggleFavorite();
+              }}
+            >
+              <Heart className={`h-3 w-3 sm:h-4 sm:w-4 ${checkIsFavorite(id) ? "fill-current" : ""}`} />
             </Button>
-            <span className="font-bold flex-1 py-2 text-center">{quantity}</span>
-            <Button size="sm" className="flex-1" onClick={incrementQty}>
-              +
+          </div>
+          <div className="p-2 sm:p-4 flex-grow flex flex-col">
+            <h3 className="font-semibold text-foreground mb-1 sm:mb-2 line-clamp-2 text-xs sm:text-base flex-grow">
+              {name}
+            </h3>
+            <div className="mt-auto">
+              <div className="flex items-center gap-1 sm:gap-2 mb-2">
+                <span className="text-sm sm:text-lg font-bold text-primary">₹{price}</span>
+                {originalPrice && (
+                  <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                    ₹{originalPrice}
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-2">{weight}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Link>
+      <div className="px-2 sm:px-4 pb-2 sm:pb-4 mt-auto">
+        {itemInCart ? (
+          <div className="flex items-center justify-between gap-1 sm:gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => updateQuantity(name, itemInCart.quantity - 1)}
+              className="h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
+            >
+              <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
+            </Button>
+            <span className="font-medium text-foreground min-w-[1.5rem] sm:min-w-[2rem] text-center text-xs sm:text-base">
+              {itemInCart.quantity}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => updateQuantity(name, itemInCart.quantity + 1)}
+              className="h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
+            >
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         ) : (
-          <Button className="w-full group/btn" onClick={handleAddToCart}>
-            <ShoppingCart className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
+          <Button
+            onClick={handleAddToCart}
+            className="w-full h-7 sm:h-9 text-xs sm:text-sm"
+            size="sm"
+          >
             Add to Cart
           </Button>
         )}

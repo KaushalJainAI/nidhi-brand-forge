@@ -65,10 +65,11 @@ const Cart = () => {
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{item.name}</h3>
-                      <p className="text-primary font-bold">${item.price}</p>
+                      <p className="text-xs text-muted-foreground mb-1">Weight: {(item as any).weight || "100g"}</p>
+                      <p className="text-primary font-bold">₹{item.price}</p>
                       {item.originalPrice && (
                         <p className="text-sm text-muted-foreground line-through">
-                          ${item.originalPrice}
+                          ₹{item.originalPrice}
                         </p>
                       )}
                     </div>
@@ -112,16 +113,16 @@ const Cart = () => {
                 <CardContent className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                    <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Tax (10%)</span>
-                    <span className="font-semibold">${tax.toFixed(2)}</span>
+                    <span className="font-semibold">₹{tax.toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between text-lg">
                     <span className="font-bold">Total</span>
-                    <span className="font-bold text-primary">${total.toFixed(2)}</span>
+                    <span className="font-bold text-primary">₹{total.toFixed(2)}</span>
                   </div>
                 </CardContent>
                 <CardFooter>

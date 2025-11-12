@@ -1,40 +1,10 @@
-import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
+import { useFavorites } from "@/context/FavoritesContext";
 
 const Favorites = () => {
-  const [favorites] = useState([
-    {
-      id: "1",
-      name: "Garadu Masala",
-      image: product1,
-      price: 120,
-      originalPrice: 150,
-      weight: "100g",
-      badge: "Best Seller"
-    },
-    {
-      id: "2",
-      name: "Kitchen King Masala",
-      image: product2,
-      price: 135,
-      originalPrice: 170,
-      weight: "100g",
-      badge: "New"
-    },
-    {
-      id: "3",
-      name: "Pav Bhaji Masala",
-      image: product3,
-      price: 125,
-      originalPrice: 155,
-      weight: "50g"
-    }
-  ]);
+  const { favorites } = useFavorites();
 
   return (
     <div className="min-h-screen bg-background">
@@ -46,7 +16,7 @@ const Favorites = () => {
         </h1>
         
         {favorites.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-6">
             {favorites.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}

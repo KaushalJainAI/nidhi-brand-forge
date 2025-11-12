@@ -32,9 +32,10 @@ const Profile = () => {
       <Navbar />
       <div className="container py-8">
         <Tabs defaultValue="profile" className="max-w-3xl mx-auto">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="payment">Payment</TabsTrigger>
           </TabsList>
           <TabsContent value="profile">
             <Card>
@@ -118,6 +119,26 @@ const Profile = () => {
                   <Input id="confirmNewPassword" type="password" />
                 </div>
                 <Button>Change Password</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="payment">
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Information</CardTitle>
+                <CardDescription>
+                  Manage your saved payment methods
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="border rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="font-semibold">Visa ending in 1111</p>
+                    <Button variant="outline" size="sm">Remove</Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">Expires 12/25</p>
+                </div>
+                <Button variant="outline" className="w-full">Add New Payment Method</Button>
               </CardContent>
             </Card>
           </TabsContent>
