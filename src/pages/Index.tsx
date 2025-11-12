@@ -149,6 +149,15 @@ const recentlyBought = [
     weight: "100g",
     badge: "Trending"
   },
+  {
+    id: "32",
+    name: "Paneer Tikka Masala",
+    image: product2,
+    price: 145,
+    originalPrice: 170,
+    weight: "100g",
+    badge: "Trending"
+  },
 ];
 
 const features = [
@@ -211,13 +220,13 @@ const Index = () => (
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          <div className="bg-card rounded-xl p-8 text-center border border-border">
+          {/* <div className="bg-card rounded-xl p-8 text-center border border-border">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Shield className="h-8 w-8 text-primary" />
             </div>
             <h3 className="font-semibold text-lg mb-2">100% Pure</h3>
             <p className="text-muted-foreground">No artificial colors or preservatives</p>
-          </div>
+          </div> */}
           {specials.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
