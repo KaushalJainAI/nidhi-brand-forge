@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import ProductCard from "@/components/ProductCard";
+import MobileFooter from "@/components/MobileFooter";
 import VideoStorySection from "@/components/VideoStorySection";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Clock, Award } from "lucide-react";
@@ -242,6 +243,8 @@ const Index = () => (
       </section>
     </main>
     <Footer />
+    <MobileFooter />
+
   </div>
 );
 
