@@ -14,16 +14,44 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      toast.success("Login successful!");
-      navigate("/");
+    try {
+      const response = await fetch("http://localhost:8000/api/auth/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.access) {
+        // Save token (access and optionally refresh) in localStorage/sessionStorage
+        localStorage.setItem("accessToken", data.access);
+        localStorage.setItem("refreshToken", data.refresh);
+        toast.success("Login successful!");
+        navigate("/");
+      } else {
+        // API error message handling
+        if (data.detail) {
+          toast.error(data.detail); // e.g. "No active account found with the given credentials"
+        } else if (data.error) {
+          toast.error(data.error);
+        } else {
+          toast.error("Login failed. Please check your credentials.");
+        }
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Network error. Please check your connection.");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -47,7 +75,7 @@ const Login = () => {
                     type="email"
                     placeholder="name@example.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={e => setEmail(e.target.value)}
                     required
                     className="border-border"
                   />
@@ -58,7 +86,7 @@ const Login = () => {
                     id="password"
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={e => setPassword(e.target.value)}
                     required
                     className="border-border"
                   />
