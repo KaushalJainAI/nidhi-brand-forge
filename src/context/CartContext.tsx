@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { cartAPI } from "@/lib/api";
 
 interface CartItem {
   id: string;
@@ -15,6 +16,7 @@ interface CartContextType {
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   updateQuantity: (name: string, quantity: number) => void;
   removeFromCart: (name: string) => void;
+  syncCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -27,6 +29,47 @@ export const useCart = () => {
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+
+  // Fetch cart from backend on mount
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const data = await cartAPI.get();
+        if (data && Array.isArray(data)) {
+          setCart(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch cart:", error);
+      }
+    };
+
+    fetchCart();
+  }, []);
+
+  // Sync cart to backend on unmount
+  useEffect(() => {
+    const syncOnUnload = async () => {
+      try {
+        await cartAPI.sync(cart);
+      } catch (error) {
+        console.error("Failed to sync cart:", error);
+      }
+    };
+
+    window.addEventListener("beforeunload", syncOnUnload);
+    return () => {
+      window.removeEventListener("beforeunload", syncOnUnload);
+      syncOnUnload();
+    };
+  }, [cart]);
+
+  const syncCart = async () => {
+    try {
+      await cartAPI.sync(cart);
+    } catch (error) {
+      console.error("Failed to sync cart:", error);
+    }
+  };
 
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCart(prev => {
@@ -53,7 +96,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart }}>
+    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart, syncCart }}>
       {children}
     </CartContext.Provider>
   );

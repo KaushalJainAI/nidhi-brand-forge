@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-// Update these imports with your actual images
+import { ordersAPI } from "@/lib/api";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 
@@ -17,9 +17,11 @@ const MyOrders = () => {
   const navigate = useNavigate();
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock orders data with weights
-  const orders = [
+  // Dummy orders data as fallback
+  const dummyOrders = [
     {
       id: "ORD-2024-001",
       date: "2024-01-15",
@@ -41,18 +43,39 @@ const MyOrders = () => {
     },
   ];
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const data = await ordersAPI.getAll();
+        if (data && Array.isArray(data) && data.length > 0) {
+          setOrders(data);
+        } else {
+          // Use dummy data if no orders from backend
+          setOrders(dummyOrders);
+        }
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+        // Use dummy data on error
+        setOrders(dummyOrders);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
   const handleTrackOrder = (orderId) => {
     navigate(`/track-order?id=${orderId}`);
   };
 
   const handleReorder = (order) => {
     toast.success("Items added to cart");
-    // In production, add items to cart
   };
 
   const handleDownloadBill = (orderId) => {
     toast.success(`Downloading bill for ${orderId}`);
-    // In production, download invoice
   };
 
   const handleSubmitReview = () => {
