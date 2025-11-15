@@ -6,6 +6,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 const Favorites = () => {
   const { favorites } = useFavorites();
 
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />

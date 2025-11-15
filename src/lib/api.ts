@@ -34,29 +34,65 @@ export const categoriesAPI = {
   getAll: () => authFetch(`${API_BASE_URL}/categories/`),
 };
 
-// Cart API
 export const cartAPI = {
-  get: () => authFetch(`${API_BASE_URL}/cart/`),
-  add: (productId: string, quantity: number) =>
-    authFetch(`${API_BASE_URL}/cart/`, {
-      method: "POST",
-      body: JSON.stringify({ product_id: productId, quantity }),
-    }),
-  update: (itemId: string, quantity: number) =>
-    authFetch(`${API_BASE_URL}/cart/${itemId}/`, {
-      method: "PATCH",
-      body: JSON.stringify({ quantity }),
-    }),
-  remove: (itemId: string) =>
-    authFetch(`${API_BASE_URL}/cart/${itemId}/`, {
-      method: "DELETE",
-    }),
-  sync: (cartItems: any[]) =>
-    authFetch(`${API_BASE_URL}/cart/sync/`, {
-      method: "POST",
-      body: JSON.stringify({ items: cartItems }),
-    }),
+  get: async () => {
+    const response = await fetch(`${API_BASE_URL}/cart/`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+      },
+    });
+    return response.json();
+  },
+
+  addItem: async (data: { id: string; quantity: number }) => {
+    const response = await fetch(`${API_BASE_URL}/cart/add_item/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ product_id: data.id, quantity: data.quantity }),
+    });
+    return response.json();
+  },
+
+  updateItem: async (data: { id: string; quantity: number }) => {
+    const response = await fetch(`${API_BASE_URL}/cart/update_item/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ product_id: data.id, quantity: data.quantity }),
+    });
+    return response.json();
+  },
+
+  removeItem: async (data: { id: string }) => {
+    const response = await fetch(`${API_BASE_URL}/cart/remove_item/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ product_id: data.id }),
+    });
+    return response.json();
+  },
+
+  sync: async (items: any[]) => {
+    const response = await fetch(`${API_BASE_URL}/cart/sync/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ items }),
+    });
+    return response.json();
+  },
 };
+
 
 // Orders API
 export const ordersAPI = {

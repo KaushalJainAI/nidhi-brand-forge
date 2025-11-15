@@ -14,8 +14,8 @@ interface CartItem {
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => void;
-  updateQuantity: (name: string, quantity: number) => void;
-  removeFromCart: (name: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
+  removeFromCart: (id: string) => void;
   syncCart: () => Promise<void>;
 }
 
@@ -29,6 +29,7 @@ export const useCart = () => {
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Fetch cart from backend on mount
   useEffect(() => {
@@ -46,53 +47,101 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchCart();
   }, []);
 
-  // Sync cart to backend on unmount
+  // Debounced sync to backend
   useEffect(() => {
-    const syncOnUnload = async () => {
-      try {
-        await cartAPI.sync(cart);
-      } catch (error) {
-        console.error("Failed to sync cart:", error);
+    if (isSyncing || cart.length === 0) return;
+
+    const timeoutId = setTimeout(async () => {
+      await syncCart();
+    }, 1000); // Sync 1 second after last change
+
+    return () => clearTimeout(timeoutId);
+  }, [cart]);
+
+  // Sync cart on page unload
+  useEffect(() => {
+    const syncOnUnload = () => {
+      const token = localStorage.getItem('access_token');
+      if (token && cart.length > 0) {
+        const blob = new Blob([JSON.stringify({ items: cart })], { type: 'application/json' });
+        navigator.sendBeacon(`${import.meta.env.VITE_API_URL}/api/cart/sync/`, blob);
       }
     };
 
     window.addEventListener("beforeunload", syncOnUnload);
-    return () => {
-      window.removeEventListener("beforeunload", syncOnUnload);
-      syncOnUnload();
-    };
+    return () => window.removeEventListener("beforeunload", syncOnUnload);
   }, [cart]);
 
   const syncCart = async () => {
+    if (cart.length === 0) return;
+    
+    setIsSyncing(true);
     try {
       await cartAPI.sync(cart);
     } catch (error) {
       console.error("Failed to sync cart:", error);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
-  const addToCart = (item: Omit<CartItem, "quantity">) => {
+  const addToCart = async (item: Omit<CartItem, "quantity">) => {
+    // Optimistic update
     setCart(prev => {
-      const existing = prev.find(i => i.name === item.name);
+      const existing = prev.find(i => i.id === item.id);
       if (existing) {
-        return prev.map(i => i.name === item.name ? { ...i, quantity: i.quantity + 1 } : i);
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
       }
       return [...prev, { ...item, quantity: 1 }];
     });
+
+    // Sync with backend
+    try {
+      await cartAPI.addItem({ id: item.id, quantity: 1 });
+    } catch (error) {
+      console.error("Failed to add item:", error);
+      // Revert on error
+      setCart(prev => prev.filter(i => i.id !== item.id));
+    }
   };
 
-  const updateQuantity = (name: string, quantity: number) => {
+  const updateQuantity = async (id: string, quantity: number) => {
+    const oldCart = [...cart];
+    
+    // Optimistic update
     if (quantity <= 0) {
-      removeFromCart(name);
+      removeFromCart(id);
       return;
     }
+    
     setCart(prev =>
-      prev.map(i => i.name === name ? { ...i, quantity } : i)
+      prev.map(i => i.id === id ? { ...i, quantity } : i)
     );
+
+    // Sync with backend
+    try {
+      await cartAPI.updateItem({ id, quantity });
+    } catch (error) {
+      console.error("Failed to update quantity:", error);
+      // Revert on error
+      setCart(oldCart);
+    }
   };
 
-  const removeFromCart = (name: string) => {
-    setCart(prev => prev.filter(i => i.name !== name));
+  const removeFromCart = async (id: string) => {
+    const oldCart = [...cart];
+    
+    // Optimistic update
+    setCart(prev => prev.filter(i => i.id !== id));
+
+    // Sync with backend
+    try {
+      await cartAPI.removeItem({ id });
+    } catch (error) {
+      console.error("Failed to remove item:", error);
+      // Revert on error
+      setCart(oldCart);
+    }
   };
 
   return (

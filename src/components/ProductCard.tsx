@@ -5,7 +5,10 @@ import { Minus, Plus, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+
 
 interface ProductCardProps {
   id?: string;
@@ -18,12 +21,20 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weight = "100g" }: ProductCardProps) => {
+  const { isLoggedIn } = useAuth();
   const { cart, addToCart, updateQuantity } = useCart();
   const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
+  const navigate = useNavigate();
 
   const itemInCart = cart.find(item => item.name === name);
 
+
   const handleAddToCart = () => {
+    if (!isLoggedIn) {
+      window.alert("You need to log in to add items to your cart."); // show alert
+      navigate('/login', { state: { from: '/cart' } });
+      return;
+    }
     addToCart({
       id,
       name,
