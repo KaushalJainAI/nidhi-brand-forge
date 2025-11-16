@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { cartAPI } from "@/lib/api";
 
 interface CartItem {
   id: string;
@@ -16,7 +15,7 @@ interface CartContextType {
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   updateQuantity: (id: string, quantity: number) => void;
   removeFromCart: (id: string) => void;
-  syncCart: () => Promise<void>;
+  clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -27,66 +26,21 @@ export const useCart = () => {
   return context;
 };
 
+const CART_STORAGE_KEY = "shopping_cart";
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    // Load cart from localStorage on initialization
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
 
-  // Fetch cart from backend on mount
+  // Save cart to localStorage whenever it changes
   useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const data = await cartAPI.get();
-        if (data && Array.isArray(data)) {
-          setCart(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch cart:", error);
-      }
-    };
-
-    fetchCart();
-  }, []);
-
-  // Debounced sync to backend
-  useEffect(() => {
-    if (isSyncing || cart.length === 0) return;
-
-    const timeoutId = setTimeout(async () => {
-      await syncCart();
-    }, 1000); // Sync 1 second after last change
-
-    return () => clearTimeout(timeoutId);
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
   }, [cart]);
 
-  // Sync cart on page unload
-  useEffect(() => {
-    const syncOnUnload = () => {
-      const token = localStorage.getItem('access_token');
-      if (token && cart.length > 0) {
-        const blob = new Blob([JSON.stringify({ items: cart })], { type: 'application/json' });
-        navigator.sendBeacon(`${import.meta.env.VITE_API_URL}/api/cart/sync/`, blob);
-      }
-    };
-
-    window.addEventListener("beforeunload", syncOnUnload);
-    return () => window.removeEventListener("beforeunload", syncOnUnload);
-  }, [cart]);
-
-  const syncCart = async () => {
-    if (cart.length === 0) return;
-    
-    setIsSyncing(true);
-    try {
-      await cartAPI.sync(cart);
-    } catch (error) {
-      console.error("Failed to sync cart:", error);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const addToCart = async (item: Omit<CartItem, "quantity">) => {
-    // Optimistic update
+  const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
@@ -94,21 +48,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return [...prev, { ...item, quantity: 1 }];
     });
-
-    // Sync with backend
-    try {
-      await cartAPI.addItem({ id: item.id, quantity: 1 });
-    } catch (error) {
-      console.error("Failed to add item:", error);
-      // Revert on error
-      setCart(prev => prev.filter(i => i.id !== item.id));
-    }
   };
 
-  const updateQuantity = async (id: string, quantity: number) => {
-    const oldCart = [...cart];
-    
-    // Optimistic update
+  const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;
@@ -117,35 +59,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCart(prev =>
       prev.map(i => i.id === id ? { ...i, quantity } : i)
     );
-
-    // Sync with backend
-    try {
-      await cartAPI.updateItem({ id, quantity });
-    } catch (error) {
-      console.error("Failed to update quantity:", error);
-      // Revert on error
-      setCart(oldCart);
-    }
   };
 
-  const removeFromCart = async (id: string) => {
-    const oldCart = [...cart];
-    
-    // Optimistic update
+  const removeFromCart = (id: string) => {
     setCart(prev => prev.filter(i => i.id !== id));
+  };
 
-    // Sync with backend
-    try {
-      await cartAPI.removeItem({ id });
-    } catch (error) {
-      console.error("Failed to remove item:", error);
-      // Revert on error
-      setCart(oldCart);
-    }
+  const clearCart = () => {
+    setCart([]);
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart, syncCart }}>
+    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );

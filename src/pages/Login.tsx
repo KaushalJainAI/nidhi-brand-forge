@@ -1,54 +1,38 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext"; // import your Auth context hook
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
 
-const Login = () => {
+const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth(); // context login function
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  // Handles login with context (see context code from previous answer)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
+    // Use context login and show feedback
     try {
-      const response = await fetch("http://localhost:8000/api/auth/login/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email,
-          password: password
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.access) {
-        // Save token (access and optionally refresh) in localStorage/sessionStorage
-        localStorage.setItem("accessToken", data.access);
-        localStorage.setItem("refreshToken", data.refresh);
+      const success = await login(email, password);
+      if (success) {
         toast.success("Login successful!");
-        navigate("/");
+        navigate("/"); // or redirect where you want
       } else {
-        // API error message handling
-        if (data.detail) {
-          toast.error(data.detail); // e.g. "No active account found with the given credentials"
-        } else if (data.error) {
-          toast.error(data.error);
-        } else {
-          toast.error("Login failed. Please check your credentials.");
-        }
+        toast.error("Login failed. Please check your credentials.");
       }
     } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Network error. Please check your connection.");
+      toast.error("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -93,9 +77,9 @@ const Login = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col space-y-4">
-                <Button 
-                  type="submit" 
-                  className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity" 
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
                   disabled={isLoading}
                 >
                   {isLoading ? "Logging in..." : "Login"}

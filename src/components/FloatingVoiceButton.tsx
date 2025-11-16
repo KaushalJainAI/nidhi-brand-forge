@@ -38,8 +38,8 @@ const FloatingVoiceButton = () => {
       onTouchEnd={handleEnd}
       className="fixed right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-40"
       style={{
-        // Positioned higher so Chat and Voice buttons don’t overlap footer or each other
-        bottom: 'max(7rem, calc(6rem + env(safe-area-inset-bottom)))'
+        // Move higher on mobile devices
+        bottom: 'max(12rem, calc(11rem + env(safe-area-inset-bottom)))'
       }}
       size="icon"
       aria-label="Voice Order - Click or hold for 500ms"

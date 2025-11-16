@@ -15,8 +15,6 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 
-
-
 const Cart = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -28,20 +26,19 @@ const Cart = () => {
     }
   }, [isLoggedIn, navigate]);
 
-
-  const { cart, updateQuantity, removeFromCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const tax = subtotal * 0.1;
   const total = subtotal + tax;
 
-  const handleRemoveItem = (name: string) => {
-    removeFromCart(name);
+  const handleRemoveItem = (id: string) => {
+    removeFromCart(id);
     toast.success("Item removed from cart");
   };
 
   const handleClearCart = () => {
-    cart.forEach(item => removeFromCart(item.name));
+    clearCart();
     toast.success("Cart cleared");
   };
 
@@ -71,7 +68,7 @@ const Cart = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
               {cart.map((item) => (
-                <Card key={item.name}>
+                <Card key={item.id}>
                   <CardContent className="flex items-center gap-4 p-6">
                     <img
                       src={item.image}
@@ -92,7 +89,7 @@ const Cart = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.name, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       >
                         -
                       </Button>
@@ -100,7 +97,7 @@ const Cart = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.name, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       >
                         +
                       </Button>
@@ -108,7 +105,7 @@ const Cart = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleRemoveItem(item.name)}
+                      onClick={() => handleRemoveItem(item.id)}
                     >
                       <Trash2 className="h-5 w-5 text-destructive" />
                     </Button>

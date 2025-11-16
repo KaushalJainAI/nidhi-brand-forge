@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { useAuth } from "@/context/AuthContext"; // UPDATE this import path as required for your project
 
 const Profile = () => {
   const [profile, setProfile] = useState({
@@ -16,11 +18,11 @@ const Profile = () => {
     address: "123 Main St, City, State 12345",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { logout } = useAuth();
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
     setTimeout(() => {
       toast.success("Profile updated successfully!");
       setIsLoading(false);
@@ -53,7 +55,9 @@ const Profile = () => {
                       <Input
                         id="firstName"
                         value={profile.firstName}
-                        onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
+                        onChange={(e) =>
+                          setProfile({ ...profile, firstName: e.target.value })
+                        }
                       />
                     </div>
                     <div className="space-y-2">
@@ -61,7 +65,9 @@ const Profile = () => {
                       <Input
                         id="lastName"
                         value={profile.lastName}
-                        onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+                        onChange={(e) =>
+                          setProfile({ ...profile, lastName: e.target.value })
+                        }
                       />
                     </div>
                   </div>
@@ -71,7 +77,9 @@ const Profile = () => {
                       id="email"
                       type="email"
                       value={profile.email}
-                      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, email: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -79,7 +87,9 @@ const Profile = () => {
                     <Input
                       id="phone"
                       value={profile.phone}
-                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, phone: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -87,12 +97,28 @@ const Profile = () => {
                     <Input
                       id="address"
                       value={profile.address}
-                      onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, address: e.target.value })
+                      }
                     />
                   </div>
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Updating..." : "Update Profile"}
-                  </Button>
+                  <div className="flex gap-4">
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-1/2 h-12"
+                    >
+                      {isLoading ? "Updating..." : "Update Profile"}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      type="button"
+                      onClick={logout}
+                      className="w-1/2 h-12"
+                    >
+                      Logout
+                    </Button>
+                  </div>
                 </form>
               </CardContent>
             </Card>
@@ -138,12 +164,15 @@ const Profile = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">Expires 12/25</p>
                 </div>
-                <Button variant="outline" className="w-full">Add New Payment Method</Button>
+                <Button variant="outline" className="w-full">
+                  Add New Payment Method
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
+      <Footer />
     </>
   );
 };

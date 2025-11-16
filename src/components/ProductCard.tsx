@@ -6,9 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-
 
 interface ProductCardProps {
   id?: string;
@@ -26,12 +24,12 @@ const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weigh
   const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
   const navigate = useNavigate();
 
-  const itemInCart = cart.find(item => item.name === name);
-
+  // Find item by ID instead of name
+  const itemInCart = cart.find(item => item.id === id);
 
   const handleAddToCart = () => {
     if (!isLoggedIn) {
-      window.alert("You need to log in to add items to your cart."); // show alert
+      window.alert("You need to log in to add items to your cart.");
       navigate('/login', { state: { from: '/cart' } });
       return;
     }
@@ -104,7 +102,7 @@ const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weigh
             <Button
               variant="outline"
               size="sm"
-              onClick={() => updateQuantity(name, itemInCart.quantity - 1)}
+              onClick={() => updateQuantity(id, itemInCart.quantity - 1)}
               className="h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
             >
               <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -115,7 +113,7 @@ const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weigh
             <Button
               variant="outline"
               size="sm"
-              onClick={() => updateQuantity(name, itemInCart.quantity + 1)}
+              onClick={() => updateQuantity(id, itemInCart.quantity + 1)}
               className="h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
