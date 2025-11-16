@@ -1,3 +1,5 @@
+// src/pages/Billing.tsx
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,6 +11,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
 import { Tag } from "lucide-react";
+import { userAPI, paymentMethodsAPI } from "@/lib/api";
 
 const Billing = () => {
   const navigate = useNavigate();
@@ -19,30 +22,64 @@ const Billing = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
-    fullName: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1234567890",
-    address: "123 Main St, City, State 12345",
-    city: "New York",
-    state: "NY",
-    zipCode: "12345",
-    cardNumber: "4111111111111111",
-    expiryDate: "12/25",
-    cvv: "123",
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
   });
 
+  // Fetch profile and (optional) default card info
   useEffect(() => {
-    // Auto-fill from profile (dummy data for now)
-    // In production, this would come from backend/profile context
+    const fetchAllBillingInfo = async () => {
+      try {
+        const profile = await userAPI.getProfile();
+        setFormData((prev) => ({
+          ...prev,
+          fullName: profile.first_name && profile.last_name
+            ? `${profile.first_name} ${profile.last_name}`
+            : profile.username || prev.fullName,
+          email: profile.email || prev.email,
+          phone: profile.phone || prev.phone,
+          address: profile.address || prev.address,
+          city: profile.city || prev.city,
+          state: profile.state || prev.state,
+          zipCode: profile.pincode || prev.zipCode,
+        }));
+
+        // Optionally fetch card info
+        try {
+          const card = await paymentMethodsAPI.getDefault();
+          if (card && card.payment_type === "CARD") {
+            setFormData((f) => ({
+              ...f,
+              cardNumber: card.card_last_four ? "**** **** **** " + card.card_last_four : f.cardNumber,
+              expiryDate: card.card_expiry_month && card.card_expiry_year
+                ? `${String(card.card_expiry_month).padStart(2, "0")}/${String(card.card_expiry_year).slice(-2)}`
+                : f.expiryDate,
+            }));
+          }
+        } catch (ignore) {}
+      } catch (err) {
+        toast.error("Failed to load billing info");
+      }
+    };
+
+    fetchAllBillingInfo();
   }, []);
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * 0.1;
+  const tax = subtotal * 0.05;
   const total = subtotal + tax - discount;
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.fullName.trim()) newErrors.fullName = "Name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email";
@@ -54,7 +91,7 @@ const Billing = () => {
     if (!formData.cardNumber.trim()) newErrors.cardNumber = "Card number is required";
     if (!formData.expiryDate.trim()) newErrors.expiryDate = "Expiry date is required";
     if (!formData.cvv.trim()) newErrors.cvv = "CVV is required";
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -73,7 +110,7 @@ const Billing = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error("Please fill all required fields correctly");
       return;
@@ -81,7 +118,7 @@ const Billing = () => {
 
     setIsLoading(true);
 
-    // Simulate payment processing
+    // Simulate payment processing and order placing
     setTimeout(() => {
       toast.success("Order placed successfully!");
       setIsLoading(false);
@@ -248,7 +285,7 @@ const Billing = () => {
                     <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tax (10%)</span>
+                    <span className="text-muted-foreground">Tax (5%)</span>
                     <span className="font-semibold">₹{tax.toFixed(2)}</span>
                   </div>
                   {discount > 0 && (
@@ -257,7 +294,7 @@ const Billing = () => {
                       <span>-₹{discount.toFixed(2)}</span>
                     </div>
                   )}
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="coupon">Have a coupon?</Label>
                     <div className="flex gap-2">
@@ -277,7 +314,7 @@ const Billing = () => {
                     </div>
                     <p className="text-xs text-muted-foreground">Try SAVE10 or SAVE20</p>
                   </div>
-                  
+
                   <Separator />
                   <div className="flex justify-between text-lg">
                     <span className="font-bold">Total</span>

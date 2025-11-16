@@ -1,96 +1,146 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
+import { userAPI } from "@/lib/api";
 
 interface User {
   id: string;
-  name: string;
+  username: string;
   email: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  signup: (user: User) => void;
-  accessToken: string | null;
+  signup: (userData: any) => Promise<boolean>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be within AuthProvider");
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Initialize auth state on mount
   useEffect(() => {
-    // Try both keys for compatibility
-    const storedToken = localStorage.getItem("accessToken") || localStorage.getItem("access_token");
-    const storedUser = localStorage.getItem("user");
-    if (storedToken) setAccessToken(storedToken);
-    if (storedUser) setUser(JSON.parse(storedUser));
+    const initAuth = async () => {
+      const token = localStorage.getItem("access_token");
+      const cachedUser = localStorage.getItem("user");
+
+      if (token) {
+        try {
+          // Try to get fresh user data
+          const userData = await userAPI.getProfile();
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
+        } catch (error) {
+          // If token is invalid, try cached user
+          if (cachedUser) {
+            setUser(JSON.parse(cachedUser));
+          } else {
+            // Clear invalid tokens
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+          }
+        }
+      }
+      setIsLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-        const response = await fetch("http://localhost:8000/api/auth/login/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: "kaushaljain7000@gmail.com", // exactly as in Postman
-            password: "admin"
-          }),
-        });
+      const data = await userAPI.login(email, password);
 
-      
-      const data = await response.json();
-      if (response.ok && data.access) {
-        localStorage.setItem("accessToken", data.access);
-        localStorage.setItem("access_token", data.access); // Also set snake_case variant for cart compatibility
-        localStorage.setItem("refreshToken", data.refresh);
-        setAccessToken(data.access);
-
-        // Optional: Get user profile
-        const userResponse = await fetch("http://localhost:8000/api/auth/profile/", {
-          headers: { Authorization: `Bearer ${data.access}` }
-        });
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
+      if (data.access) {
+        // Get user profile
+        try {
+          const userData = await userAPI.getProfile();
           setUser(userData);
           localStorage.setItem("user", JSON.stringify(userData));
-        } else {
-          setUser(null);
+          toast.success("Login successful!");
+          return true;
+        } catch (profileError) {
+          console.error("Failed to fetch profile:", profileError);
+          // Even if profile fetch fails, login was successful
+          toast.success("Login successful!");
+          return true;
         }
-        return true;
       }
-    } catch (error) {}
-    return false;
+      
+      toast.error("Invalid credentials");
+      return false;
+    } catch (error: any) {
+      console.error("Login error:", error);
+      const errorMessage = error.data?.detail || error.data?.message || "Login failed";
+      toast.error(errorMessage);
+      return false;
+    }
+  };
+
+  const signup = async (userData: any): Promise<boolean> => {
+    try {
+      const response = await userAPI.register(userData);
+      toast.success("Registration successful! Please login.");
+      return true;
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      const errorMessage = error.data?.detail || error.data?.message || "Registration failed";
+      toast.error(errorMessage);
+      return false;
+    }
   };
 
   const logout = () => {
     setUser(null);
-    setAccessToken(null);
-    localStorage.removeItem("accessToken");
     localStorage.removeItem("access_token");
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
-    toast.success("Logout successful!");
+    toast.success("Logged out successfully!");
   };
 
-  const signup = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+  const refreshUser = async () => {
+    try {
+      const userData = await userAPI.getProfile();
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+    } catch (error) {
+      console.error("Failed to refresh user:", error);
+    }
   };
 
-  const isLoggedIn = !!accessToken && !!user;
+  const isLoggedIn = !!user && !!localStorage.getItem("access_token");
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, login, logout, signup, accessToken }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        isLoggedIn, 
+        isLoading, 
+        login, 
+        logout, 
+        signup, 
+        refreshUser 
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

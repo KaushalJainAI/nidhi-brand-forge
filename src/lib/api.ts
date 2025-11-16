@@ -1,100 +1,125 @@
-const API_BASE_URL = "http://localhost:8000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
-// Helper to get auth token
-const getAuthToken = () => localStorage.getItem("accessToken");
-
-// Helper for authenticated requests
-const authFetch = async (url: string, options: RequestInit = {}) => {
-  const token = getAuthToken();
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...options.headers,
-  };
-
-  const response = await fetch(url, { ...options, headers });
-  
-  if (!response.ok) {
-    throw new Error(`API Error: ${response.statusText}`);
+// ------------ Error Class -------------
+class APIError extends Error {
+  status: number;
+  data: any;
+  constructor(status: number, statusText: string, data: any) {
+    super(statusText);
+    this.status = status;
+    this.data = data;
   }
-  
-  return response.json();
+}
+
+// ------------ Helpers -------------
+const getAccessToken = () => localStorage.getItem("access_token");
+const getRefreshToken = () => localStorage.getItem("refresh_token");
+
+let refreshPromise: Promise<string> | null = null;
+
+const refreshAccessToken = async (): Promise<string> => {
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = (async () => {
+    try {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) throw new Error("No refresh token available");
+      const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
+      if (!response.ok) throw new Error("Token refresh failed");
+      const data = await response.json();
+      localStorage.setItem("access_token", data.access);
+      return data.access;
+    } catch (error) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+      throw error;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+  return refreshPromise;
 };
 
-// Products API
+const authFetch = async (url: string, options: RequestInit = {}): Promise<any> => {
+  const makeRequest = async (token: string | null) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
+    };
+    const response = await fetch(url, { ...options, headers });
+    if (response.status === 401) {
+      const newToken = await refreshAccessToken();
+      const retryHeaders: HeadersInit = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${newToken}`,
+        ...options.headers,
+      };
+      const retryResponse = await fetch(url, { ...options, headers: retryHeaders });
+      if (!retryResponse.ok) {
+        const errorData = await retryResponse.json().catch(() => ({}));
+        throw new APIError(retryResponse.status, retryResponse.statusText, errorData);
+      }
+      return retryResponse.json();
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new APIError(response.status, response.statusText, errorData);
+    }
+    if (response.status === 204) return null;
+    return response.json();
+  };
+  const token = getAccessToken();
+  return makeRequest(token);
+};
+
+// ------------ Main APIs -------------
+
 export const productsAPI = {
   getAll: () => authFetch(`${API_BASE_URL}/products/`),
   getById: (id: string) => authFetch(`${API_BASE_URL}/products/${id}/`),
-  getByCategory: (categoryId: string) => 
+  getByCategory: (categoryId: string) =>
     authFetch(`${API_BASE_URL}/products/?category=${categoryId}`),
 };
 
-// Categories API
 export const categoriesAPI = {
   getAll: () => authFetch(`${API_BASE_URL}/categories/`),
 };
 
 export const cartAPI = {
-  get: async () => {
-    const response = await fetch(`${API_BASE_URL}/cart/`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-      },
-    });
-    return response.json();
-  },
-
-  addItem: async (data: { id: string; quantity: number }) => {
-    const response = await fetch(`${API_BASE_URL}/cart/add_item/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ product_id: data.id, quantity: data.quantity }),
-    });
-    return response.json();
-  },
-
-  updateItem: async (data: { id: string; quantity: number }) => {
-    const response = await fetch(`${API_BASE_URL}/cart/update_item/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ product_id: data.id, quantity: data.quantity }),
-    });
-    return response.json();
-  },
-
-  removeItem: async (data: { id: string }) => {
-    const response = await fetch(`${API_BASE_URL}/cart/remove_item/`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ product_id: data.id }),
-    });
-    return response.json();
-  },
-
-  sync: async (items: any[]) => {
-    const response = await fetch(`${API_BASE_URL}/cart/sync/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ items }),
-    });
-    return response.json();
-  },
+  get: () => authFetch(`${API_BASE_URL}/cart/`), // GET cart list
+  addItem: (data: { id: string; quantity: number }) =>
+    authFetch(`${API_BASE_URL}/cart/add_item/`, {
+      method: "POST",
+      body: JSON.stringify({ product_id: data.id, quantity: data.quantity }),
+    }),
+  updateItem: (data: { id: string; quantity: number }) =>
+    authFetch(`${API_BASE_URL}/cart/update_item/`, {
+      method: "POST",
+      body: JSON.stringify({ product_id: data.id, quantity: data.quantity }),
+    }),
+  removeItem: (data: { id: string }) =>
+    authFetch(`${API_BASE_URL}/cart/remove_item/`, {
+      method: "DELETE",
+      body: JSON.stringify({ product_id: data.id }),
+    }),
+  clear: () =>
+    authFetch(`${API_BASE_URL}/cart/clear/`, {
+      method: "POST"
+    }),
+  sync: (items: any[]) =>
+    authFetch(`${API_BASE_URL}/cart/sync/`, {
+      method: "POST",
+      body: JSON.stringify({ items }),
+    }),
 };
 
 
-// Orders API
 export const ordersAPI = {
   getAll: () => authFetch(`${API_BASE_URL}/orders/`),
   getById: (id: string) => authFetch(`${API_BASE_URL}/orders/${id}/`),
@@ -105,7 +130,6 @@ export const ordersAPI = {
     }),
 };
 
-// Reviews API
 export const reviewsAPI = {
   getByProduct: (productId: string) =>
     authFetch(`${API_BASE_URL}/reviews/?product=${productId}`),
@@ -116,13 +140,89 @@ export const reviewsAPI = {
     }),
 };
 
-// Favorites (using a custom endpoint if available, otherwise local storage)
+export const paymentMethodsAPI = {
+  getAll: () => authFetch(`${API_BASE_URL}/payment-methods/`),
+  getDefault: () => authFetch(`${API_BASE_URL}/payment-methods/default/`),
+  getByType: (type: string) =>
+    authFetch(`${API_BASE_URL}/payment-methods/by_type/?type=${type}`),
+  create: (data: any) =>
+    authFetch(`${API_BASE_URL}/payment-methods/`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  update: (id: number, data: any) =>
+    authFetch(`${API_BASE_URL}/payment-methods/${id}/`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  delete: (id: number) =>
+    authFetch(`${API_BASE_URL}/payment-methods/${id}/`, {
+      method: "DELETE",
+    }),
+  setDefault: (id: number) =>
+    authFetch(`${API_BASE_URL}/payment-methods/${id}/set_default/`, {
+      method: "POST",
+    }),
+  getStats: () => authFetch(`${API_BASE_URL}/payment-methods/stats/`),
+};
+
+export const userAPI = {
+  getProfile: () => authFetch(`${API_BASE_URL}/auth/profile/`),
+  updateProfile: (data: any) =>
+    authFetch(`${API_BASE_URL}/auth/profile/`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  changePassword: async (old_password: string, new_password: string) => {
+    const token = getAccessToken();
+    const response = await fetch(`${API_BASE_URL}/auth/change-password/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ old_password, new_password }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw data;
+    return data;
+  },
+  register: async (userData: any) => {
+    const response = await fetch(`${API_BASE_URL}/auth/register/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new APIError(response.status, response.statusText, errorData);
+    }
+    return response.json();
+  },
+  login: async (email: string, password: string) => {
+    const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new APIError(response.status, response.statusText, errorData);
+    }
+    const data = await response.json();
+    if (data.access) {
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
+    }
+    return data;
+  },
+};
+
 export const favoritesAPI = {
   get: async () => {
     try {
       return await authFetch(`${API_BASE_URL}/favorites/`);
-    } catch {
-      // Fallback to localStorage if endpoint doesn't exist
+    } catch (error) {
       const stored = localStorage.getItem("favorites");
       return stored ? JSON.parse(stored) : [];
     }
@@ -134,7 +234,6 @@ export const favoritesAPI = {
         body: JSON.stringify({ product_id: productId }),
       });
     } catch {
-      // Fallback to localStorage
       const stored = localStorage.getItem("favorites");
       const favorites = stored ? JSON.parse(stored) : [];
       if (!favorites.includes(productId)) {
@@ -150,7 +249,6 @@ export const favoritesAPI = {
         method: "DELETE",
       });
     } catch {
-      // Fallback to localStorage
       const stored = localStorage.getItem("favorites");
       const favorites = stored ? JSON.parse(stored) : [];
       const updated = favorites.filter((id: string) => id !== productId);

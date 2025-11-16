@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { favoritesAPI } from "@/lib/api";
 
 interface FavoriteItem {
   id: string;
@@ -17,7 +16,7 @@ interface FavoritesContextType {
   removeFromFavorites: (id: string) => void;
   isFavorite: (id: string) => boolean;
   toggleFavorite: (item: FavoriteItem) => void;
-  syncFavorites: () => Promise<void>;
+  syncFavorites: () => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
@@ -31,63 +30,37 @@ export const useFavorites = () => {
 export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
 
-  // Fetch favorites from backend on mount
+  // Load from localStorage on mount
   useEffect(() => {
-    const fetchFavorites = async () => {
+    const stored = localStorage.getItem("favorites_full");
+    if (stored) {
       try {
-        const data = await favoritesAPI.get();
-        if (data && Array.isArray(data)) {
-          setFavorites(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch favorites:", error);
+        setFavorites(JSON.parse(stored));
+      } catch {
+        setFavorites([]);
       }
-    };
-
-    fetchFavorites();
+    }
   }, []);
 
-  // Sync favorites to backend on unmount
+  // Save to localStorage on every change
   useEffect(() => {
-    const syncOnUnload = () => {
-      const favoriteIds = favorites.map(f => f.id);
-      localStorage.setItem("favorites", JSON.stringify(favoriteIds));
-    };
-
-    window.addEventListener("beforeunload", syncOnUnload);
-    return () => {
-      window.removeEventListener("beforeunload", syncOnUnload);
-      syncOnUnload();
-    };
+    localStorage.setItem("favorites_full", JSON.stringify(favorites));
   }, [favorites]);
 
-  const syncFavorites = async () => {
-    const favoriteIds = favorites.map(f => f.id);
-    localStorage.setItem("favorites", JSON.stringify(favoriteIds));
+  const syncFavorites = () => {
+    localStorage.setItem("favorites_full", JSON.stringify(favorites));
   };
 
-  const addToFavorites = async (item: FavoriteItem) => {
+  const addToFavorites = (item: FavoriteItem) => {
     setFavorites(prev => {
-      const exists = prev.find(i => i.id === item.id);
+      const exists = prev.some(i => i.id === item.id);
       if (exists) return prev;
       return [...prev, item];
     });
-    
-    try {
-      await favoritesAPI.add(item.id);
-    } catch (error) {
-      console.error("Failed to add to favorites:", error);
-    }
   };
 
-  const removeFromFavorites = async (id: string) => {
+  const removeFromFavorites = (id: string) => {
     setFavorites(prev => prev.filter(i => i.id !== id));
-    
-    try {
-      await favoritesAPI.remove(id);
-    } catch (error) {
-      console.error("Failed to remove from favorites:", error);
-    }
   };
 
   const isFavorite = (id: string) => {

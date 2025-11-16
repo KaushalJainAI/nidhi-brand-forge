@@ -1,9 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import ProductCard from "@/components/ProductCard";
@@ -13,23 +13,42 @@ import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
+import { toast } from "sonner";
+import { cartAPI } from "@/lib/api";
 
 const Cart = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+  const { cart, setCart, updateQuantity, removeFromCart, clearCart } = useCart();
+  const prevCart = useRef(cart);
 
+  // Sync cart when entering and leaving cart page
   useEffect(() => {
     if (!isLoggedIn) {
-      window.alert("You need to log in to add items to your cart."); 
-      navigate('/login', { state: { from: '/cart' } });   
+      window.alert("You need to log in to add items to your cart.");
+      navigate('/login', { state: { from: '/cart' } });
+    } else if (cart.length > 0) {
+      cartAPI.sync(cart)
+        .then((data) => {
+          setCart(data.items || []);
+          if (data.skipped && data.skipped.length > 0) {
+            toast.error("Some products could not be synced (out of stock or removed).");
+          }
+        })
+        .catch(() => {
+          toast.error("Failed to sync cart with server.");
+        });
     }
+    prevCart.current = cart;
+    return () => {
+      if (isLoggedIn && prevCart.current.length > 0) {
+        cartAPI.sync(prevCart.current).catch(() => {});
+      }
+    };
   }, [isLoggedIn, navigate]);
 
-  const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
-
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * 0.1;
+  const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
   const handleRemoveItem = (id: string) => {
@@ -40,6 +59,19 @@ const Cart = () => {
   const handleClearCart = () => {
     clearCart();
     toast.success("Cart cleared");
+  };
+
+  const handleCheckout = async () => {
+    try {
+      const data = await cartAPI.sync(cart);
+      setCart(data.items || []);
+      if (data.skipped && data.skipped.length > 0) {
+        toast.error("Some items could not be synced (out of stock or removed)");
+      }
+      navigate('/billing');
+    } catch {
+      toast.error("Could not sync cart with server!");
+    }
   };
 
   const recommendedProducts = [
@@ -54,14 +86,13 @@ const Cart = () => {
       <Navbar />
       <div className="container py-8">
         <h1 className="text-4xl font-bold mb-8">Shopping Cart</h1>
-
         {cart.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
               <p className="text-xl text-muted-foreground mb-4">Your cart is empty</p>
-              <Link to="/products">
-                <Button>Continue Shopping</Button>
-              </Link>
+              <Button asChild>
+                <a href="/products">Continue Shopping</a>
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -116,7 +147,6 @@ const Cart = () => {
                 Clear Cart
               </Button>
             </div>
-
             <div>
               <Card>
                 <CardHeader>
@@ -128,7 +158,7 @@ const Cart = () => {
                     <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tax (10%)</span>
+                    <span className="text-muted-foreground">Tax (5%)</span>
                     <span className="font-semibold">₹{tax.toFixed(2)}</span>
                   </div>
                   <Separator />
@@ -138,18 +168,14 @@ const Cart = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Link to="/billing" className="w-full">
-                    <Button className="w-full" size="lg">
-                      Proceed to Checkout
-                    </Button>
-                  </Link>
+                  <Button className="w-full" size="lg" onClick={handleCheckout}>
+                    Proceed to Checkout
+                  </Button>
                 </CardFooter>
               </Card>
             </div>
           </div>
         )}
-
-        {/* People Also Buy Carousel */}
         {cart.length > 0 && (
           <section className="mt-16">
             <h2 className="text-3xl font-bold mb-8">People Also Buy</h2>

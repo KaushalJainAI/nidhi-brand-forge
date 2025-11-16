@@ -8,10 +8,12 @@ interface CartItem {
   originalPrice?: number;
   badge?: string;
   quantity: number;
+  // Add other fields needed
 }
 
 interface CartContextType {
   cart: CartItem[];
+  setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   updateQuantity: (id: string, quantity: number) => void;
   removeFromCart: (id: string) => void;
@@ -30,12 +32,10 @@ const CART_STORAGE_KEY = "shopping_cart";
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
-    // Load cart from localStorage on initialization
     const savedCart = localStorage.getItem(CART_STORAGE_KEY);
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
   }, [cart]);
@@ -55,7 +55,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       removeFromCart(id);
       return;
     }
-    
     setCart(prev =>
       prev.map(i => i.id === id ? { ...i, quantity } : i)
     );
@@ -70,7 +69,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ cart, setCart, addToCart, updateQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );
