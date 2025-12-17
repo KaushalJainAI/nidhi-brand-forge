@@ -5,9 +5,9 @@ import { useRef } from "react";
 
 const FloatingVoiceButton = () => {
   const navigate = useNavigate();
-  const pressTimer = useRef(null);
+  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     if (e.ctrlKey || e.metaKey) {
       navigate("/voice-order", { state: { autoStartMic: true } });
       return;
@@ -36,11 +36,8 @@ const FloatingVoiceButton = () => {
       onMouseUp={handleEnd}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleEnd}
-      className="fixed right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-40"
-      style={{
-        // Move higher on mobile devices
-        bottom: 'max(12rem, calc(11rem + env(safe-area-inset-bottom)))'
-      }}
+      className="fixed right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-40
+                 md:bottom-28 bottom-52"
       size="icon"
       aria-label="Voice Order - Click or hold for 500ms"
     >
