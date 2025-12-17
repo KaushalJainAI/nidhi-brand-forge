@@ -1,67 +1,100 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const BASE_URL = "http://localhost:8000"; // Or 8000 if that's your Django port
+import { Loader2 } from "lucide-react";
+import { productsAPI, categoriesAPI } from "@/lib/api";
 
 const Products = () => {
-  const [selectedCategory, setSelectedCategory] = useState("All Products");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get("category");
+  
+  const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl || "all");
   const [sortBy, setSortBy] = useState("featured");
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState(["All Products"]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<{ id: number; name: string; slug: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Fetch categories on mount
   useEffect(() => {
-    fetch(`${BASE_URL}/api/categories/`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch categories");
-        return res.json();
+    categoriesAPI.getAll()
+      .then((data) => {
+        const categoryList = data.results || data || [];
+        setCategories(categoryList);
       })
-      .then((categoryList) => {
-        const names = categoryList.results.map(category => category.name); // note the .results
-        setCategories(["All Products", ...names]);
-      })
-      .catch((err) => setError(err.message));
+      .catch((err) => console.error("Failed to fetch categories:", err));
   }, []);
 
+  // Fetch products when category changes
   useEffect(() => {
     setLoading(true);
-    fetch(`${BASE_URL}/api/products/`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch products");
-        return res.json();
-      })
-      .then((data) => setProducts(data.results)) // note the .results
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+    setError("");
+    
+    const fetchProducts = async () => {
+      try {
+        let data;
+        if (selectedCategory && selectedCategory !== "all") {
+          data = await productsAPI.getByCategory(selectedCategory);
+        } else {
+          data = await productsAPI.getAll();
+        }
+        setProducts(data.results || data || []);
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch products");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Filtering by category name (case-insensitive)
-  const filteredProducts =
-    selectedCategory === "All Products"
-      ? products
-      : products.filter(
-          (p) =>
-            (p.category_name || "").toLowerCase() === selectedCategory.toLowerCase()
-        );
+    fetchProducts();
+  }, [selectedCategory]);
 
-  // Sorting logic, using final_price for pricing
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
+  // Sync category with URL
+  useEffect(() => {
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
+
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    if (categoryId === "all") {
+      searchParams.delete("category");
+    } else {
+      searchParams.set("category", categoryId);
+    }
+    setSearchParams(searchParams);
+  };
+
+  // Sorting logic
+  const sortedProducts = [...products].sort((a, b) => {
+    const priceA = a.final_price || a.discount_price || a.price;
+    const priceB = b.final_price || b.discount_price || b.price;
+    
     switch (sortBy) {
       case "price-low":
-        return a.final_price - b.final_price;
+        return priceA - priceB;
       case "price-high":
-        return b.final_price - a.final_price;
+        return priceB - priceA;
       case "name":
         return a.name.localeCompare(b.name);
       default:
-        // Featured; you could change this to honor 'is_featured' if desired
         return 0;
     }
+  });
+
+  const formatProduct = (product: any) => ({
+    id: String(product.id),
+    name: product.name,
+    image: product.image,
+    price: product.final_price || product.discount_price || product.price,
+    originalPrice: product.discount_price ? product.price : undefined,
+    weight: product.weight || "100g",
+    badge: product.badge,
   });
 
   return (
@@ -81,14 +114,21 @@ const Products = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div className="flex flex-wrap gap-2">
-              {categories.map((category, index) => (
+              <Button
+                variant={selectedCategory === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleCategoryChange("all")}
+              >
+                All Products
+              </Button>
+              {categories.map((category) => (
                 <Button
-                  key={index}
-                  variant={selectedCategory === category ? "default" : "outline"}
+                  key={category.id}
+                  variant={selectedCategory === String(category.id) ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => handleCategoryChange(String(category.id))}
                 >
-                  {category}
+                  {category.name}
                 </Button>
               ))}
             </div>
@@ -106,14 +146,16 @@ const Products = () => {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {loading ? (
-              <div>Loading...</div>
+              <div className="col-span-full flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
             ) : error ? (
-              <div>Error: {error}</div>
+              <div className="col-span-full text-center py-12 text-destructive">{error}</div>
             ) : sortedProducts.length === 0 ? (
-              <div>No products found.</div>
+              <div className="col-span-full text-center py-12 text-muted-foreground">No products found.</div>
             ) : (
-              sortedProducts.map((product, index) => (
-                <ProductCard key={product.id || index} {...product} />
+              sortedProducts.map((product) => (
+                <ProductCard key={product.id} {...formatProduct(product)} />
               ))
             )}
           </div>
