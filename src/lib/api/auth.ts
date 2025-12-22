@@ -1,5 +1,4 @@
 import { API_BASE_URL, APIError, authFetch, getAccessToken } from "./config";
-
 export const authAPI = {
   register: async (userData: any) => {
     const response = await fetch(`${API_BASE_URL}/auth/register/`, {
@@ -40,18 +39,9 @@ export const authAPI = {
       body: JSON.stringify(data),
     }),
 
-  changePassword: async (old_password: string, new_password: string) => {
-    const token = getAccessToken();
-    const response = await fetch(`${API_BASE_URL}/auth/change-password/`, {
+  changePassword: (old_password: string, new_password: string) =>
+    authFetch(`${API_BASE_URL}/auth/change-password/`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({ old_password, new_password }),
-    });
-    const data = await response.json();
-    if (!response.ok) throw data;
-    return data;
-  },
+    }),
 };

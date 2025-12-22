@@ -36,42 +36,42 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <CartProvider>
+      <AuthProvider>
         <FavoritesProvider>
-          <AuthProvider>
+          <CartProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
               <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/track-order" element={<TrackOrder />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/billing" element={<Billing />} />
-              <Route path="/chat-support" element={<ChatSupport />} />
-              <Route path="/favorites" element={<Favorites />} />
-              <Route path="/voice-order" element={<VoiceOrder />} />
-              <Route path="/search" element={<SearchResults />} />
-              <Route path="/my-orders" element={<MyOrders />} />
-              <Route path="/shipping-policy" element={<ShippingPolicy />} />
-              <Route path="/return-policy" element={<ReturnPolicy />} />
-              <Route path="/order-success" element={<OrderSuccess />} />
-              <Route path="/offer-zone" element={<OfferZone />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <FloatingChatIcon />
-            <FloatingVoiceButton />
-          </BrowserRouter>
-          </AuthProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<ProductDetail />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/track-order" element={<TrackOrder />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/billing" element={<Billing />} />
+                <Route path="/chat-support" element={<ChatSupport />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/voice-order" element={<VoiceOrder />} />
+                <Route path="/search" element={<SearchResults />} />
+                <Route path="/my-orders" element={<MyOrders />} />
+                <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                <Route path="/return-policy" element={<ReturnPolicy />} />
+                <Route path="/order-success" element={<OrderSuccess />} />
+                <Route path="/offer-zone" element={<OfferZone />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <FloatingChatIcon />
+              <FloatingVoiceButton />
+            </BrowserRouter>
+          </CartProvider>
         </FavoritesProvider>
-      </CartProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

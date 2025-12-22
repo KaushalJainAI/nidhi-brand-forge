@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,70 +16,149 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { cartAPI } from "@/lib/api";
 
+
 const Cart = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const { cart, setCart, updateQuantity, removeFromCart, clearCart } = useCart();
-  const prevCart = useRef(cart);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Sync cart when entering and leaving cart page
+  // Fetch cart from backend on mount - only once
   useEffect(() => {
     if (!isLoggedIn) {
-      window.alert("You need to log in to add items to your cart.");
+      window.alert("You need to log in to view your cart.");
       navigate('/login', { state: { from: '/cart' } });
-    } else if (cart.length > 0) {
-      cartAPI.sync(cart)
-        .then((data) => {
-          setCart(data.items || []);
-          if (data.skipped && data.skipped.length > 0) {
-            toast.error("Some products could not be synced (out of stock or removed).");
-          }
-        })
-        .catch(() => {
-          toast.error("Failed to sync cart with server.");
-        });
+      return;
     }
-    prevCart.current = cart;
-    return () => {
-      if (isLoggedIn && prevCart.current.length > 0) {
-        cartAPI.sync(prevCart.current).catch(() => {});
+
+    const fetchCart = async () => {
+      setIsLoading(true);
+      try {
+        console.log('Fetching cart from backend...');
+        
+        const response = await cartAPI.get();
+        
+        console.log('Backend cart response:', response);
+        
+        if (response.success && response.items && Array.isArray(response.items)) {
+          const backendCart = response.items.map((item: any) => ({
+            id: String(item.id),
+            itemType: (item.item_type || "product") as "product" | "combo",
+            name: item.name,
+            image: item.image,
+            price: item.price,
+            originalPrice: item.originalPrice,
+            quantity: item.quantity,
+            badge: item.badge,
+          }));
+          
+          setCart(backendCart);
+          console.log('Cart loaded from backend:', backendCart);
+        }
+      } catch (error) {
+        console.error('Failed to fetch cart:', error);
+        toast.error("Failed to load cart from server.");
+      } finally {
+        setIsLoading(false);
       }
     };
-  }, [isLoggedIn, navigate]);
+
+    fetchCart();
+  }, [isLoggedIn]); // Only depend on isLoggedIn
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
-  const handleRemoveItem = (id: string) => {
-    removeFromCart(id);
-    toast.success("Item removed from cart");
+  const handleRemoveItem = async (id: string, itemType: "product" | "combo") => {
+    try {
+      await removeFromCart(id, itemType);
+      toast.success("Item removed from cart");
+    } catch (error) {
+      console.error('Failed to remove item:', error);
+      toast.error("Failed to remove item");
+    }
   };
 
-  const handleClearCart = () => {
-    clearCart();
-    toast.success("Cart cleared");
+  const handleClearCart = async () => {
+    try {
+      await clearCart();
+      toast.success("Cart cleared");
+    } catch (error) {
+      console.error('Failed to clear cart:', error);
+      toast.error("Failed to clear cart");
+    }
   };
 
   const handleCheckout = async () => {
+    if (cart.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const data = await cartAPI.sync(cart);
-      setCart(data.items || []);
-      if (data.skipped && data.skipped.length > 0) {
-        toast.error("Some items could not be synced (out of stock or removed)");
+      // Fetch the latest cart state from backend before checkout
+      console.log('Fetching latest cart before checkout...');
+      
+      const response = await cartAPI.get();
+      
+      console.log('Checkout cart response:', response);
+      
+      if (!response.success) {
+        toast.error("Failed to verify cart");
+        return;
       }
+      
+      if (!response.items || response.items.length === 0) {
+        toast.error("Your cart is empty");
+        setCart([]);
+        return;
+      }
+
+      // Update cart with latest backend data
+      const backendCart = response.items.map((item: any) => ({
+        id: String(item.id),
+        itemType: (item.item_type || "product") as "product" | "combo",
+        name: item.name,
+        image: item.image,
+        price: item.price,
+        originalPrice: item.originalPrice,
+        quantity: item.quantity,
+        badge: item.badge,
+      }));
+      
+      setCart(backendCart);
+      
+      // Navigate to billing page
       navigate('/billing');
-    } catch {
-      toast.error("Could not sync cart with server!");
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error("Could not verify cart with server!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const recommendedProducts = [
-    { id: "2", name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, weight: "100g" },
-    { id: "3", name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155, weight: "100g" },
-    { id: "4", name: "Sambhar Masala", image: product4, price: 130, originalPrice: 160, weight: "100g" },
-    { id: "6", name: "Chana Masala", image: product1, price: 115, originalPrice: 145, weight: "100g" },
+    { id: "2", name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, weight: "100g", itemType: "product" as const },
+    { id: "3", name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155, weight: "100g", itemType: "product" as const },
+    { id: "4", name: "Sambhar Masala", image: product4, price: 130, originalPrice: 160, weight: "100g", itemType: "product" as const },
+    { id: "6", name: "Chana Masala", image: product1, price: 115, originalPrice: 145, weight: "100g", itemType: "product" as const },
   ];
+
+  if (isLoading && cart.length === 0) {
+    return (
+      <>
+        <Navbar />
+        <div className="container py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <p className="text-lg text-muted-foreground">Loading cart...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -99,7 +178,7 @@ const Cart = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
               {cart.map((item) => (
-                <Card key={item.id}>
+                <Card key={`${item.itemType}-${item.id}`}>
                   <CardContent className="flex items-center gap-4 p-6">
                     <img
                       src={item.image}
@@ -108,8 +187,15 @@ const Cart = () => {
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{item.name}</h3>
-                      <p className="text-xs text-muted-foreground mb-1">Weight: {(item as any).weight || "100g"}</p>
-                      <p className="text-primary font-bold">₹{item.price}</p>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Type: {item.itemType === "combo" ? "Combo Offer" : "Product"}
+                      </p>
+                      {item.badge && (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                          {item.badge}
+                        </span>
+                      )}
+                      <p className="text-primary font-bold mt-1">₹{item.price}</p>
                       {item.originalPrice && (
                         <p className="text-sm text-muted-foreground line-through">
                           ₹{item.originalPrice}
@@ -120,7 +206,8 @@ const Cart = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.itemType)}
+                        disabled={isLoading}
                       >
                         -
                       </Button>
@@ -128,7 +215,8 @@ const Cart = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.itemType)}
+                        disabled={isLoading}
                       >
                         +
                       </Button>
@@ -136,14 +224,20 @@ const Cart = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleRemoveItem(item.id)}
+                      onClick={() => handleRemoveItem(item.id, item.itemType)}
+                      disabled={isLoading}
                     >
                       <Trash2 className="h-5 w-5 text-destructive" />
                     </Button>
                   </CardContent>
                 </Card>
               ))}
-              <Button variant="outline" onClick={handleClearCart} className="w-full">
+              <Button 
+                variant="outline" 
+                onClick={handleClearCart} 
+                className="w-full"
+                disabled={isLoading}
+              >
                 Clear Cart
               </Button>
             </div>
@@ -168,8 +262,13 @@ const Cart = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full" size="lg" onClick={handleCheckout}>
-                    Proceed to Checkout
+                  <Button 
+                    className="w-full" 
+                    size="lg" 
+                    onClick={handleCheckout}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Processing..." : "Proceed to Checkout"}
                   </Button>
                 </CardFooter>
               </Card>

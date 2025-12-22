@@ -43,38 +43,28 @@ export const refreshAccessToken = async (): Promise<string> => {
   return refreshPromise;
 };
 
-export const authFetch = async (url: string, options: RequestInit = {}): Promise<any> => {
-  const makeRequest = async (token: string | null) => {
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
+// config.ts - CORRECT implementation
+export const authFetch = async (url: string, options: RequestInit = {}) => {
+  const token = getAccessToken();
+  
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
-    };
-    const response = await fetch(url, { ...options, headers });
-    if (response.status === 401) {
-      const newToken = await refreshAccessToken();
-      const retryHeaders: HeadersInit = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${newToken}`,
-        ...options.headers,
-      };
-      const retryResponse = await fetch(url, { ...options, headers: retryHeaders });
-      if (!retryResponse.ok) {
-        const errorData = await retryResponse.json().catch(() => ({}));
-        throw new APIError(retryResponse.status, retryResponse.statusText, errorData);
-      }
-      return retryResponse.json();
-    }
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new APIError(response.status, response.statusText, errorData);
-    }
-    if (response.status === 204) return null;
-    return response.json();
-  };
-  const token = getAccessToken();
-  return makeRequest(token);
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new APIError(response.status, response.statusText, errorData);
+  }
+
+  // Return parsed JSON directly
+  return response.json();
 };
+
 
 export const publicFetch = async (url: string, options: RequestInit = {}): Promise<any> => {
   const headers: HeadersInit = {

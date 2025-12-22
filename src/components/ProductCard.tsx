@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
+
 interface ProductCardProps {
   id?: string;
   name: string;
@@ -16,16 +17,27 @@ interface ProductCardProps {
   originalPrice?: number;
   badge?: string;
   weight?: string;
+  itemType?: "product" | "combo";  // Add this
 }
 
-const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weight = "100g" }: ProductCardProps) => {
+
+const ProductCard = ({ 
+  id = "1", 
+  name, 
+  image, 
+  price, 
+  originalPrice, 
+  badge, 
+  weight = "100g",
+  itemType = "product"  // Default to product
+}: ProductCardProps) => {
   const { isLoggedIn } = useAuth();
   const { cart, addToCart, updateQuantity } = useCart();
   const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
   const navigate = useNavigate();
 
-  // Find item by ID instead of name
-  const itemInCart = cart.find(item => item.id === id);
+  // Find item by BOTH id AND itemType
+  const itemInCart = cart.find(item => item.id === id && item.itemType === itemType);
 
   const handleAddToCart = () => {
     if (!isLoggedIn) {
@@ -35,6 +47,7 @@ const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weigh
     }
     addToCart({
       id,
+      itemType,  // Include itemType
       name,
       image,
       price,
@@ -102,7 +115,7 @@ const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weigh
             <Button
               variant="outline"
               size="sm"
-              onClick={() => updateQuantity(id, itemInCart.quantity - 1)}
+              onClick={() => updateQuantity(id, itemInCart.quantity - 1, itemType)}
               className="h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
             >
               <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -113,7 +126,7 @@ const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weigh
             <Button
               variant="outline"
               size="sm"
-              onClick={() => updateQuantity(id, itemInCart.quantity + 1)}
+              onClick={() => updateQuantity(id, itemInCart.quantity + 1, itemType)}
               className="h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -132,5 +145,6 @@ const ProductCard = ({ id = "1", name, image, price, originalPrice, badge, weigh
     </Card>
   );
 };
+
 
 export default ProductCard;

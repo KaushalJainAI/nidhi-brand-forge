@@ -1,3 +1,4 @@
+// lib/api/orders.ts
 import { API_BASE_URL, authFetch } from "./config";
 
 export interface OrderItem {
@@ -24,18 +25,36 @@ export interface Order {
 }
 
 export const ordersAPI = {
-  getAll: () => authFetch(`${API_BASE_URL}/orders/`),
+  getAll: async (): Promise<Order[]> => {
+    const res = await authFetch(`${API_BASE_URL}/orders/`);
+    return (res as any).data ?? res;
+  },
 
-  getById: (id: string) => authFetch(`${API_BASE_URL}/orders/${id}/`),
+  getById: async (id: string): Promise<Order> => {
+    const res = await authFetch(`${API_BASE_URL}/orders/${id}/`);
+    return (res as any).data ?? res;
+  },
 
-  create: (orderData: any) =>
-    authFetch(`${API_BASE_URL}/orders/`, {
+  create: async (orderData: any): Promise<Order> => {
+    const res = await authFetch(`${API_BASE_URL}/orders/`, {
       method: "POST",
       body: JSON.stringify(orderData),
-    }),
+    });
+    return (res as any).data ?? res;
+  },
 
-  cancel: (id: string) =>
-    authFetch(`${API_BASE_URL}/orders/${id}/cancel/`, {
+  cancel: async (id: number): Promise<Order> => {
+    const res = await authFetch(`${API_BASE_URL}/orders/${id}/cancel/`, {
       method: "POST",
-    }),
+    });
+    return (res as any).data ?? res;
+  },
+
+  validateCoupon: async (couponCode: string) => {
+    const res = await authFetch(`${API_BASE_URL}/orders/validate_coupon/`, {
+      method: "POST",
+      body: JSON.stringify({ coupon_code: couponCode }),
+    });
+    return (res as any).data ?? res;
+  },
 };

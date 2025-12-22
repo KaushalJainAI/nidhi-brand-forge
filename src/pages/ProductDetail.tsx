@@ -75,6 +75,7 @@ const ProductDetail = () => {
       addToCart({
         id: String(product.id),
         name: product.name,
+        itemType: product.item_type || "product",
         image: product.image || product1,
         price: product.final_price || product.discount_price || product.price,
         originalPrice: product.discount_price ? product.price : undefined,

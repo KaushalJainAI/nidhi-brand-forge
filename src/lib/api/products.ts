@@ -64,3 +64,4 @@ export const productsAPI = {
 
   getSpiceForms: () => publicFetch(`${API_BASE_URL}/spice-forms/`),
 };
+
