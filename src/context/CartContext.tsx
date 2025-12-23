@@ -84,11 +84,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isLoggedIn) return;
 
     try {
-      console.log('Fetching cart from backend...');
+      // console.log('Fetching cart from backend...');
       
       const response = await cartAPI.get();
       
-      console.log('Backend cart response:', response);
+      // console.log('Backend cart response:', response);
       
       if (response.success && response.items && Array.isArray(response.items)) {
         const backendCart = mapBackendToFrontend(response.items);
@@ -96,7 +96,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCart(backendCart);
         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(backendCart));
         
-        console.log('Cart loaded from backend:', backendCart);
+        // console.log('Cart loaded from backend:', backendCart);
       }
     } catch (error) {
       console.error("Failed to fetch cart from backend:", error);
@@ -112,7 +112,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setIsLoading(true);
     try {
-      console.log('Adding item to cart:', item);
+      // console.log('Adding item to cart:', item);
       
       // Call backend first
       const response = await cartAPI.addItem({ 

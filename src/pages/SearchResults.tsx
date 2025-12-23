@@ -4,50 +4,103 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
-import product5 from "@/assets/product-5.jpg";
+import { searchAPI } from "@/lib/api/search";
+
+interface SearchProduct {
+  id: number;
+  name: string;
+  slug: string;
+  type: string;
+  category: string;
+  spice_form: string;
+  price: number;
+  original_price: number;
+  discount: number;
+  weight: string;
+  image: string;
+  score: number;
+  score_type: string;
+  in_stock: number;
+  is_featured: boolean;
+}
+
+interface SearchResponse {
+  query: string;
+  total_results: number;
+  products: SearchProduct[];
+  combos: any[];
+  stats: {
+    direct_matches: number;
+    other_recs: number;
+  };
+}
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get("search") || "";
-  const [sortBy, setSortBy] = useState("featured");
+  const searchQuery = searchParams.get("search") || searchParams.get("q") || "";
+  const [sortBy, setSortBy] = useState("relevance");
+  const [loading, setLoading] = useState(false);
+  const [searchData, setSearchData] = useState<SearchResponse | null>(null);
 
-  const allProducts = [
-    { id: "1", name: "Garadu Masala", image: product1, price: 120, originalPrice: 150, badge: "Best Seller", weight: "100g" },
-    { id: "2", name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, badge: "New", weight: "100g" },
-    { id: "3", name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155, weight: "100g" },
-    { id: "4", name: "Sambhar Masala", image: product4, price: 130, originalPrice: 160, weight: "100g" },
-    { id: "5", name: "Tea Masala", image: product5, price: 95, originalPrice: 120, badge: "Popular", weight: "50g" },
-    { id: "6", name: "Chana Masala", image: product1, price: 115, originalPrice: 145, weight: "100g" },
-    { id: "7", name: "Garam Masala", image: product2, price: 140, originalPrice: 175, weight: "100g" },
-    { id: "8", name: "Biryani Masala", image: product3, price: 150, originalPrice: 185, weight: "100g" },
-    { id: "9", name: "Chaat Masala", image: product4, price: 90, originalPrice: 115, weight: "50g" },
-    { id: "10", name: "Paneer Masala", image: product5, price: 128, originalPrice: 160, weight: "100g" },
-    { id: "11", name: "Chole Masala", image: product1, price: 118, originalPrice: 148, weight: "100g" },
-    { id: "12", name: "Rajma Masala", image: product2, price: 122, originalPrice: 152, weight: "100g" },
-  ];
-
-  // Filter products based on search query
-  const filteredProducts = allProducts.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Sort products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "name":
-        return a.name.localeCompare(b.name);
-      default:
-        return 0;
+  useEffect(() => {
+    if (searchQuery) {
+      fetchSearchResults(searchQuery);
+    } else {
+      setSearchData(null);
     }
-  });
+  }, [searchQuery]);
+
+  const fetchSearchResults = async (query: string) => {
+    setLoading(true);
+    try {
+      const response = await searchAPI.search(query);
+      // Type assertion to match interface
+      setSearchData(response as SearchResponse);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+      setSearchData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use backend ranking with frontend sorting overlay
+  const getSortedProducts = () => {
+    if (!searchData?.products) return [];
+    
+    return [...searchData.products].sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "featured":
+          return (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0);
+        case "relevance":
+        default:
+          // Use backend score as primary sort (maintains backend ranking)
+          return b.score - a.score;
+      }
+    });
+  };
+
+  const sortedProducts = getSortedProducts();
+  const totalResults = searchData?.total_results || 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-lg text-muted-foreground">Searching for products...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -60,7 +113,12 @@ const SearchResults = () => {
             Search Results
           </h1>
           <p className="text-lg text-muted-foreground">
-            {filteredProducts.length} result{filteredProducts.length !== 1 ? 's' : ''} for "{searchQuery}"
+            {totalResults} result{totalResults !== 1 ? 's' : ''} for "{searchQuery}"
+            {searchData?.stats && (
+              <span className="block text-sm mt-1">
+                ({searchData.stats.direct_matches} direct, {searchData.stats.other_recs} recommended)
+              </span>
+            )}
           </p>
         </div>
       </section>
@@ -69,25 +127,37 @@ const SearchResults = () => {
       <section className="py-12">
         <div className="container mx-auto px-4">
           {/* Sort */}
-          <div className="flex justify-end items-center mb-8">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="featured">Featured</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
-                <SelectItem value="name">Name: A to Z</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {sortedProducts.length > 0 && (
+            <div className="flex justify-end items-center mb-8">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevance</SelectItem>
+                  <SelectItem value="featured">Featured</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="name">Name: A to Z</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Products Grid */}
           {sortedProducts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sortedProducts.map((product) => (
-                <ProductCard key={product.id} {...product} />
+                <ProductCard 
+                  key={product.id}
+                  id={product.id.toString()}
+                  name={product.name}
+                  image={product.image.startsWith('/') ? `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}${product.image}` : product.image}
+                  price={product.price}
+                  originalPrice={product.original_price}
+                  weight={product.weight}
+                  badge={product.is_featured ? "Featured" : product.discount > 0 ? `${product.discount}% OFF` : undefined}
+                />
               ))}
             </div>
           ) : (

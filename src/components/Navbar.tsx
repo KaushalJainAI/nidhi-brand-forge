@@ -42,7 +42,7 @@ const Navbar = () => {
               <span className="text-primary-foreground font-bold text-lg">NG</span>
             </div>
             <div className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hidden sm:block">
-              Nidhi Grah Udyog
+              Nidhi Masale
             </div>
           </Link>
 

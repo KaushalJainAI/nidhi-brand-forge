@@ -26,7 +26,7 @@ const Login: React.FC = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        toast.success("Login successful!");
+        // toast.success("Login successful!");
         navigate("/"); // or redirect where you want
       } else {
         toast.error("Login failed. Please check your credentials.");

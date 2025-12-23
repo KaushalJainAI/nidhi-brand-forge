@@ -54,7 +54,7 @@ const ProductCard = ({
       originalPrice,
       badge,
     });
-    toast.success("Added to cart");
+    // toast.success("Added to cart");
   };
 
   const handleToggleFavorite = () => {

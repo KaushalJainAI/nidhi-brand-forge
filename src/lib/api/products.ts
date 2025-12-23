@@ -8,8 +8,8 @@ export interface Product {
   category_name?: string;
   description: string;
   spice_form: string;
-  price: number;
-  discount_price?: number;
+  price: string | number;
+  discount_price?: string | number;
   final_price: number;
   discount_percentage: number;
   stock: number;
@@ -19,13 +19,16 @@ export interface Product {
   shelf_life?: string;
   ingredients?: string;
   image: string;
-  images?: { id: number; image: string; alt_text?: string }[];
+  images?: { id: number; product: number; image: string; alt_text?: string }[];
   is_active: boolean;
   is_featured: boolean;
   badge?: string;
   average_rating: number;
   reviews_count: number;
   in_stock: boolean;
+  created_at?: string;
+  sections?: number[];
+  section_names?: string[];
 }
 
 export interface ProductSection {
@@ -53,7 +56,8 @@ export const productsAPI = {
 
   getById: (id: string) => publicFetch(`${API_BASE_URL}/products/${id}/`),
 
-  getBySlug: (slug: string) => publicFetch(`${API_BASE_URL}/products/?slug=${slug}`),
+  // FIXED: Detail endpoint by slug, not list filter
+  getBySlug: (slug: string) => publicFetch(`${API_BASE_URL}/products/${slug}/`),
 
   getByCategory: (categoryId: string) =>
     publicFetch(`${API_BASE_URL}/products/?category=${categoryId}`),
@@ -64,4 +68,3 @@ export const productsAPI = {
 
   getSpiceForms: () => publicFetch(`${API_BASE_URL}/spice-forms/`),
 };
-
