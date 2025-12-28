@@ -57,7 +57,7 @@ const ProductDetail = () => {
         setProduct(productData);
         
         try {
-          const reviewsData = await reviewsAPI.getByProduct(String(productData.id));
+          const reviewsData = await reviewsAPI.getByProduct(productData.id);
           setReviews(reviewsData.results || reviewsData || []);
         } catch (reviewErr) {
           setReviews([]);
