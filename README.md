@@ -1,73 +1,118 @@
-# Welcome to your Lovable project
+# 🛒 NGU Spices - Customer Frontend
 
-## Project info
+A modern React + TypeScript e-commerce frontend for NGU Spices.
 
-**URL**: https://lovable.dev/projects/8faae761-6672-4e26-8edc-dd2c0f5599fb
+## ✨ Features
 
-## How can I edit this code?
+- **Product Browsing** - Categories, search, filters
+- **Product/Combo Details** - Gallery, reviews, add to cart
+- **Shopping Cart** - Persistent cart with stock validation
+- **Checkout** - Address, payment, order confirmation
+- **User Auth** - Login, register, profile management
+- **My Orders** - Order history and tracking
+- **Favorites** - Save products for later
+- **Chat Support** - Order-specific customer support
+- **Responsive Design** - Mobile-first approach
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+| Technology | Purpose |
+|------------|---------|
+| React 18 | UI framework |
+| TypeScript | Type safety |
+| Vite | Build tool |
+| TailwindCSS | Styling |
+| Shadcn/UI | Component library |
+| React Router | Navigation |
+| Axios | API calls |
+| Lucide | Icons |
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8faae761-6672-4e26-8edc-dd2c0f5599fb) and start prompting.
+## 📦 Project Structure
 
-Changes made via Lovable will be committed automatically to this repo.
+```
+src/
+├── components/     # Reusable UI components
+├── pages/          # Route pages
+├── lib/
+│   └── api/        # API client functions
+├── contexts/       # React contexts (Auth, Cart)
+├── hooks/          # Custom hooks
+└── types/          # TypeScript definitions
+```
 
-**Use your preferred IDE**
+## 🚀 Quick Start
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Development
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Install dependencies
+npm install
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open [http://localhost:5173](http://localhost:5173)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Build for Production
 
-**Use GitHub Codespaces**
+```bash
+npm run build
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Docker
 
-## What technologies are used for this project?
+```bash
+docker build -t ngu-frontend .
+docker run -p 3000:80 ngu-frontend
+```
 
-This project is built with:
+## 🔧 Environment Variables
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Create `.env.local`:
 
-## How can I deploy this project?
+```env
+VITE_API_URL=http://localhost:8000/api
+```
 
-Simply open [Lovable](https://lovable.dev/projects/8faae761-6672-4e26-8edc-dd2c0f5599fb) and click on Share -> Publish.
+For production:
+```env
+VITE_API_URL=https://api.your-domain.com/api
+```
 
-## Can I connect a custom domain to my Lovable project?
+## 📱 Pages
 
-Yes, you can!
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Home | Landing page, featured products |
+| `/products` | Products | Browse all products |
+| `/products/:slug` | Product Detail | View product details |
+| `/combos` | Offer Zone | Product combos |
+| `/combos/:slug` | Combo Detail | View combo details |
+| `/cart` | Cart | Shopping cart |
+| `/checkout` | Checkout | Complete purchase |
+| `/login` | Login | User authentication |
+| `/register` | Register | New user signup |
+| `/profile` | Profile | User profile |
+| `/my-orders` | Orders | Order history |
+| `/favorites` | Favorites | Saved products |
+| `/support/:orderId` | Chat Support | Order-specific chat |
+| `/about` | About | Company info |
+| `/contact` | Contact | Contact form |
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🎨 Design System
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- **Primary Color**: Brand red/orange
+- **Dark Mode**: Supported
+- **Responsive**: Mobile-first
+- **Animations**: Smooth transitions
+- **Typography**: Modern, readable fonts
+
+## 🚢 Deployment
+
+See [DEPLOYMENT.md](../../DEPLOYMENT.md) for EC2 deployment instructions.
+
+---
+
+Made with ❤️ for NGU Spices
