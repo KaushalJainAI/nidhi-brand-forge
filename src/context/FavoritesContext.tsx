@@ -3,7 +3,7 @@ import { favoritesAPI } from "@/lib/api";
 import { useAuth } from "./AuthContext";
 
 interface FavoriteItem {
-  id: string;
+  id: number;
   name: string;
   image: string;
   price: number;
@@ -15,8 +15,8 @@ interface FavoriteItem {
 interface FavoritesContextType {
   favorites: FavoriteItem[];
   addToFavorites: (item: FavoriteItem) => void;
-  removeFromFavorites: (id: string) => void;
-  isFavorite: (id: string) => boolean;
+  removeFromFavorites: (id: number) => void;
+  isFavorite: (id: number) => boolean;
   toggleFavorite: (item: FavoriteItem) => void;
   syncFavorites: () => void;
 }
@@ -79,7 +79,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const response = await favoritesAPI.get();
       if (Array.isArray(response)) {
         const backendFavorites: FavoriteItem[] = response.map((item: any) => ({
-          id: String(item.product_id || item.id),
+          id: Number(item.product_id || item.id),
           name: item.name || item.product_name,
           image: item.image || item.product_image,
           price: item.price,
@@ -125,7 +125,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const removeFromFavorites = (id: string) => {
+  const removeFromFavorites = (id: number) => {
     setFavorites(prev => prev.filter(i => i.id !== id));
     
     if (isLoggedIn) {
@@ -133,7 +133,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const isFavorite = (id: string) => {
+  const isFavorite = (id: number) => {
     return favorites.some(i => i.id === id);
   };
 

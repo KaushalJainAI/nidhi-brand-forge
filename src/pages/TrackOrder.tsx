@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,9 +22,7 @@ const TrackOrder = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 py-20">
         <div className="container mx-auto px-4 text-center">

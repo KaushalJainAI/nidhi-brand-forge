@@ -8,8 +8,8 @@ export interface Product {
   category_name?: string;
   description: string;
   spice_form: string;
-  price: string | number;
-  discount_price?: string | number;
+  price: number;
+  discount_price?: number;
   final_price: number;
   discount_percentage: number;
   stock: number;
@@ -54,7 +54,7 @@ export const productsAPI = {
     return publicFetch(`${API_BASE_URL}/products/${query ? `?${query}` : ""}`);
   },
 
-  getById: (id: string) => publicFetch(`${API_BASE_URL}/products/${id}/`),
+  getById: (id: number | string) => publicFetch(`${API_BASE_URL}/products/${id}/`),
 
   // FIXED: Detail endpoint by slug, not list filter
   getBySlug: (slug: string) => publicFetch(`${API_BASE_URL}/products/${slug}/`),

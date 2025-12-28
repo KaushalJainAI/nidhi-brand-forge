@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import ProductCard from "@/components/ProductCard";
 import VideoStorySection from "@/components/VideoStorySection";
+import FloatingChatIcon from "@/components/FloatingChatIcon";
+import FloatingVoiceButton from "@/components/FloatingVoiceButton";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Clock, Award, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -17,10 +18,10 @@ import product5 from "@/assets/product-5.jpg";
 const fallbackImages = [product1, product2, product3, product4, product5];
 
 const features = [
-  { icon: <Truck className="h-8 w-8" />, title: "Free Shipping", description: "On orders above ₹299" },
-  { icon: <Shield className="h-8 w-8" />, title: "100% Authentic", description: "Pure & natural ingredients" },
-  { icon: <Clock className="h-8 w-8" />, title: "Quick Delivery", description: "Fast doorstep delivery" },
-  { icon: <Award className="h-8 w-8" />, title: "Quality Assured", description: "Premium quality products" },
+  { icon: <Truck className="h-5 w-5 sm:h-8 sm:w-8" />, title: "Free Shipping", description: "On orders above ₹299" },
+  { icon: <Shield className="h-5 w-5 sm:h-8 sm:w-8" />, title: "100% Authentic", description: "Pure & natural ingredients" },
+  { icon: <Clock className="h-5 w-5 sm:h-8 sm:w-8" />, title: "Quick Delivery", description: "Fast doorstep delivery" },
+  { icon: <Award className="h-5 w-5 sm:h-8 sm:w-8" />, title: "Quality Assured", description: "Premium quality products" },
 ];
 
 const testimonials = [
@@ -93,23 +94,25 @@ const Index = () => {
   };
 
   const formatProduct = (product: ProductData, index: number) => ({
-    id: String(product.id),
+    id: Number(product.id),
     name: product.name,
     image: getProductImage(product, index),
     price: product.final_price || product.discount_price || product.price,
     originalPrice: product.discount_price ? product.price : undefined,
     weight: product.weight || "100g",
     badge: product.badge,
+    itemType: "product" as const,
   });
 
   const formatCombo = (combo: any, index: number) => ({
-    id: String(combo.id),
+    id: Number(combo.id),
     name: combo.display_title || combo.name,
     image: combo.image || fallbackImages[index % fallbackImages.length],
     price: combo.final_price || combo.discount_price || combo.price,
     originalPrice: combo.discount_price ? combo.price : combo.total_original_price,
     weight: combo.total_weight || "Combo",
     badge: combo.badge || "Combo",
+    itemType: "combo" as const,
   });
 
   const handleCategoryClick = (category: CategoryData) => {
@@ -135,8 +138,7 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Navbar />
+      <div className="min-h-screen bg-background flex flex-col pb-20 md:pb-0">
         <main className="flex-grow flex items-center justify-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </main>
@@ -146,8 +148,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+    <div className="min-h-screen bg-background flex flex-col pb-20 md:pb-0">
       <main className="flex-grow">
         <HeroSection />
 
@@ -166,6 +167,8 @@ const Index = () => {
           </section>
         )}
 
+        <VideoStorySection />
+
         {/* Our Specials */}
         {specials.length > 0 && (
           <section className="py-10 bg-gradient-to-r from-primary/10 to-accent/10">
@@ -182,8 +185,6 @@ const Index = () => {
             </div>
           </section>
         )}
-
-        <VideoStorySection />
 
         {/* Best Selling Products */}
         {bestSellers.length > 0 && (
@@ -211,14 +212,14 @@ const Index = () => {
         )}
 
         {/* Features */}
-        <section className="py-12 bg-muted/30">
+        <section className="py-6 sm:py-12 bg-muted/30">
           <div className="container mx-auto px-2 sm:px-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-8">
               {features.map((feature, index) => (
-                <div key={index} className="flex flex-col items-center text-center p-6 bg-card rounded-xl border border-border hover:shadow-lg transition-shadow">
-                  <div className="text-primary mb-4">{feature.icon}</div>
-                  <h3 className="font-semibold text-foreground mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                <div key={index} className="flex flex-col items-center text-center p-3 sm:p-6 bg-card rounded-lg sm:rounded-xl border border-border hover:shadow-lg transition-shadow">
+                  <div className="text-primary mb-2 sm:mb-4">{feature.icon}</div>
+                  <h3 className="font-semibold text-xs sm:text-base text-foreground mb-1 sm:mb-2">{feature.title}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -288,22 +289,22 @@ const Index = () => {
         )}
 
         {/* Testimonials */}
-        <section className="py-10">
+        <section className="py-6 sm:py-10">
           <div className="container mx-auto px-2 sm:px-4">
-            <div className="text-center mb-6">
+            <div className="text-center mb-4 sm:mb-6">
               <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">What Our Customers Say</h2>
               <p className="text-xs sm:text-base text-muted-foreground">Real reviews from real customers</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-8">
               {testimonials.map((testimonial, index) => (
-                <div key={index} className="bg-card rounded-xl p-6 border border-border">
-                  <div className="flex mb-4">
+                <div key={index} className="bg-card rounded-lg sm:rounded-xl p-3 sm:p-6 border border-border">
+                  <div className="flex mb-2 sm:mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <span key={i} className="text-accent">★</span>
+                      <span key={i} className="text-accent text-sm sm:text-base">★</span>
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-4">{testimonial.review}</p>
-                  <p className="font-semibold text-foreground">{testimonial.name}</p>
+                  <p className="text-muted-foreground text-xs sm:text-base mb-2 sm:mb-4">{testimonial.review}</p>
+                  <p className="font-semibold text-foreground text-sm sm:text-base">{testimonial.name}</p>
                 </div>
               ))}
             </div>
@@ -311,12 +312,12 @@ const Index = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-r from-primary to-accent">
+        <section className="py-10 sm:py-20 bg-gradient-to-r from-primary to-accent">
           <div className="container mx-auto px-2 sm:px-4 text-center">
-            <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+            <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-primary-foreground mb-2 sm:mb-4">
               Ready to Spice Up Your Kitchen?
             </h2>
-            <p className="text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-primary-foreground/90 mb-4 sm:mb-8 max-w-2xl mx-auto">
               Order now and experience the authentic taste of India
             </p>
             <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
@@ -329,6 +330,8 @@ const Index = () => {
         </section>
       </main>
       <Footer />
+      <FloatingChatIcon />
+      <FloatingVoiceButton />
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -91,8 +90,7 @@ const SearchResults = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
+      <div className="min-h-screen bg-background pb-20 md:pb-0">
         <div className="container mx-auto px-4 py-20 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-lg text-muted-foreground">Searching for products...</p>
@@ -103,16 +101,14 @@ const SearchResults = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       {/* Search Results Header */}
-      <section className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 py-16">
+      <section className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 py-10 sm:py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground mb-2 sm:mb-4">
             Search Results
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-sm sm:text-lg text-muted-foreground">
             {totalResults} result{totalResults !== 1 ? 's' : ''} for "{searchQuery}"
             {searchData?.stats && (
               <span className="block text-sm mt-1">
@@ -124,13 +120,13 @@ const SearchResults = () => {
       </section>
 
       {/* Results & Products */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
+      <section className="py-6 sm:py-12">
+        <div className="container mx-auto px-3 sm:px-4">
           {/* Sort */}
           {sortedProducts.length > 0 && (
-            <div className="flex justify-end items-center mb-8">
+            <div className="flex justify-end items-center mb-4 sm:mb-8">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-36 sm:w-48">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -146,7 +142,7 @@ const SearchResults = () => {
 
           {/* Products Grid */}
           {sortedProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
               {sortedProducts.map((product) => (
                 <ProductCard 
                   key={product.id}

@@ -3,7 +3,9 @@ import { API_BASE_URL, authFetch } from "./config";
 
 export interface OrderItem {
   id: number;
-  product_id: number;
+  item_type: 'product' | 'combo';
+  product_id: number | null;
+  combo_id: number | null;
   product_name: string;
   quantity: number;
   price: number;

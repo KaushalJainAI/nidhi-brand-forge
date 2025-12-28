@@ -49,12 +49,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const userData = await userAPI.getProfile();
           setUser(userData);
           localStorage.setItem("user", JSON.stringify(userData));
-        } catch (error) {
-          // If token is invalid, try cached user
-          if (cachedUser) {
+        } catch (error: any) {
+          // Check if error is 401 (token expired/invalid)
+          const status = error?.status || error?.response?.status;
+          
+          if (status === 401) {
+            // Token is expired/invalid - clear everything and logout
+            console.log("Token expired, logging out...");
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            localStorage.removeItem("user");
+            setUser(null);
+          } else if (cachedUser) {
+            // For other errors (network issues), use cached user
             setUser(JSON.parse(cachedUser));
           } else {
-            // Clear invalid tokens
+            // No cached user and can't fetch - clear tokens
             localStorage.removeItem("access_token");
             localStorage.removeItem("refresh_token");
           }

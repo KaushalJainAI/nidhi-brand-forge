@@ -40,7 +40,7 @@ const OrderSuccess = () => {
   }, [navigate, fetchCartFromBackend, setCart]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 pb-20 md:pb-0">
       <div className="text-center max-w-md">
         <div className="mb-8 flex justify-center animate-bounce">
           <CheckCircle className="h-24 w-24 text-green-500" />

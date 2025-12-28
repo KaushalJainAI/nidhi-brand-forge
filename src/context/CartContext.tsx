@@ -4,7 +4,7 @@ import { useAuth } from "./AuthContext";
 import { toast } from "sonner";
 
 interface CartItem {
-  id: string;
+  id: number;
   itemType: "product" | "combo";
   name: string;
   image: string;
@@ -12,14 +12,22 @@ interface CartItem {
   originalPrice?: number;
   badge?: string;
   quantity: number;
+  stock?: number;
+  inStock?: boolean;
+}
+
+interface AddToCartResult {
+  success: boolean;
+  requiresLogin?: boolean;
+  error?: string;
 }
 
 interface CartContextType {
   cart: CartItem[];
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
-  addToCart: (item: Omit<CartItem, "quantity">) => Promise<void>;
-  updateQuantity: (id: string, quantity: number, itemType: "product" | "combo") => Promise<void>;
-  removeFromCart: (id: string, itemType: "product" | "combo") => Promise<void>;
+  addToCart: (item: Omit<CartItem, "quantity">) => Promise<AddToCartResult>;
+  updateQuantity: (id: number, quantity: number, itemType: "product" | "combo") => Promise<void>;
+  removeFromCart: (id: number, itemType: "product" | "combo") => Promise<void>;
   clearCart: () => Promise<void>;
   fetchCartFromBackend: () => Promise<void>;
   isLoading: boolean;
@@ -36,7 +44,7 @@ export const useCart = () => {
 const CART_STORAGE_KEY = "shopping_cart";
 
 // Helper function to create unique cart key
-const getCartKey = (id: string, itemType: "product" | "combo") => `${itemType}-${id}`;
+const getCartKey = (id: number, itemType: "product" | "combo") => `${itemType}-${id}`;
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isLoggedIn } = useAuth();
@@ -69,7 +77,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Helper to map backend response to frontend format
   const mapBackendToFrontend = useCallback((items: any[]): CartItem[] => {
     return items.map((item: any) => ({
-      id: String(item.id),
+      id: Number(item.product_id || item.id),  // Use product_id (the actual product/combo ID)
       itemType: (item.item_type || "product") as "product" | "combo",
       name: item.name,
       image: item.image,
@@ -77,6 +85,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       originalPrice: item.originalPrice,
       quantity: item.quantity,
       badge: item.badge,
+      stock: item.stock ?? 999,
+      inStock: item.in_stock ?? true,
     }));
   }, []);
 
@@ -104,10 +114,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [isLoggedIn, mapBackendToFrontend]);
 
-  const addToCart = async (item: Omit<CartItem, "quantity">) => {
+  const addToCart = async (item: Omit<CartItem, "quantity">): Promise<AddToCartResult> => {
     if (!isLoggedIn) {
       toast.error("Please log in to add items to cart");
-      return;
+      return { success: false, requiresLogin: true };
     }
 
     setIsLoading(true);
@@ -121,26 +131,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         quantity: 1 
       });
 
-      console.log('Add item response:', response);
-
       if (response.success && response.items) {
         // Update state from backend response
         const backendCart = mapBackendToFrontend(response.items);
         
         setCart(backendCart);
         toast.success("Item added to cart");
+        return { success: true };
       } else {
         toast.error(response.error || "Failed to add item");
+        return { success: false, error: response.error || "Failed to add item" };
       }
     } catch (error: any) {
       console.error("Failed to add item:", error);
-      toast.error(error?.response?.data?.error || "Failed to add item to cart");
+      const errorMsg = error?.response?.data?.error || "Failed to add item to cart";
+      toast.error(errorMsg);
+      return { success: false, error: errorMsg };
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateQuantity = async (id: string, quantity: number, itemType: "product" | "combo") => {
+  const updateQuantity = async (id: number, quantity: number, itemType: "product" | "combo") => {
     if (!isLoggedIn) {
       toast.error("Please log in to update cart");
       return;
@@ -164,15 +176,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setIsLoading(true);
     try {
-      console.log('Updating quantity:', { id, quantity, itemType });
-      
       const response = await cartAPI.updateItem({ 
         product_id: id, 
         item_type: itemType,
         quantity 
       });
-
-      console.log('Update quantity response:', response);
 
       if (response.success && response.items) {
         // Sync with backend response
@@ -193,7 +201,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const removeFromCart = async (id: string, itemType: "product" | "combo") => {
+  const removeFromCart = async (id: number, itemType: "product" | "combo") => {
     if (!isLoggedIn) {
       toast.error("Please log in to remove items");
       return;
@@ -206,12 +214,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setIsLoading(true);
     try {
-      console.log('Removing item:', { id, itemType });
-      
-      // Send composite key to backend
-      const response = await cartAPI.removeItem(`${itemType}-${id}`);
-
-      console.log('Remove item response:', response);
+      // Send product_id and item_type to backend
+      const response = await cartAPI.removeItem({ 
+        product_id: id, 
+        item_type: itemType 
+      });
 
       if (response.success && response.items) {
         // Sync with backend response
@@ -244,11 +251,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setIsLoading(true);
     try {
-      console.log('Clearing cart...');
-      
       const response = await cartAPI.clear();
-
-      console.log('Clear cart response:', response);
 
       if (response.success) {
         localStorage.removeItem(CART_STORAGE_KEY);

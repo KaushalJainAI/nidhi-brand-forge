@@ -1,7 +1,7 @@
 import { API_BASE_URL, authFetch } from "./config";
 
 export interface CartItem {
-  id: string;
+  id: number;
   product_id: number;
   item_type: "product" | "combo";
   name: string;
@@ -42,7 +42,7 @@ export const cartAPI = {
   },
 
   addItem: async (data: { 
-    product_id: number | string; 
+    product_id: number; 
     item_type: "product" | "combo";
     quantity: number;
   }) => {
@@ -59,7 +59,7 @@ export const cartAPI = {
   },
 
   updateItem: async (data: { 
-    product_id: number | string; 
+    product_id: number; 
     item_type: "product" | "combo";
     quantity: number;
   }) => {
@@ -75,11 +75,14 @@ export const cartAPI = {
     }
   },
 
-  removeItem: async (itemId: number | string) => {
+  removeItem: async (data: {
+    product_id: number;
+    item_type: "product" | "combo";
+  }) => {
     try {
       const result = await authFetch(`${API_BASE_URL}/cart/remove_item/`, {
         method: "POST",
-        body: JSON.stringify({ id: itemId }),
+        body: JSON.stringify(data),
       });
       return result;
     } catch (error) {
@@ -101,7 +104,7 @@ export const cartAPI = {
   },
 
   sync: async (items: Array<{
-    product_id: number | string;
+    product_id: number;
     item_type: "product" | "combo";
     quantity: number;
   }>) => {

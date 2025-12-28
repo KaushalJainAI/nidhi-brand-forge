@@ -1,161 +1,290 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, Sparkles } from "lucide-react";
+import { Minus, Plus, Sparkles, Loader2, ShoppingCart, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { productsAPI, combosAPI } from "@/lib/api";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
-import product5 from "@/assets/product-5.jpg";
+import heroVideo from "@/assets/grok-video-2e290515-947f-4dd0-baca-4581ae53774a (1).mp4";
+
+const comboImages = [product1, product2, product3, product4];
 
 const OfferZone = () => {
+  const navigate = useNavigate();
   const { cart, addToCart, updateQuantity } = useCart();
+  const [loading, setLoading] = useState(true);
+  const [hotDeals, setHotDeals] = useState<any[]>([]);
+  const [comboOffers, setComboOffers] = useState<any[]>([]);
 
-  const offerProducts = [
-    { id: "1", name: "Garadu Masala", image: product1, price: 120, originalPrice: 150, badge: "30% OFF", weight: "100g" },
-    { id: "2", name: "Kitchen King Masala", image: product2, price: 135, originalPrice: 170, badge: "20% OFF", weight: "100g" },
-    { id: "3", name: "Pav Bhaji Masala", image: product3, price: 125, originalPrice: 155, badge: "19% OFF", weight: "100g" },
-    { id: "4", name: "Sambhar Masala", image: product4, price: 130, originalPrice: 160, badge: "19% OFF", weight: "100g" },
-    { id: "5", name: "Tea Masala", image: product5, price: 95, originalPrice: 120, badge: "21% OFF", weight: "50g" },
-    { id: "6", name: "Chana Masala", image: product1, price: 115, originalPrice: 145, badge: "21% OFF", weight: "100g" },
-    { id: "7", name: "Garam Masala", image: product2, price: 140, originalPrice: 175, badge: "20% OFF", weight: "100g" },
-    { id: "8", name: "Biryani Masala", image: product3, price: 150, originalPrice: 185, badge: "19% OFF", weight: "100g" },
-  ];
+  useEffect(() => {
+    const fetchOfferData = async () => {
+      setLoading(true);
+      try {
+        const [productsRes, combosRes] = await Promise.all([
+          productsAPI.getAll().catch(() => ({ results: [] })),
+          combosAPI.getAll().catch(() => ({ results: [] })),
+        ]);
 
-  const comboOffers = [
-    {
-      id: "combo-1",
-      title: "Festival Special Combo",
-      description: "Get 5 masalas at 40% off",
-      price: 450,
-      originalPrice: 750,
-      badge: "COMBO DEAL",
-    },
-    {
-      id: "combo-2",
-      title: "Kitchen Essential Pack",
-      description: "3 must-have masalas bundle",
-      price: 320,
-      originalPrice: 450,
-      badge: "BEST VALUE",
-    },
-  ];
+        const products = productsRes.results || productsRes || [];
+        const combos = combosRes.results || combosRes || [];
+
+        // Filter products that have discounts for Hot Deals
+        const discountedProducts = products
+          .filter((p: any) => p.discount_price || p.final_price < p.price || p.badge)
+          .slice(0, 8)
+          .map((p: any) => ({
+            id: Number(p.id),
+            name: p.name,
+            image: p.image || product1,
+            price: p.final_price || p.discount_price || p.price,
+            originalPrice: p.price,
+            badge: p.badge || `${Math.round(((p.price - (p.final_price || p.discount_price || p.price)) / p.price) * 100)}% OFF`,
+            weight: p.weight || "100g",
+            itemType: "product" as const,
+          }));
+
+        // Format combos with images
+        const formattedCombos = combos.slice(0, 4).map((c: any, index: number) => ({
+          id: Number(c.id),
+          slug: c.slug || c.id,
+          title: c.display_title || c.name,
+          description: c.subtitle || c.description || `${c.products?.length || 0} products bundle`,
+          price: c.final_price || c.price,
+          originalPrice: c.total_original_price || c.price,
+          badge: c.badge || "COMBO DEAL",
+          image: c.image || comboImages[index % comboImages.length],
+          productCount: c.products?.length || 0,
+        }));
+
+        setHotDeals(discountedProducts);
+        setComboOffers(formattedCombos);
+      } catch (error) {
+        console.error("Failed to fetch offer data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOfferData();
+  }, []);
+
+  const handleComboClick = (combo: any) => {
+    navigate(`/combos/${combo.slug}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col pb-20 md:pb-0">
+        <main className="flex-grow flex items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary via-accent to-secondary py-20">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Sparkles className="h-12 w-12 text-primary-foreground" />
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
+      {/* Video Hero Section */}
+      <section className="relative h-[280px] sm:h-[400px] md:h-[500px] overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-transparent to-accent/30" />
+        
+        {/* Content */}
+        <div className="relative h-full container mx-auto px-4 flex flex-col items-center justify-center text-center">
+          <div className="flex items-center justify-center mb-3 sm:mb-4">
+            <Sparkles className="h-8 w-8 sm:h-12 sm:w-12 text-accent animate-pulse" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-foreground mb-2 sm:mb-4 drop-shadow-lg">
             Exclusive Offers
           </h1>
-          <p className="text-lg text-primary-foreground/90 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-foreground/90 max-w-2xl mx-auto drop-shadow-md">
             Amazing deals and discounts on premium spices and masalas
           </p>
-        </div>
-      </section>
-
-      {/* Limited Time Offers Banner */}
-      <section className="py-8 bg-accent/10">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Badge variant="default" className="text-lg px-6 py-2">
-              🔥 Limited Time Offers
-            </Badge>
-            <span className="text-muted-foreground">|</span>
-            <span className="text-foreground font-semibold">Up to 30% OFF</span>
-            <span className="text-muted-foreground">|</span>
-            <span className="text-foreground font-semibold">Free Shipping on orders above ₹500</span>
-          </div>
+          <Badge variant="default" className="mt-4 text-sm sm:text-base px-4 py-2 animate-bounce">
+            🔥 Up to 30% OFF - Limited Time!
+          </Badge>
         </div>
       </section>
 
       {/* Combo Offers */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">Combo Offers</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
-            {comboOffers.map((combo) => {
-              const itemInCart = cart.find(item => item.id === combo.id);
-              return (
-                <div key={combo.id} className="bg-card border border-border rounded-2xl p-8 hover:shadow-xl transition-shadow flex flex-col h-full">
-                  {/* Badge with small/capped size */}
-                  <Badge className="mb-4 text-xs px-2 py-1 max-w-[100px] truncate text-center">
-                    {combo.badge}
-                  </Badge>
-                  <h3 className="text-2xl font-bold text-foreground mb-2">{combo.title}</h3>
-                  <p className="text-muted-foreground mb-6">{combo.description}</p>
-                  <div className="flex items-baseline gap-3 mb-6">
-                    <span className="text-3xl font-bold text-primary">₹{combo.price}</span>
-                    <span className="text-xl text-muted-foreground line-through">₹{combo.originalPrice}</span>
-                    <Badge variant="secondary">
-                      {Math.round(((combo.originalPrice - combo.price) / combo.originalPrice) * 100)}% OFF
-                    </Badge>
-                  </div>
-                  <div className="mt-auto">
-                    {itemInCart ? (
-                      <div className="flex items-center justify-between gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            updateQuantity(combo.title, itemInCart.quantity - 1)
-                          }
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="font-medium text-foreground min-w-[1.5rem] text-center text-base">
-                          {itemInCart.quantity}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            updateQuantity(combo.title, itemInCart.quantity + 1)
-                          }
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
+      <section className="py-8 sm:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
+          {comboOffers.length > 0 && (
+            <>
+              <div className="text-center mb-6 sm:mb-10">
+                <h2 className="text-2xl sm:text-4xl font-bold mb-2">
+                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Combo Offers
+                  </span>
+                </h2>
+                <p className="text-muted-foreground text-sm sm:text-base">Save more with our value bundles</p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6 max-w-5xl mx-auto mb-12 sm:mb-20">
+                {comboOffers.map((combo) => {
+                  const itemInCart = cart.find(item => item.id === combo.id && item.itemType === "combo");
+                  const savings = combo.originalPrice > combo.price 
+                    ? Math.round(((combo.originalPrice - combo.price) / combo.originalPrice) * 100)
+                    : 0;
+                  
+                  return (
+                    <div 
+                      key={combo.id} 
+                      className="group bg-card border border-border rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                      onClick={() => handleComboClick(combo)}
+                    >
+                      {/* Combo Image */}
+                      <div className="relative h-40 sm:h-52 overflow-hidden">
+                        <img 
+                          src={combo.image} 
+                          alt={combo.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {/* Gradient overlay on image */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+                        
+                        {/* Badge */}
+                        <div className="absolute top-3 left-3">
+                          <Badge className="text-xs px-2 py-1 bg-primary text-primary-foreground shadow-lg">
+                            {combo.badge}
+                          </Badge>
+                        </div>
+                        
+                        {/* Savings badge */}
+                        {savings > 0 && (
+                          <div className="absolute top-3 right-3">
+                            <Badge variant="destructive" className="text-xs px-2 py-1 shadow-lg">
+                              Save {savings}%
+                            </Badge>
+                          </div>
+                        )}
+
+                        {/* View details overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+                          <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg">
+                            <Eye className="h-4 w-4" />
+                            <span className="text-sm font-medium">View Details</span>
+                          </div>
+                        </div>
                       </div>
-                    ) : (
-                      <Button
-                        onClick={() => {
-                          addToCart({
-                            id: combo.id,
-                            name: combo.title,
-                            image: "",
-                            price: combo.price,
-                            originalPrice: combo.originalPrice,
-                            badge: combo.badge,
-                          });
-                          toast.success("Added to cart");
-                        }}
-                        className="w-full py-3 font-semibold"
-                      >
-                        Add to Cart
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                      
+                      {/* Content */}
+                      <div className="p-4 sm:p-6">
+                        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-1">
+                          {combo.title}
+                        </h3>
+                        <p className="text-muted-foreground text-xs sm:text-sm mb-4 line-clamp-2">
+                          {combo.description}
+                        </p>
+                        
+                        {/* Price */}
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className="text-2xl sm:text-3xl font-bold text-primary">₹{combo.price}</span>
+                          {combo.originalPrice > combo.price && (
+                            <span className="text-sm sm:text-base text-muted-foreground line-through">
+                              ₹{combo.originalPrice}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {/* Add to cart button */}
+                        <div onClick={(e) => e.stopPropagation()}>
+                          {itemInCart ? (
+                            <div className="flex items-center justify-center gap-4 bg-muted rounded-lg p-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => updateQuantity(combo.id, itemInCart.quantity - 1, "combo")}
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="font-bold text-lg min-w-[2rem] text-center">
+                                {itemInCart.quantity}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => updateQuantity(combo.id, itemInCart.quantity + 1, "combo")}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              onClick={() => {
+                                addToCart({
+                                  id: combo.id,
+                                  name: combo.title,
+                                  image: combo.image,
+                                  price: combo.price,
+                                  originalPrice: combo.originalPrice,
+                                  badge: combo.badge,
+                                  itemType: "combo",
+                                });
+                                toast.success("Added to cart!");
+                              }}
+                              className="w-full py-3 font-semibold gap-2"
+                            >
+                              <ShoppingCart className="h-4 w-4" />
+                              Add to Cart
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
           {/* Hot Deals */}
-          <h2 className="text-3xl font-bold mb-8 text-center">Hot Deals</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {offerProducts.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
-          </div>
+          {hotDeals.length > 0 && (
+            <>
+              <div className="text-center mb-6 sm:mb-10">
+                <h2 className="text-2xl sm:text-4xl font-bold mb-2">
+                  <span className="bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">
+                    🔥 Hot Deals
+                  </span>
+                </h2>
+                <p className="text-muted-foreground text-sm sm:text-base">Grab these before they're gone!</p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+                {hotDeals.map((product) => (
+                  <ProductCard key={`product-${product.id}`} {...product} />
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Empty state */}
+          {hotDeals.length === 0 && comboOffers.length === 0 && (
+            <div className="text-center py-10 sm:py-16">
+              <Sparkles className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <p className="text-base sm:text-xl text-muted-foreground">No offers available at the moment.</p>
+              <p className="text-muted-foreground text-sm sm:text-base">Check back soon for amazing deals!</p>
+            </div>
+          )}
         </div>
       </section>
       <Footer />

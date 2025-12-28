@@ -10,26 +10,26 @@ import { useAuth } from "@/context/AuthContext";
 
 
 interface ProductCardProps {
-  id?: string;
+  id: number;
   name: string;
   image: string;
   price: number;
   originalPrice?: number;
   badge?: string;
   weight?: string;
-  itemType?: "product" | "combo";  // Add this
+  itemType?: "product" | "combo";  
 }
 
 
 const ProductCard = ({ 
-  id = "1", 
+  id = 1, 
   name, 
   image, 
   price, 
   originalPrice, 
   badge, 
   weight = "100g",
-  itemType = "product"  // Default to product
+  itemType 
 }: ProductCardProps) => {
   const { isLoggedIn } = useAuth();
   const { cart, addToCart, updateQuantity } = useCart();
@@ -63,8 +63,8 @@ const ProductCard = ({
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow group flex flex-col h-full">
-      <Link to={`/products/${id}`} className="flex-grow flex flex-col">
+    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col h-full hover:-translate-y-1">
+      <Link to={itemType === 'combo' ? `/combos/${id}` : `/products/${id}`} className="flex-grow flex flex-col">
         <CardContent className="p-0 flex flex-col h-full">
           <div className="relative">
             <img

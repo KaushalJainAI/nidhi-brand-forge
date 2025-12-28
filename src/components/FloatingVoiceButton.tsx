@@ -36,8 +36,10 @@ const FloatingVoiceButton = () => {
       onMouseUp={handleEnd}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleEnd}
-      className="fixed right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-40
-                 md:bottom-28 bottom-52"
+      className="fixed right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl 
+                 transition-all duration-300 z-40 md:bottom-28 bottom-52 
+                 hidden md:flex animate-pulse-subtle hover:scale-110 active:scale-95
+                 hover-glow"
       size="icon"
       aria-label="Voice Order - Click or hold for 500ms"
     >

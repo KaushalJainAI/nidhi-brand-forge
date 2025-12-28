@@ -1,5 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, Search, Heart } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { ShoppingCart, User, Search, Heart, Home, Package, Tag, Grid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const { cart } = useCart();
   const { isLoggedIn } = useAuth();
 

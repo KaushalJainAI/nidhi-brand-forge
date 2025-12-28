@@ -10,6 +10,7 @@ export * from "./coupons";
 export * from "./favorites";
 export * from "./reviews";
 export * from "./payments";
+export * from "./search";
 
 // Legacy exports for backwards compatibility
 export { authAPI as userAPI } from "./auth";

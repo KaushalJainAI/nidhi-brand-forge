@@ -1,5 +1,14 @@
 import { API_BASE_URL, publicFetch } from "./config";
 
+export interface ComboItem {
+  product: number;
+  product_name: string;
+  product_slug: string;
+  product_image: string;
+  product_price: number;
+  quantity: number;
+}
+
 export interface Combo {
   id: number;
   name: string;
@@ -7,7 +16,7 @@ export interface Combo {
   description?: string;
   title?: string;
   subtitle?: string;
-  products: any[];
+  items: ComboItem[];
   price: number;
   discount_price?: number;
   final_price: number;
@@ -23,6 +32,6 @@ export interface Combo {
 
 export const combosAPI = {
   getAll: () => publicFetch(`${API_BASE_URL}/combos/`),
-  getById: (id: string) => publicFetch(`${API_BASE_URL}/combos/${id}/`),
+  getById: (id: number | string) => publicFetch(`${API_BASE_URL}/combos/${id}/`),
   getFeatured: () => publicFetch(`${API_BASE_URL}/combos/?is_featured=true`),
 };

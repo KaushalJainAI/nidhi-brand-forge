@@ -2,10 +2,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
+import ComboDetail from "./pages/ComboDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import TrackOrder from "./pages/TrackOrder";
@@ -24,14 +25,51 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Favorites from "./pages/Favorites";
 import VoiceOrder from "./pages/VoiceOrder";
-import FloatingChatIcon from "./components/FloatingChatIcon";
-import FloatingVoiceButton from "./components/FloatingVoiceButton";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import { FavoritesProvider } from "./context/FavoritesContext";
 import ScrollToTop from "./functions/ScrollToTop";
+import Navbar from "./components/Navbar";
+import MobileFooter from "./components/MobileFooter";
 
 const queryClient = new QueryClient();
+
+// Animated routes wrapper
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <div 
+      key={location.pathname}
+      className="animate-page-enter"
+    >
+      <Routes location={location}>
+        <Route path="/" element={<Index />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ProductDetail />} />
+        <Route path="/combos/:id" element={<ComboDetail />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/track-order" element={<TrackOrder />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/billing" element={<Billing />} />
+        <Route path="/chat-support" element={<ChatSupport />} />
+        <Route path="/favorites" element={<Favorites />} />
+        <Route path="/voice-order" element={<VoiceOrder />} />
+        <Route path="/search" element={<SearchResults />} />
+        <Route path="/my-orders" element={<MyOrders />} />
+        <Route path="/shipping-policy" element={<ShippingPolicy />} />
+        <Route path="/return-policy" element={<ReturnPolicy />} />
+        <Route path="/order-success" element={<OrderSuccess />} />
+        <Route path="/offer-zone" element={<OfferZone />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -43,31 +81,11 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <ScrollToTop />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/products/:id" element={<ProductDetail />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/track-order" element={<TrackOrder />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/billing" element={<Billing />} />
-                <Route path="/chat-support" element={<ChatSupport />} />
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/voice-order" element={<VoiceOrder />} />
-                <Route path="/search" element={<SearchResults />} />
-                <Route path="/my-orders" element={<MyOrders />} />
-                <Route path="/shipping-policy" element={<ShippingPolicy />} />
-                <Route path="/return-policy" element={<ReturnPolicy />} />
-                <Route path="/order-success" element={<OrderSuccess />} />
-                <Route path="/offer-zone" element={<OfferZone />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <FloatingChatIcon />
-              <FloatingVoiceButton />
+              {/* Navbar is outside AnimatedRoutes so it doesn't reload on page change */}
+              <Navbar />
+              <AnimatedRoutes />
+              {/* MobileFooter is outside AnimatedRoutes so it doesn't reload on page change */}
+              <MobileFooter />
             </BrowserRouter>
           </CartProvider>
         </FavoritesProvider>
@@ -77,3 +95,4 @@ const App = () => (
 );
 
 export default App;
+

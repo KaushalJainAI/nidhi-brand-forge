@@ -5,34 +5,31 @@ import MobileFooter from "@/components/MobileFooter";
 
 const Footer = () => {
   return (
-    <footer className="bg-card border-t border-border mt-20">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-card border-t border-border mt-20 pb-20 md:pb-0">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
           {/* Company Info */}
-          <div>
-            <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
+          <div className="col-span-2 sm:col-span-1">
+            <h3 className="text-base sm:text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2 sm:mb-4">
               Nidhi Grah Udyog
             </h3>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground text-xs sm:text-base mb-2 sm:mb-4">
               Premium quality spices and masalas for authentic Indian flavors
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Facebook className="h-5 w-5" />
+                <Facebook className="h-4 w-4 sm:h-5 sm:w-5" />
               </a>
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Instagram className="h-5 w-5" />
+                <Instagram className="h-4 w-4 sm:h-5 sm:w-5" />
               </a>
-              {/* <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a> */}
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Quick Links</h4>
-            <ul className="space-y-2">
+            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">Quick Links</h4>
+            <ul className="space-y-1 sm:space-y-2 text-xs sm:text-base">
               <li>
                 <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
                   Home
@@ -58,8 +55,8 @@ const Footer = () => {
 
           {/* Customer Service */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Customer Service</h4>
-            <ul className="space-y-2">
+            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">Customer Service</h4>
+            <ul className="space-y-1 sm:space-y-2 text-xs sm:text-base">
               <li>
                 <Link to="/my-orders" className="text-muted-foreground hover:text-primary transition-colors">
                   My Orders
@@ -84,27 +81,27 @@ const Footer = () => {
           </div>
 
           {/* Contact Info */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Contact Us</h4>
-            <ul className="space-y-3">
-              <li className="flex items-start space-x-3 text-muted-foreground">
+          <div className="col-span-2 sm:col-span-1">
+            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">Contact Us</h4>
+            <ul className="space-y-1 sm:space-y-3 text-xs sm:text-base">
+              <li className="hidden sm:flex items-start space-x-3 text-muted-foreground">
                 <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <span>7, Industrial Area, Runija Road, Barnagar. PIN-456771 <br />
                       Ujjain, MP, India</span>
               </li>
-              <li className="flex items-center space-x-3 text-muted-foreground">
-                <Phone className="h-5 w-5 flex-shrink-0" />
+              <li className="flex items-center space-x-2 sm:space-x-3 text-muted-foreground">
+                <Phone className="h-3 w-3 sm:h-5 sm:w-5 flex-shrink-0" />
                 <span>+91 93029 22251</span>
               </li>
-              <li className="flex items-center space-x-3 text-muted-foreground">
-                <Mail className="h-5 w-5 flex-shrink-0" />
+              <li className="flex items-center space-x-2 sm:space-x-3 text-muted-foreground">
+                <Mail className="h-3 w-3 sm:h-5 sm:w-5 flex-shrink-0" />
                 <span>www.nidhigrahudyog.com</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
+        <div className="border-t border-border mt-4 sm:mt-8 pt-4 sm:pt-8 text-center text-muted-foreground text-xs sm:text-base">
           <p>&copy; 2025 Nidhi Grah Udyog. All rights reserved.</p>
         </div>
       </div>

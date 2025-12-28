@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { CreditCard, Trash2, Star, Wallet } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { paymentMethodsAPI, userAPI } from "@/lib/api";
@@ -56,6 +55,7 @@ const Profile = () => {
     pincode: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -80,8 +80,12 @@ const Profile = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   useEffect(() => {
-    fetchProfile();
-    fetchPaymentMethods();
+    const loadInitialData = async () => {
+      setIsInitialLoading(true);
+      await Promise.all([fetchProfile(), fetchPaymentMethods()]);
+      setIsInitialLoading(false);
+    };
+    loadInitialData();
   }, []);
 
   // Fetch Profile
@@ -253,25 +257,39 @@ const Profile = () => {
   };
 
   // --- Render ---
+  // Show loading spinner while initial data is being fetched
+  if (isInitialLoading) {
+    return (
+      <>
+        <div className="container py-4 sm:py-8 px-3 sm:px-4 pb-24 md:pb-8 min-h-[60vh] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-muted-foreground text-sm">Loading your profile...</p>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
-      <Navbar />
-      <div className="container py-8">
+      <div className="container py-4 sm:py-8 px-3 sm:px-4 pb-24 md:pb-8">
         <Tabs defaultValue="profile" className="max-w-3xl mx-auto">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="payment">Payment</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 h-9 sm:h-10">
+            <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
+            <TabsTrigger value="security" className="text-xs sm:text-sm">Security</TabsTrigger>
+            <TabsTrigger value="payment" className="text-xs sm:text-sm">Payment</TabsTrigger>
           </TabsList>
           {/* --- Profile Section --- */}
           <TabsContent value="profile">
             <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your account information</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Profile Information</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Update your account information</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+                <form onSubmit={handleUpdateProfile} className="space-y-3 sm:space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
                     <Input id="username" value={profile.username} onChange={e => setProfile({ ...profile, username: e.target.value })} />
@@ -288,25 +306,25 @@ const Profile = () => {
                     <Label htmlFor="address">Address</Label>
                     <Input id="address" value={profile.address || ""} onChange={e => setProfile({ ...profile, address: e.target.value })} />
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="city">City</Label>
-                      <Input id="city" value={profile.city || ""} onChange={e => setProfile({ ...profile, city: e.target.value })} />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label htmlFor="city" className="text-xs sm:text-sm">City</Label>
+                      <Input id="city" className="h-9 sm:h-10 text-sm" value={profile.city || ""} onChange={e => setProfile({ ...profile, city: e.target.value })} />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="state">State</Label>
-                      <Input id="state" value={profile.state || ""} onChange={e => setProfile({ ...profile, state: e.target.value })} />
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label htmlFor="state" className="text-xs sm:text-sm">State</Label>
+                      <Input id="state" className="h-9 sm:h-10 text-sm" value={profile.state || ""} onChange={e => setProfile({ ...profile, state: e.target.value })} />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pincode">Pincode</Label>
-                      <Input id="pincode" value={profile.pincode || ""} onChange={e => setProfile({ ...profile, pincode: e.target.value })} />
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label htmlFor="pincode" className="text-xs sm:text-sm">Pincode</Label>
+                      <Input id="pincode" className="h-9 sm:h-10 text-sm" value={profile.pincode || ""} onChange={e => setProfile({ ...profile, pincode: e.target.value })} />
                     </div>
                   </div>
-                  <div className="flex gap-4">
-                    <Button type="submit" disabled={isLoading} className="w-1/2 h-12">
+                  <div className="flex gap-3 sm:gap-4">
+                    <Button type="submit" disabled={isLoading} className="w-1/2 h-10 sm:h-12 text-sm">
                       {isLoading ? "Updating..." : "Update Profile"}
                     </Button>
-                    <Button variant="destructive" type="button" onClick={handleLogout} className="w-1/2 h-12">
+                    <Button variant="destructive" type="button" onClick={handleLogout} className="w-1/2 h-10 sm:h-12 text-sm">
                       Logout
                     </Button>
                   </div>

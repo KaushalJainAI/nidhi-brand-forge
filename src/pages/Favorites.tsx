@@ -1,4 +1,3 @@
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -8,11 +7,9 @@ const Favorites = () => {
 
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 sm:mb-8">
           My Wishlist
         </h1>
         
@@ -23,8 +20,8 @@ const Favorites = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground text-lg">Your wishlist is empty</p>
+          <div className="text-center py-10 sm:py-16">
+            <p className="text-muted-foreground text-base sm:text-lg">Your wishlist is empty</p>
           </div>
         )}
       </div>

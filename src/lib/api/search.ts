@@ -30,13 +30,22 @@ export interface SearchResponse {
 }
 
 export const searchAPI = {
-  search: async (query: string, total_results: number = 20): Promise<any> => {
+  search: async (query: string, total_results: number = 20): Promise<SearchResponse> => {
     const queryParams = new URLSearchParams();
     queryParams.append("q", query);
     if (total_results) {
-      queryParams.append("total_results", total_results.toString());
+      queryParams.append("top_k", total_results.toString());
     }
     const queryString = queryParams.toString();
     return publicFetch(`${API_BASE_URL}/search/?${queryString}`);
+  },
+
+  /**
+   * Get product recommendations for display (e.g., "People Also Buy" section)
+   * Uses a generic query to fetch trending/popular products
+   */
+  getRecommendations: async (limit: number = 8): Promise<SearchResponse> => {
+    // Use a generic query that will return featured/trending products
+    return searchAPI.search("popular masala spices", limit);
   },
 };

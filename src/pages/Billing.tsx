@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import Navbar from "@/components/Navbar";
 import { authAPI, cartAPI, ordersAPI } from "@/lib/api.ts";
 import { receivableAccountsAPI } from "@/lib/api/recievableAccounts.ts";
 import QRCode from "qrcode";
@@ -43,7 +42,9 @@ const Billing = () => {
       try {
         // 1. Load receivable accounts
         const accountsResponse = await receivableAccountsAPI.getAll();
-        const accounts = accountsResponse.results || accountsResponse;
+        const accounts = Array.isArray(accountsResponse) 
+          ? accountsResponse 
+          : (accountsResponse as any).results || [accountsResponse];
         
         if (!accounts || accounts.length === 0) {
           toast.error("Payment system not configured. Please contact support.");
@@ -151,7 +152,7 @@ const Billing = () => {
       const response = await ordersAPI.validateCoupon(couponCode.trim());
       
       if (!response.valid) {
-        toast.error(response.error || "Invalid coupon code");
+        toast.error(response.message || response.error || "Invalid coupon code");
         return;
       }
 
@@ -291,7 +292,6 @@ const Billing = () => {
   if (!cartSummary) {
     return (
       <>
-        <Navbar />
         <div className="container py-8 max-w-6xl flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
@@ -304,19 +304,18 @@ const Billing = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="container py-8 max-w-6xl">
-        <h1 className="text-4xl font-bold mb-8">Checkout</h1>
+      <div className="container py-4 sm:py-8 px-3 sm:px-4 max-w-6xl pb-24 md:pb-8">
+        <h1 className="text-2xl sm:text-4xl font-bold mb-4 sm:mb-8">Checkout</h1>
         <form onSubmit={handleSubmit}>
-          <div className="grid lg:grid-cols-3 gap-10">
+          <div className="grid lg:grid-cols-3 gap-4 sm:gap-10">
             {/* SHIPPING */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-8">
               <Card>
-                <CardHeader>
-                  <CardTitle>Shipping Information</CardTitle>
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg">Shipping Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
                     {Object.entries({
                       fullName: "Full Name", 
                       email: "Email", 
@@ -327,7 +326,7 @@ const Billing = () => {
                       zipCode: "Zip Code"
                     }).map(([key, label]) => (
                       <div key={key} className={key === 'address' ? 'sm:col-span-2' : ''}>
-                        <Label htmlFor={key} className="text-sm font-medium">
+                        <Label htmlFor={key} className="text-xs sm:text-sm font-medium">
                           {label} <span className="text-red-500">*</span>
                         </Label>
                         <Input
@@ -337,7 +336,7 @@ const Billing = () => {
                             setFormData(prev => ({ ...prev, [key]: e.target.value }))
                           }
                           required
-                          className={`mt-1 ${errors[key] ? "border-red-500" : ""}`}
+                          className={`mt-1 h-9 sm:h-10 text-sm ${errors[key] ? "border-red-500" : ""}`}
                         />
                         {errors[key] && (
                           <p className="text-xs text-red-500 mt-1">{errors[key]}</p>
@@ -352,47 +351,47 @@ const Billing = () => {
             {/* SUMMARY + QR + PLACE ORDER */}
             <div>
               <Card>
-                <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg">Order Summary</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
                   {/* Cart Items */}
-                  <div className="divide-y divide-muted space-y-3 text-base">
+                  <div className="divide-y divide-muted space-y-2 sm:space-y-3 text-sm sm:text-base">
                     {cartItems.map((item: any) => (
-                      <div className="py-3 flex flex-col" key={item.id || item.product_id}>
+                      <div className="py-2 sm:py-3 flex flex-col" key={`${item.item_type || 'product'}-${item.product_id || item.id}`}>
                         <div className="flex justify-between items-baseline">
-                          <span className="font-medium text-base">{item.name}</span>
-                          <span className="font-semibold text-base">
+                          <span className="font-medium text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">{item.name}</span>
+                          <span className="font-semibold text-sm sm:text-base">
                             ₹{(item.price * item.quantity).toFixed(2)}
                           </span>
                         </div>
-                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                        <div className="flex justify-between text-xs text-muted-foreground mt-0.5 sm:mt-1">
                           <span>Qty: {item.quantity}</span>
-                          <span>Unit: ₹{item.price.toFixed(2)}</span>
-                          {item.weight && <span>{item.weight}</span>}
+                          <span>₹{item.price.toFixed(2)}/unit</span>
                         </div>
                       </div>
                     ))}
                   </div>
                   
                   {/* Coupon UI */}
-                  <Separator className="my-4" />
+                  <Separator className="my-3 sm:my-4" />
                   <div className="space-y-2">
-                    <Label htmlFor="coupon" className="text-sm font-medium">
+                    <Label htmlFor="coupon" className="text-xs sm:text-sm font-medium">
                       Have a coupon?
                     </Label>
                     {!appliedCoupon ? (
                       <div className="flex gap-2">
                         <Input
                           id="coupon"
-                          placeholder="Enter coupon code"
+                          placeholder="Enter code"
+                          className="flex-1 h-9 sm:h-10 text-sm"
                           value={couponCode}
                           onChange={e => setCouponCode(e.target.value.toUpperCase())}
-                          className="flex-1"
                         />
                         <Button 
                           type="button" 
                           variant="outline" 
+                          className="h-9 sm:h-10 text-xs sm:text-sm px-2 sm:px-3"
                           onClick={handleApplyCoupon}
                           disabled={!couponCode.trim()}
                         >
@@ -400,16 +399,16 @@ const Billing = () => {
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between bg-green-50 p-3 rounded-md border border-green-200">
-                        <span className="text-sm text-green-700 font-medium">
+                      <div className="flex items-center justify-between bg-green-50 p-2 sm:p-3 rounded-md border border-green-200">
+                        <span className="text-xs sm:text-sm text-green-700 font-medium">
                           {appliedCoupon.code} applied ✓
                         </span>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
+                          className="h-7 sm:h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
                           onClick={handleRemoveCoupon}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           Remove
                         </Button>
@@ -418,71 +417,71 @@ const Billing = () => {
                   </div>
                   
                   {/* Summary */}
-                  <Separator className="my-4" />
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
+                  <Separator className="my-3 sm:my-4" />
+                  <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                    <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal</span>
                       <span className="font-semibold">₹{cartSummary.subtotal.toFixed(2)}</span>
                     </div>
                     {cartSummary.discount > 0 && (
-                      <div className="flex justify-between text-sm text-green-600">
+                      <div className="flex justify-between text-green-600">
                         <span>Discount</span>
                         <span className="font-semibold">-₹{cartSummary.discount.toFixed(2)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between">
                       <span className="text-muted-foreground">Shipping</span>
                       <span className="font-semibold">
                         {cartSummary.shipping === 0 ? 'FREE' : `₹${cartSummary.shipping.toFixed(2)}`}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between">
                       <span className="text-muted-foreground">Tax (5%)</span>
                       <span className="font-semibold">₹{cartSummary.tax.toFixed(2)}</span>
                     </div>
                     <Separator className="my-2" />
-                    <div className="flex justify-between text-lg font-bold">
+                    <div className="flex justify-between text-base sm:text-lg font-bold">
                       <span>Total</span>
                       <span className="text-primary">₹{cartSummary.total.toFixed(2)}</span>
                     </div>
                   </div>
                   
                   {/* QR Code */}
-                  <Separator className="my-4"/>
+                  <Separator className="my-3 sm:my-4"/>
                   <div className="w-full flex flex-col items-center">
-                    <p className="text-sm font-medium mb-3">
+                    <p className="text-xs sm:text-sm font-medium mb-2 sm:mb-3">
                       Scan to Pay ₹{cartSummary.total.toFixed(2)}
                     </p>
                     {qrCodeDataUrl ? (
                       <img 
                         src={qrCodeDataUrl}
                         alt="UPI Payment QR Code"
-                        className="w-[200px] h-[200px] rounded-lg border-2 border-gray-300 p-2 bg-white"
+                        className="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] rounded-lg border-2 border-gray-300 p-1 sm:p-2 bg-white"
                       />
                     ) : (
-                      <div className="w-[200px] h-[200px] flex items-center justify-center bg-gray-100 rounded-lg border-2 border-gray-300">
+                      <div className="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] flex items-center justify-center bg-gray-100 rounded-lg border-2 border-gray-300">
                         <div className="text-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
-                          <span className="text-muted-foreground text-sm">Loading QR...</span>
+                          <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
+                          <span className="text-muted-foreground text-xs">Loading QR...</span>
                         </div>
                       </div>
                     )}
                     {paymentUrl && (
                       <a
                         href={paymentUrl}
-                        className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                        className="mt-2 sm:mt-3 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
                       >
                         Pay via UPI App
                       </a>
                     )}
                   </div>
                   
-                  <div className="text-xs text-muted-foreground text-center my-3">
+                  <div className="text-xs text-muted-foreground text-center my-2 sm:my-3">
                     Scan QR or click button above, then confirm payment below
                   </div>
                   
                   {/* Payment Confirmation */}
-                  <div className="flex items-center justify-center p-3 bg-gray-50 rounded-md border">
+                  <div className="flex items-center justify-center p-2 sm:p-3 bg-gray-50 rounded-md border">
                     <input
                       type="checkbox"
                       id="hasPaid"
@@ -490,7 +489,7 @@ const Billing = () => {
                       checked={hasPaid}
                       onChange={() => setHasPaid(v => !v)}
                     />
-                    <Label htmlFor="hasPaid" className="cursor-pointer font-medium text-sm">
+                    <Label htmlFor="hasPaid" className="cursor-pointer font-medium text-xs sm:text-sm">
                       I have completed the payment
                     </Label>
                   </div>
@@ -501,7 +500,7 @@ const Billing = () => {
                   
                   <Button
                     type="submit"
-                    className="w-full mt-4 h-12 text-base font-semibold"
+                    className="w-full mt-3 sm:mt-4 h-10 sm:h-12 text-sm sm:text-base font-semibold"
                     disabled={isLoading || !hasPaid}
                   >
                     {isLoading ? (
