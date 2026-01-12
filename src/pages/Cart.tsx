@@ -14,6 +14,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { cartAPI, searchAPI } from "@/lib/api";
+import { API_BASE_URL } from "@/lib/api/config";
 
 // Helper to resolve image URLs from backend (may be relative paths)
 const getImageUrl = (imagePath: string | null | undefined): string => {
@@ -21,7 +22,7 @@ const getImageUrl = (imagePath: string | null | undefined): string => {
   // If it's already an absolute URL or data URL, return as-is
   if (imagePath.startsWith('http') || imagePath.startsWith('data:')) return imagePath;
   // If it's a relative path starting with /, prepend the base URL
-  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+  const baseUrl = API_BASE_URL.replace('/api', '');
   return imagePath.startsWith('/') ? `${baseUrl}${imagePath}` : `${baseUrl}/${imagePath}`;
 };
 

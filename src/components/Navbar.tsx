@@ -37,15 +37,24 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         {/* Main Navbar Row */}
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 flex-shrink-0">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">NG</span>
-            </div>
-            <div className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hidden sm:block">
-              Nidhi Masale
-            </div>
-          </Link>
+          {/* Logo and About Us link */}
+          <div className="flex items-center space-x-3 flex-shrink-0">
+            <Link to="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg">NG</span>
+              </div>
+              <div className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hidden sm:block">
+                Nidhi Masale
+              </div>
+            </Link>
+            {/* About Us link for mobile - displayed next to logo */}
+            <Link 
+              to="/about" 
+              className="md:hidden text-sm font-medium text-muted-foreground hover:text-primary transition-colors border-l border-border pl-3"
+            >
+              About Us
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">

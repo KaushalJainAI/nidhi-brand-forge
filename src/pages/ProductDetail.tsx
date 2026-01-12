@@ -16,6 +16,7 @@ import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
 import { productsAPI, reviewsAPI, Product } from "@/lib/api";
+import { Review } from "@/lib/api/reviews";
 import product1 from "@/assets/product-1.jpg";
 
 const ProductDetail = () => {
@@ -29,9 +30,15 @@ const ProductDetail = () => {
   
   const [product, setProduct] = useState<Product | null>(null);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
+  // Reviews pagination state
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [hasMoreReviews, setHasMoreReviews] = useState(false);
+  const [loadingMoreReviews, setLoadingMoreReviews] = useState(false);
 
   // Check if product is already in cart
   const itemInCart = cart.find(item => item.id === Number(id) && item.itemType === "product");
@@ -57,10 +64,15 @@ const ProductDetail = () => {
         setProduct(productData);
         
         try {
-          const reviewsData = await reviewsAPI.getByProduct(productData.id);
-          setReviews(reviewsData.results || reviewsData || []);
+          const reviewsData = await reviewsAPI.getByProduct(productData.id, 1);
+          setReviews(reviewsData.results || []);
+          setTotalReviews(reviewsData.count || 0);
+          setHasMoreReviews(!!reviewsData.next);
+          setReviewsPage(1);
         } catch (reviewErr) {
           setReviews([]);
+          setTotalReviews(0);
+          setHasMoreReviews(false);
         }
         
         if (productData.category) {
@@ -86,6 +98,24 @@ const ProductDetail = () => {
 
     fetchProduct();
   }, [id]);
+
+  // Load more reviews function
+  const loadMoreReviews = async () => {
+    if (!product || loadingMoreReviews || !hasMoreReviews) return;
+    
+    setLoadingMoreReviews(true);
+    try {
+      const nextPage = reviewsPage + 1;
+      const reviewsData = await reviewsAPI.getByProduct(product.id, nextPage);
+      setReviews(prev => [...prev, ...(reviewsData.results || [])]);
+      setHasMoreReviews(!!reviewsData.next);
+      setReviewsPage(nextPage);
+    } catch (err) {
+      console.error("Error loading more reviews:", err);
+    } finally {
+      setLoadingMoreReviews(false);
+    }
+  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -541,11 +571,18 @@ const ProductDetail = () => {
 
         {/* Reviews Section */}
         <section className="max-w-4xl">
-          <h2 className="text-xl font-bold mb-6">Customer Reviews</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold">Customer Reviews</h2>
+            {totalReviews > 0 && (
+              <span className="text-sm text-muted-foreground">
+                Showing {reviews.length} of {totalReviews} reviews
+              </span>
+            )}
+          </div>
           
           {reviews.length > 0 ? (
             <div className="space-y-4">
-              {reviews.map((review: any) => (
+              {reviews.map((review) => (
                 <Card key={review.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -556,6 +593,9 @@ const ProductDetail = () => {
                         />
                       ))}
                       <span className="text-sm font-medium ml-2">{review.title || "Great Product!"}</span>
+                      {review.is_verified_purchase && (
+                        <Badge variant="secondary" className="ml-2 text-xs">Verified Purchase</Badge>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">{review.comment}</p>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -567,6 +607,27 @@ const ProductDetail = () => {
                   </CardContent>
                 </Card>
               ))}
+              
+              {/* Load More Button */}
+              {hasMoreReviews && (
+                <div className="flex justify-center pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={loadMoreReviews}
+                    disabled={loadingMoreReviews}
+                    className="min-w-[200px]"
+                  >
+                    {loadingMoreReviews ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Loading...
+                      </>
+                    ) : (
+                      `Load More Reviews`
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-8 bg-muted/50 rounded-xl">

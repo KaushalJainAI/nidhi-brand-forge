@@ -13,6 +13,7 @@ import { combosAPI, Combo, ComboItem } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import ProductCard from "@/components/ProductCard";
 import product1 from "@/assets/product-1.jpg";
+import { API_BASE_URL } from "@/lib/api/config";
 
 // Helper to resolve image URLs from backend (may be relative paths)
 const getImageUrl = (imagePath: string | null | undefined): string => {
@@ -20,7 +21,7 @@ const getImageUrl = (imagePath: string | null | undefined): string => {
   // If it's already an absolute URL or data URL, return as-is
   if (imagePath.startsWith('http') || imagePath.startsWith('data:')) return imagePath;
   // If it's a relative path starting with /, prepend the base URL
-  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+  const baseUrl = API_BASE_URL.replace('/api', '');
   return imagePath.startsWith('/') ? `${baseUrl}${imagePath}` : `${baseUrl}/${imagePath}`;
 };
 

@@ -243,7 +243,28 @@ const MyOrders = () => {
       setCurrentReview("");
     } catch (error: any) {
       console.error("Failed to submit review:", error);
-      const message = error?.message || "Failed to submit review. Please try again.";
+      console.log("Error details:", JSON.stringify(error, null, 2));
+      
+      // Extract user-friendly error message from backend response
+      let message = "Failed to submit review. Please try again.";
+      
+      // APIError has data property with the backend response
+      if (error?.data) {
+        if (typeof error.data === 'string') {
+          message = error.data;
+        } else if (error.data.error) {
+          message = error.data.error;
+        } else if (error.data.detail) {
+          message = error.data.detail;
+        } else if (error.data.non_field_errors?.[0]) {
+          message = error.data.non_field_errors[0];
+        }
+      } else if (error?.error) {
+        message = error.error;
+      } else if (error?.message && error.message !== "Bad Request") {
+        message = error.message;
+      }
+      
       toast.error(message);
     } finally {
       setReviewLoading(false);

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { favoritesAPI } from "@/lib/api";
 import { useAuth } from "./AuthContext";
+import { API_BASE_URL } from "@/lib/api/config";
 
 interface FavoriteItem {
   id: number;
@@ -64,7 +65,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const handleBeforeUnload = () => {
       if (isLoggedIn && favorites.length > 0) {
         navigator.sendBeacon(
-          `${import.meta.env.VITE_API_URL || "http://localhost:8000/api"}/favorites/sync/`,
+          `${API_BASE_URL}/favorites/sync/`,
           JSON.stringify({ items: favorites })
         );
       }

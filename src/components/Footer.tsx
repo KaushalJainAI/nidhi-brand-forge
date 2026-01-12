@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
-import MobileFooter from "@/components/MobileFooter";
 
 
 const Footer = () => {
@@ -105,7 +104,6 @@ const Footer = () => {
           <p>&copy; 2025 Nidhi Grah Udyog. All rights reserved.</p>
         </div>
       </div>
-      <MobileFooter />
     </footer>
   );
 };

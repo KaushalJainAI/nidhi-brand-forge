@@ -14,6 +14,13 @@ export interface Review {
   created_at: string;
 }
 
+export interface PaginatedReviewsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Review[];
+}
+
 export interface CreateReviewData {
   item_type: 'product' | 'combo';
   product?: number;
@@ -24,11 +31,11 @@ export interface CreateReviewData {
 }
 
 export const reviewsAPI = {
-  getByProduct: (productId: number) =>
-    publicFetch(`${API_BASE_URL}/reviews/?product=${productId}`),
+  getByProduct: (productId: number, page: number = 1): Promise<PaginatedReviewsResponse> =>
+    publicFetch(`${API_BASE_URL}/reviews/?product=${productId}&page=${page}`),
 
-  getByCombo: (comboId: number) =>
-    publicFetch(`${API_BASE_URL}/reviews/?combo=${comboId}`),
+  getByCombo: (comboId: number, page: number = 1): Promise<PaginatedReviewsResponse> =>
+    publicFetch(`${API_BASE_URL}/reviews/?combo=${comboId}&page=${page}`),
 
   create: (reviewData: CreateReviewData) =>
     authFetch(`${API_BASE_URL}/reviews/`, {
@@ -39,5 +46,4 @@ export const reviewsAPI = {
   getUserReviews: () =>
     authFetch(`${API_BASE_URL}/reviews/`),
 };
-
 
