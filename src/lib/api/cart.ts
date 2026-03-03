@@ -109,14 +109,14 @@ export const cartAPI = {
     quantity: number;
   }>) => {
     try {
-      console.log('Syncing items to backend:', items);
+
       
       const data = await authFetch(`${API_BASE_URL}/cart/sync/`, {
         method: "POST",
         body: JSON.stringify({ items }),
       });
       
-      console.log('Sync response data:', data);
+
       return data;
     } catch (error) {
       console.error('Cart sync error:', error);

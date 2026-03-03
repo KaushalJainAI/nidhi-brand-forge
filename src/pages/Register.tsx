@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { API_BASE_URL } from "@/lib/api/config";
+import { authAPI } from "@/lib/api/auth";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -40,39 +40,25 @@ const Register = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          username: formData.username,
-          password: formData.password,
-          password2: formData.confirmPassword,
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode,
-          profile_picture: formData.profile_picture
-        }),
+      await authAPI.register({
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        password2: formData.confirmPassword,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        pincode: formData.pincode,
+        profile_picture: formData.profile_picture
       });
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("Registration successful!");
-        navigate("/login");
-      } else {
-        if (data.email) toast.error(data.email[0] || "Email error");
-        else if (data.username) toast.error(data.username[0] || "Username error");
-        else if (data.password) toast.error(data.password[0] || "Password error");
-        else if (data.phone) toast.error(data.phone[0] || "Phone error");
-        else if (data.message) toast.error(data.message);
-        else toast.error("Registration failed. Please try again.");
-      }
-    } catch (error) {
+      toast.success("Registration successful!");
+      navigate("/login");
+    } catch (error: any) {
       console.error("Registration error:", error);
-      toast.error("Network error. Please check your connection.");
+      toast.error(error.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

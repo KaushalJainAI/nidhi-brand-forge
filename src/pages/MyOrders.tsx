@@ -171,17 +171,16 @@ const MyOrders = () => {
 
     try {
       for (const item of order.items) {
-        for (let i = 0; i < item.quantity; i++) {
-          await addToCart({
-            id: item.product_id,
-            itemType: "product",
-            name: item.product_name,
-            image: getProductImage(item.product_id),
-            price: item.price,
-            originalPrice: item.price,
-            badge: "Reorder",
-          });
-        }
+        await addToCart({
+          id: item.product_id,
+          itemType: "product",
+          name: item.product_name,
+          image: getProductImage(item.product_id),
+          price: item.price,
+          originalPrice: item.price,
+          badge: "Reorder",
+          quantity: item.quantity,
+        });
       }
 
       toast.success("Items from this order added to cart");
@@ -243,27 +242,11 @@ const MyOrders = () => {
       setCurrentReview("");
     } catch (error: any) {
       console.error("Failed to submit review:", error);
-      console.log("Error details:", JSON.stringify(error, null, 2));
+
       
-      // Extract user-friendly error message from backend response
-      let message = "Failed to submit review. Please try again.";
-      
-      // APIError has data property with the backend response
-      if (error?.data) {
-        if (typeof error.data === 'string') {
-          message = error.data;
-        } else if (error.data.error) {
-          message = error.data.error;
-        } else if (error.data.detail) {
-          message = error.data.detail;
-        } else if (error.data.non_field_errors?.[0]) {
-          message = error.data.non_field_errors[0];
-        }
-      } else if (error?.error) {
-        message = error.error;
-      } else if (error?.message && error.message !== "Bad Request") {
-        message = error.message;
-      }
+      const message = error?.message && error.message !== "Bad Request" 
+        ? error.message 
+        : "Failed to submit review. Please try again.";
       
       toast.error(message);
     } finally {

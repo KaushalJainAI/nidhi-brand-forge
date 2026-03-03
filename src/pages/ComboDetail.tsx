@@ -81,17 +81,16 @@ const ComboDetail = () => {
       return;
     }
     
-    for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: Number(combo.id),
-        name: combo.display_title || combo.name,
-        itemType: "combo" as const,
-        image: combo.image || product1,
-        price: combo.final_price || combo.price,
-        originalPrice: combo.total_original_price || combo.price,
-        badge: combo.badge,
-      });
-    }
+    addToCart({
+      id: Number(combo.id),
+      name: combo.display_title || combo.name,
+      itemType: "combo" as const,
+      image: combo.image || product1,
+      price: combo.final_price || combo.price,
+      originalPrice: combo.total_original_price || combo.price,
+      badge: combo.badge,
+      quantity: quantity,
+    });
     toast.success(`${quantity} ${quantity > 1 ? 'combos' : 'combo'} added to cart!`);
   };
 

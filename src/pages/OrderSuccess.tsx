@@ -13,7 +13,7 @@ const OrderSuccess = () => {
     // Clear cart and sync with backend on mount
     const clearAndSyncCart = async () => {
       try {
-        console.log('Order successful - syncing cart with backend...');
+
         
         // Clear local cart state immediately
         setCart([]);
@@ -22,7 +22,7 @@ const OrderSuccess = () => {
         // Fetch latest cart from backend (should be empty after order)
         await fetchCartFromBackend();
         
-        console.log('Cart cleared and synced successfully');
+
       } catch (error) {
         console.error('Failed to sync cart after order:', error);
         // Don't show error toast - order was successful

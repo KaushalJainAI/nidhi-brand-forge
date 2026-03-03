@@ -13,7 +13,8 @@ export interface Product {
   final_price: number;
   discount_percentage: number;
   stock: number;
-  weight: string;
+  weight: number;
+  unit: string;
   origin_country?: string;
   organic: boolean;
   shelf_life?: string;

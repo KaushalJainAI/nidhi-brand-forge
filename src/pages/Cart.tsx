@@ -168,7 +168,7 @@ const Cart = () => {
           image: getImageUrl(p.image),
           price: p.price,
           originalPrice: p.original_price > p.price ? p.original_price : undefined,
-          weight: p.weight || "100g",
+          weight: p.weight ? `${p.weight}${p.unit || 'g'}` : "100g",
           itemType: "product" as const,
           badge: p.is_featured ? "Featured" : undefined,
         }));

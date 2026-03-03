@@ -3,8 +3,38 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:80
 export class APIError extends Error {
   status: number;
   data: any;
+  
   constructor(status: number, statusText: string, data: any) {
-    super(statusText);
+    let errorMessage = statusText;
+
+    // Intelligently extract the best error message from the backend response
+    if (data) {
+      if (typeof data === 'string') {
+        errorMessage = data;
+      } else if (data.error) {
+        errorMessage = data.error;
+      } else if (data.detail) {
+        errorMessage = data.detail;
+      } else if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
+        errorMessage = data.non_field_errors[0];
+      } else if (data.message) {
+        errorMessage = data.message;
+      } else if (typeof data === 'object') {
+        // Fallback: extract the first field exception
+        const keys = Object.keys(data);
+        if (keys.length > 0) {
+          const firstKey = keys[0];
+          if (Array.isArray(data[firstKey]) && data[firstKey].length > 0) {
+            // e.g. "email: This field is required."
+            errorMessage = `${firstKey.charAt(0).toUpperCase() + firstKey.slice(1).replace(/_/g, ' ')}: ${data[firstKey][0]}`;
+          } else if (typeof data[firstKey] === 'string') {
+            errorMessage = data[firstKey];
+          }
+        }
+      }
+    }
+
+    super(errorMessage);
     this.status = status;
     this.data = data;
   }
@@ -43,11 +73,11 @@ export const refreshAccessToken = async (): Promise<string> => {
   return refreshPromise;
 };
 
-// config.ts - CORRECT implementation
+// config.ts - CORRECT implementation with token refresh
 export const authFetch = async (url: string, options: RequestInit = {}) => {
-  const token = getAccessToken();
+  let token = getAccessToken();
   
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -56,10 +86,31 @@ export const authFetch = async (url: string, options: RequestInit = {}) => {
     },
   });
 
+  // Handle token expiration
+  if (response.status === 401 && getRefreshToken()) {
+    try {
+      token = await refreshAccessToken();
+      
+      // Retry with new token
+      response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
+          ...options.headers,
+        },
+      });
+    } catch (error) {
+      // If refresh fails, refreshAccessToken handles the logout and redirect
+    }
+  }
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new APIError(response.status, response.statusText, errorData);
   }
+
+  if (response.status === 204) return null;
 
   // Return parsed JSON directly
   return response.json();

@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           
           if (status === 401) {
             // Token is expired/invalid - clear everything and logout
-            console.log("Token expired, logging out...");
+            // Token is expired/invalid - clear everything and logout
             localStorage.removeItem("access_token");
             localStorage.removeItem("refresh_token");
             localStorage.removeItem("user");

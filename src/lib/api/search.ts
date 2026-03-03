@@ -10,7 +10,8 @@ export interface SearchProduct {
   price: number;
   original_price: number;
   discount: number;
-  weight: string;
+  weight: number;
+  unit: string;
   image: string;
   score: number;
   score_type: string;

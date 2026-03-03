@@ -46,7 +46,7 @@ const OfferZone = () => {
             price: p.final_price || p.discount_price || p.price,
             originalPrice: p.price,
             badge: p.badge || `${Math.round(((p.price - (p.final_price || p.discount_price || p.price)) / p.price) * 100)}% OFF`,
-            weight: p.weight || "100g",
+            weight: p.weight ? `${p.weight}${p.unit || 'g'}` : "100g",
             itemType: "product" as const,
           }));
 

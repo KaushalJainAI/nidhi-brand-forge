@@ -9,14 +9,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Clock, Award, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { productsAPI, categoriesAPI, combosAPI } from "@/lib/api";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
-import product5 from "@/assets/product-5.jpg";
-
-const fallbackImages = [product1, product2, product3, product4, product5];
-
 const features = [
   { icon: <Truck className="h-5 w-5 sm:h-8 sm:w-8" />, title: "Free Shipping", description: "On orders above ₹299" },
   { icon: <Shield className="h-5 w-5 sm:h-8 sm:w-8" />, title: "100% Authentic", description: "Pure & natural ingredients" },
@@ -37,7 +29,8 @@ interface ProductData {
   price: number;
   final_price?: number;
   discount_price?: number;
-  weight?: string;
+  weight?: number;
+  unit?: string;
   badge?: string;
 }
 
@@ -89,17 +82,13 @@ const Index = () => {
     fetchData();
   }, []);
 
-  const getProductImage = (product: ProductData, index: number) => {
-    return product.image || fallbackImages[index % fallbackImages.length];
-  };
-
   const formatProduct = (product: ProductData, index: number) => ({
     id: Number(product.id),
     name: product.name,
-    image: getProductImage(product, index),
+    image: product.image,
     price: product.final_price || product.discount_price || product.price,
     originalPrice: product.discount_price ? product.price : undefined,
-    weight: product.weight || "100g",
+    weight: product.weight ? `${product.weight}${product.unit || 'g'}` : "",
     badge: product.badge,
     itemType: "product" as const,
   });
@@ -107,11 +96,11 @@ const Index = () => {
   const formatCombo = (combo: any, index: number) => ({
     id: Number(combo.id),
     name: combo.display_title || combo.name,
-    image: combo.image || fallbackImages[index % fallbackImages.length],
+    image: combo.image,
     price: combo.final_price || combo.discount_price || combo.price,
     originalPrice: combo.discount_price ? combo.price : combo.total_original_price,
-    weight: combo.total_weight || "Combo",
-    badge: combo.badge || "Combo",
+    weight: combo.total_weight || "",
+    badge: combo.badge || "",
     itemType: "combo" as const,
   });
 

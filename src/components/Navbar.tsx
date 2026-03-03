@@ -40,11 +40,13 @@ const Navbar = () => {
           {/* Logo and About Us link */}
           <div className="flex items-center space-x-3 flex-shrink-0">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">NG</span>
-              </div>
+              <img 
+                src="/logo.png" 
+                alt="Nidhi Grah Udyog Logo" 
+                className="h-10 w-auto"
+              />
               <div className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hidden sm:block">
-                Nidhi Masale
+                Nidhi Grah Udyog
               </div>
             </Link>
             {/* About Us link for mobile - displayed next to logo */}

@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { searchAPI } from "@/lib/api/search";
+import { API_BASE_URL } from "@/lib/api/config";
 
 interface SearchProduct {
   id: number;
@@ -15,7 +16,8 @@ interface SearchProduct {
   price: number;
   original_price: number;
   discount: number;
-  weight: string;
+  weight: number;
+  unit: string;
   image: string;
   score: number;
   score_type: string;
@@ -146,12 +148,12 @@ const SearchResults = () => {
               {sortedProducts.map((product) => (
                 <ProductCard 
                   key={product.id}
-                  id={product.id.toString()}
+                  id={Number(product.id)}
                   name={product.name}
-                  image={product.image.startsWith('/') ? `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}${product.image}` : product.image}
+                  image={product.image.startsWith('/') ? `${API_BASE_URL.replace(/\/api\/?$/, '')}${product.image}` : product.image}
                   price={product.price}
                   originalPrice={product.original_price}
-                  weight={product.weight}
+                  weight={product.weight ? `${product.weight}${product.unit || 'g'}` : "100g"}
                   badge={product.is_featured ? "Featured" : product.discount > 0 ? `${product.discount}% OFF` : undefined}
                 />
               ))}

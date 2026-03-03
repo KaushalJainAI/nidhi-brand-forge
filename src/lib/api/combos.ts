@@ -27,6 +27,8 @@ export interface Combo {
   badge?: string;
   total_original_price: number;
   total_weight: string;
+  weight?: number;
+  unit?: string;
   display_title: string;
 }
 

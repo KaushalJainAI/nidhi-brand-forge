@@ -9,7 +9,8 @@ interface FavoriteItem {
   image: string;
   price: number;
   originalPrice?: number;
-  weight?: string;
+  weight?: number | string;
+  unit?: string;
   badge?: string;
 }
 
@@ -86,6 +87,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           price: item.price,
           originalPrice: item.original_price,
           weight: item.weight,
+          unit: item.unit,
           badge: item.badge,
         }));
         

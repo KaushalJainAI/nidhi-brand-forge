@@ -25,7 +25,7 @@ interface AddToCartResult {
 interface CartContextType {
   cart: CartItem[];
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
-  addToCart: (item: Omit<CartItem, "quantity">) => Promise<AddToCartResult>;
+  addToCart: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => Promise<AddToCartResult>;
   updateQuantity: (id: number, quantity: number, itemType: "product" | "combo") => Promise<void>;
   removeFromCart: (id: number, itemType: "product" | "combo") => Promise<void>;
   clearCart: () => Promise<void>;
@@ -114,7 +114,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [isLoggedIn, mapBackendToFrontend]);
 
-  const addToCart = async (item: Omit<CartItem, "quantity">): Promise<AddToCartResult> => {
+  const addToCart = async (item: Omit<CartItem, "quantity"> & { quantity?: number }): Promise<AddToCartResult> => {
     if (!isLoggedIn) {
       toast.error("Please log in to add items to cart");
       return { success: false, requiresLogin: true };
@@ -128,7 +128,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await cartAPI.addItem({ 
         product_id: item.id, 
         item_type: item.itemType,
-        quantity: 1 
+        quantity: item.quantity || 1 
       });
 
       if (response.success && response.items) {

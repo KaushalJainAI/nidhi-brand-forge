@@ -126,16 +126,15 @@ const ProductDetail = () => {
       return;
     }
     
-    for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: Number(product.id),
-        name: product.name,
-        itemType: "product" as const,
-        image: product.image || product1,
-        price: product.final_price || Number(product.discount_price) || Number(product.price),
-        originalPrice: product.discount_price ? Number(product.price) : undefined,
-      });
-    }
+    addToCart({
+      id: Number(product.id),
+      name: product.name,
+      itemType: "product" as const,
+      image: product.image || product1,
+      price: product.final_price || Number(product.discount_price) || Number(product.price),
+      originalPrice: product.discount_price ? Number(product.price) : undefined,
+      quantity: quantity,
+    });
     toast.success(`${quantity} ${quantity > 1 ? 'items' : 'item'} added to cart!`);
   };
 
@@ -150,7 +149,7 @@ const ProductDetail = () => {
       image: product.image || product1,
       price: product.final_price || Number(product.discount_price) || Number(product.price),
       originalPrice: product.discount_price ? Number(product.price) : undefined,
-      weight: product.weight,
+      weight: `${product.weight}${product.unit || ''}`,
       badge: product.badge,
     });
     
@@ -203,7 +202,7 @@ const ProductDetail = () => {
     image: p.image || product1,
     price: p.final_price || Number(p.discount_price) || Number(p.price),
     originalPrice: p.discount_price ? Number(p.price) : undefined,
-    weight: p.weight || "100g",
+    weight: `${p.weight || ''}${p.unit || ''}` || "100g",
     itemType: "product" as const,
   });
 
@@ -386,7 +385,7 @@ const ProductDetail = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-medium">Weight:</span>
-                <span className="text-muted-foreground">{product.weight}</span>
+                <span className="text-muted-foreground">{product.weight}{product.unit || 'g'}</span>
               </div>
               {product.spice_form && (
                 <div className="flex items-center gap-2 text-sm">
