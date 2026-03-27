@@ -54,17 +54,21 @@ export const refreshAccessToken = async (): Promise<string> => {
       const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ refresh: refreshToken }),
       });
       if (!response.ok) throw new Error("Token refresh failed");
       const data = await response.json();
       localStorage.setItem("access_token", data.access);
+      if (data.refresh) {
+        localStorage.setItem("refresh_token", data.refresh);
+      }
       return data.access;
     } catch (error) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      window.dispatchEvent(new Event("auth:unauthorized"));
       throw error;
     } finally {
       refreshPromise = null;
@@ -73,15 +77,26 @@ export const refreshAccessToken = async (): Promise<string> => {
   return refreshPromise;
 };
 
+const getCookie = (name: string): string | null => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+  return null;
+};
+
+
 // config.ts - CORRECT implementation with token refresh
 export const authFetch = async (url: string, options: RequestInit = {}) => {
   let token = getAccessToken();
+  const csrfToken = getCookie("csrftoken");
   
   let response = await fetch(url, {
     ...options,
+    credentials: "include",
     headers: {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
+      ...(csrfToken && { 'X-CSRFToken': csrfToken }),
       ...options.headers,
     },
   });
@@ -90,13 +105,16 @@ export const authFetch = async (url: string, options: RequestInit = {}) => {
   if (response.status === 401 && getRefreshToken()) {
     try {
       token = await refreshAccessToken();
+      const freshCsrfToken = getCookie("csrftoken");
       
       // Retry with new token
       response = await fetch(url, {
         ...options,
+        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
           ...(token && { Authorization: `Bearer ${token}` }),
+          ...(freshCsrfToken && { 'X-CSRFToken': freshCsrfToken }),
           ...options.headers,
         },
       });
@@ -118,11 +136,13 @@ export const authFetch = async (url: string, options: RequestInit = {}) => {
 
 
 export const publicFetch = async (url: string, options: RequestInit = {}): Promise<any> => {
+  const csrfToken = getCookie("csrftoken");
   const headers: HeadersInit = {
     "Content-Type": "application/json",
+    ...(csrfToken && { 'X-CSRFToken': csrfToken }),
     ...options.headers,
   };
-  const response = await fetch(url, { ...options, headers });
+  const response = await fetch(url, { ...options, headers, credentials: "include" });
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new APIError(response.status, response.statusText, errorData);

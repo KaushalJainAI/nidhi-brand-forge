@@ -18,6 +18,7 @@ const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [resetToken, setResetToken] = useState("");
   const [step, setStep] = useState<"verify" | "reset">("verify");
 
   useEffect(() => {
@@ -47,6 +48,9 @@ const ResetPassword = () => {
 
       if (response.ok) {
         toast.success("OTP verified!");
+        if (data.reset_token) {
+            setResetToken(data.reset_token);
+        }
         setStep("reset");
       } else {
         toast.error(data.detail || "Invalid or expired OTP.");
@@ -76,7 +80,7 @@ const ResetPassword = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
             email, 
-            otp_code: otpCode, 
+            reset_token: resetToken, 
             new_password: newPassword, 
             confirm_password: confirmPassword 
         }),

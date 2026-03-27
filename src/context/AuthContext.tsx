@@ -55,7 +55,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           
           if (status === 401) {
             // Token is expired/invalid - clear everything and logout
-            // Token is expired/invalid - clear everything and logout
             localStorage.removeItem("access_token");
             localStorage.removeItem("refresh_token");
             localStorage.removeItem("user");
@@ -74,6 +73,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     initAuth();
+
+    const handleUnauthorized = () => {
+      setUser(null);
+      // Optional: Redirect or show toast here using your app's router/toast setup
+    };
+
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+
+    return () => {
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
