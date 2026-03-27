@@ -290,7 +290,7 @@ const ProductDetail = () => {
                   <img 
                     src={img} 
                     alt={`${product.name} view ${idx + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = product1;
                     }}
@@ -305,7 +305,7 @@ const ProductDetail = () => {
                 <img 
                   src={galleryImages[selectedImageIndex]} 
                   alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = product1;
                   }}

@@ -228,7 +228,7 @@ const ComboDetail = () => {
                 <img 
                   src={getImageUrl(combo.image)} 
                   alt="Combo"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = product1;
                   }}
@@ -248,7 +248,7 @@ const ComboDetail = () => {
                   <img 
                     src={getImageUrl(item.product_image)} 
                     alt={item.product_name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = product1;
                     }}
@@ -273,7 +273,7 @@ const ComboDetail = () => {
                     ? combo.name 
                     : items[selectedImageIndex - 1]?.product_name
                   }
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = product1;
                   }}
@@ -380,7 +380,7 @@ const ComboDetail = () => {
                       <img 
                         src={getImageUrl(item.product_image)} 
                         alt={item.product_name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = product1;
                         }}
@@ -593,7 +593,7 @@ const ComboDetail = () => {
                     <img 
                       src={getImageUrl(item.product_image)}
                       alt={item.product_name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = product1;
                       }}

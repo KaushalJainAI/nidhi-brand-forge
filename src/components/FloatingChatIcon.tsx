@@ -8,7 +8,7 @@ const FloatingChatIcon = () => {
       <Button
         size="lg"
         className="fixed right-6 h-16 w-16 rounded-full shadow-lg hover:shadow-xl 
-                   transition-all duration-300 z-50 md:bottom-6 bottom-24
+                   transition-all duration-300 z-50 md:bottom-6 bottom-40
                    animate-pulse-subtle hover:scale-110 active:scale-95
                    hover-glow"
         aria-label="Contact Us"

@@ -33,6 +33,7 @@ import { FavoritesProvider } from "./context/FavoritesContext";
 import ScrollToTop from "./functions/ScrollToTop";
 import Navbar from "./components/Navbar";
 import MobileFooter from "./components/MobileFooter";
+import FloatingChatIcon from "./components/FloatingChatIcon";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +91,7 @@ const App = () => (
               <AnimatedRoutes />
               {/* MobileFooter is outside AnimatedRoutes so it doesn't reload on page change */}
               <MobileFooter />
+              <FloatingChatIcon />
             </BrowserRouter>
           </CartProvider>
         </FavoritesProvider>

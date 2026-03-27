@@ -234,7 +234,7 @@ const Cart = () => {
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-16 h-16 sm:w-24 sm:h-24 bg-muted rounded-md object-cover hover:opacity-80 transition-opacity cursor-pointer"
+                        className="w-16 h-16 sm:w-24 sm:h-24 bg-muted rounded-md object-contain hover:opacity-80 transition-opacity cursor-pointer"
                       />
                     </Link>
                     <div className="flex-1 min-w-0">

@@ -3,7 +3,6 @@ import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import ProductCard from "@/components/ProductCard";
 import VideoStorySection from "@/components/VideoStorySection";
-import FloatingChatIcon from "@/components/FloatingChatIcon";
 import FloatingVoiceButton from "@/components/FloatingVoiceButton";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Clock, Award, Loader2 } from "lucide-react";
@@ -319,7 +318,7 @@ const Index = () => {
         </section>
       </main>
       <Footer />
-      <FloatingChatIcon />
+
       <FloatingVoiceButton />
     </div>
   );

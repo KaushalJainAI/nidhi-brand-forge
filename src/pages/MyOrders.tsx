@@ -395,7 +395,7 @@ const MyOrders = () => {
                                   <img
                                     src={getProductImage(item.product_id)}
                                     alt={item.product_name}
-                                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-md object-cover"
+                                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-md object-contain"
                                   />
                                   <div className="flex-1 min-w-0">
                                     <h4 className="font-medium text-sm sm:text-base truncate">
