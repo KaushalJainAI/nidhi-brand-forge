@@ -6,6 +6,7 @@ interface User {
   id: string;
   username: string;
   email: string;
+  name?: string;
   first_name?: string;
   last_name?: string;
   phone?: string;
@@ -22,6 +23,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   signup: (userData: any) => Promise<boolean>;
+  googleLogin: (accessToken: string) => Promise<boolean>;
   refreshUser: () => Promise<void>;
 }
 
@@ -129,6 +131,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const googleLogin = async (accessToken: string): Promise<boolean> => {
+    try {
+      const data = await userAPI.googleLogin(accessToken);
+      if (data.access) {
+        const userData = await userAPI.getProfile();
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+        toast.success("Login with Google successful!");
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      console.error("Google login error:", error);
+      const errorMessage = error.data?.detail || error.data?.message || "Google login failed";
+      toast.error(errorMessage);
+      return false;
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("access_token");
@@ -158,6 +179,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         login, 
         logout, 
         signup, 
+        googleLogin,
         refreshUser 
       }}
     >

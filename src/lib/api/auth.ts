@@ -44,4 +44,22 @@ export const authAPI = {
       method: "POST",
       body: JSON.stringify({ old_password, new_password }),
     }),
+
+  googleLogin: async (accessToken: string) => {
+    const response = await fetch(`${API_BASE_URL}/auth/google/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ access_token: accessToken }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new APIError(response.status, response.statusText, errorData);
+    }
+    const data = await response.json();
+    if (data.access) {
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
+    }
+    return data;
+  },
 };

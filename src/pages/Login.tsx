@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext"; // import your Auth context hook
+import { useAuth } from "@/context/AuthContext";
+import { GoogleLogin } from "@react-oauth/google";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,27 +12,38 @@ import { Link } from "react-router-dom";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // context login function
+  const { login, googleLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handles login with context (see context code from previous answer)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Use context login and show feedback
     try {
       const success = await login(email, password);
       if (success) {
-        // toast.success("Login successful!");
-        navigate("/"); // or redirect where you want
+        navigate("/");
       } else {
         toast.error("Login failed. Please check your credentials.");
       }
     } catch (error) {
       toast.error("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (response: any) => {
+    setIsLoading(true);
+    try {
+      const success = await googleLogin(response.credential);
+      if (success) {
+        navigate("/");
+      }
+    } catch (error) {
+       toast.error("Google login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -71,6 +83,26 @@ const Login: React.FC = () => {
                     onChange={e => setPassword(e.target.value)}
                     required
                     className="border-border"
+                  />
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-center w-full">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => toast.error("Google login failed")}
+                    useOneTap
+                    theme="outline"
+                    shape="rectangular"
+                    width="100%"
                   />
                 </div>
               </CardContent>

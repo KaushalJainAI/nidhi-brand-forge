@@ -12,6 +12,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    name: "",
     email: "",
     phone: "",
     username: "",
@@ -43,6 +44,7 @@ const Register = () => {
       await authAPI.register({
         first_name: formData.firstName,
         last_name: formData.lastName,
+        name: formData.name,
         email: formData.email,
         username: formData.username,
         password: formData.password,
@@ -75,6 +77,19 @@ const Register = () => {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {/* Full Name field */}
+            <div>
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={handleChange}
+                className="mt-2"
+              />
+            </div>
+
             {/* Name Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

@@ -47,6 +47,7 @@ const Profile = () => {
   // Profile info and states
   const [profile, setProfile] = useState({
     username: "",
+    name: "",
     email: "",
     phone: "",
     address: "",
@@ -293,6 +294,10 @@ const Profile = () => {
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
                     <Input id="username" value={profile.username} onChange={e => setProfile({ ...profile, username: e.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input id="name" value={profile.name || ""} onChange={e => setProfile({ ...profile, name: e.target.value })} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>

@@ -32,9 +32,6 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 
 import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
 
 const MyOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -88,20 +85,7 @@ const MyOrders = () => {
 
   const { addToCart } = useCart();
 
-  const getProductImage = (productId: number) => {
-    switch (productId) {
-      case 1:
-        return product1;
-      case 2:
-        return product2;
-      case 3:
-        return product3;
-      case 4:
-        return product4;
-      default:
-        return product1;
-    }
-  };
+
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString("en-IN", {
@@ -175,7 +159,7 @@ const MyOrders = () => {
           id: item.product_id,
           itemType: "product",
           name: item.product_name,
-          image: getProductImage(item.product_id),
+          image: item.image || product1,
           price: item.price,
           originalPrice: item.price,
           badge: "Reorder",
@@ -393,7 +377,7 @@ const MyOrders = () => {
                                   className="flex items-center gap-3 sm:gap-4"
                                 >
                                   <img
-                                    src={getProductImage(item.product_id)}
+                                    src={item.image || product1}
                                     alt={item.product_name}
                                     className="w-12 h-12 sm:w-16 sm:h-16 rounded-md object-contain"
                                   />

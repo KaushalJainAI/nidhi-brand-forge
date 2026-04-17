@@ -30,6 +30,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { FavoritesProvider } from "./context/FavoritesContext";
 import ScrollToTop from "./functions/ScrollToTop";
 import Navbar from "./components/Navbar";
@@ -81,26 +82,27 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <FavoritesProvider>
-          <CartProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <ScrollToTop />
-              {/* Navbar is outside AnimatedRoutes so it doesn't reload on page change */}
-              <Navbar />
-              <AnimatedRoutes />
-              {/* MobileFooter is outside AnimatedRoutes so it doesn't reload on page change */}
-              <MobileFooter />
-              <FloatingChatIcon />
-            </BrowserRouter>
-          </CartProvider>
-        </FavoritesProvider>
-      </AuthProvider>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+        <AuthProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <ScrollToTop />
+                {/* Navbar is outside AnimatedRoutes so it doesn't reload on page change */}
+                <Navbar />
+                <AnimatedRoutes />
+                {/* MobileFooter is outside AnimatedRoutes so it doesn't reload on page change */}
+                <MobileFooter />
+                <FloatingChatIcon />
+              </BrowserRouter>
+            </CartProvider>
+          </FavoritesProvider>
+        </AuthProvider>
+      </GoogleOAuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
 
 export default App;
-

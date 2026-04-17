@@ -7,6 +7,7 @@ export interface OrderItem {
   product_id: number | null;
   combo_id: number | null;
   product_name: string;
+  image: string | null;
   quantity: number;
   price: number;
   total: number;
