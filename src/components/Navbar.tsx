@@ -66,6 +66,9 @@ const Navbar = () => {
             <Link to="/products" className="text-foreground hover:text-primary transition-colors font-medium">
               Products
             </Link>
+            <Link to="/combos" className="text-foreground hover:text-primary transition-colors font-medium">
+              Combos
+            </Link>
             <Link to="/about" className="text-foreground hover:text-primary transition-colors font-medium">
               About Us
             </Link>

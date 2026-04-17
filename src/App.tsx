@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
+import Combos from "./pages/Combos";
 import ProductDetail from "./pages/ProductDetail";
 import ComboDetail from "./pages/ComboDetail";
 import About from "./pages/About";
@@ -49,6 +50,7 @@ const AnimatedRoutes = () => {
       <Routes location={location}>
         <Route path="/" element={<Index />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/combos" element={<Combos />} />
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/combos/:id" element={<ComboDetail />} />
         <Route path="/about" element={<About />} />

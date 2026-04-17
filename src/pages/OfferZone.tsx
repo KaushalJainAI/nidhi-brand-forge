@@ -38,7 +38,6 @@ const OfferZone = () => {
         // Filter products that have discounts for Hot Deals
         const discountedProducts = products
           .filter((p: any) => p.discount_price || p.final_price < p.price || p.badge)
-          .slice(0, 8)
           .map((p: any) => ({
             id: Number(p.id),
             name: p.name,
@@ -51,7 +50,7 @@ const OfferZone = () => {
           }));
 
         // Format combos with images
-        const formattedCombos = combos.slice(0, 4).map((c: any, index: number) => ({
+        const formattedCombos = combos.map((c: any, index: number) => ({
           id: Number(c.id),
           slug: c.slug || c.id,
           title: c.display_title || c.name,
