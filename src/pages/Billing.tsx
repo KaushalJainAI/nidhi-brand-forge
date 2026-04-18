@@ -278,7 +278,8 @@ const Billing = () => {
       });
       
       toast.success("Order placed! We will verify your payment soon.");
-      navigate("/order-success");
+      // navigate("/order-success");
+      navigate("/interest-success");
       
     } catch (err: any) {
       console.error('Order creation error:', err);

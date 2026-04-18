@@ -333,3 +333,49 @@ All colors MUST be HSL.
     }
   }
 }
+
+/* Hide Google Translate Bar and Tooltips */
+.goog-te-banner-frame.skiptranslate, 
+.goog-te-banner-frame,
+#goog-gt-tt, 
+.goog-te-balloon-frame,
+.goog-te-menu-frame,
+.goog-te-banner,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Prevent Google from shifting the page down */
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+html {
+  margin-top: 0px !important;
+}
+
+.skiptranslate iframe {
+  display: none !important;
+}
+
+/* Hide "Original text" tooltips */
+.goog-tooltip {
+  display: none !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Fix for mobile where Google Translate might add extra space */
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+

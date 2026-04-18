@@ -55,6 +55,12 @@ const Index = () => {
   const [combos, setCombos] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
+  const features = [
+    { icon: <Truck className="h-5 w-5 sm:h-8 sm:w-8" />, title: "Free Shipping", description: "On orders above ₹299" },
+    { icon: <Shield className="h-5 w-5 sm:h-8 sm:w-8" />, title: "100% Authentic", description: "Pure & natural ingredients" },
+    { icon: <Clock className="h-5 w-5 sm:h-8 sm:w-8" />, title: "Quick Delivery", description: "Fast doorstep delivery" },
+    { icon: <Award className="h-5 w-5 sm:h-8 sm:w-8" />, title: "Quality Assured", description: "Premium quality products" },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -146,7 +152,7 @@ const Index = () => {
             <div className="container mx-auto px-2 sm:px-4">
               <div className="mb-4">
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1">Newly Launched</h2>
-                <p className="text-xs sm:text-base text-muted-foreground">Fresh arrivals for your kitchen</p>
+                <p className="text-xs sm:text-base text-muted-foreground">Freshly packed and ready for your kitchen</p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6">
                 {newlyLaunched.map(product => <ProductCard key={product.id} {...product} />)}
@@ -164,7 +170,7 @@ const Index = () => {
               <div className="text-center mb-7">
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Our Specials</h2>
                 <p className="text-xs sm:text-base text-muted-foreground max-w-2xl mx-auto">
-                  Discover what makes us unique with our curated specialty masalas and blends!
+                  Discover our handcrafted spice blends that bring authentic flavors to your home.
                 </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6 mb-6">
@@ -183,7 +189,7 @@ const Index = () => {
                   <h2 className="text-xl sm:text-3xl md:text-4xl font-bold mb-2 text-foreground">
                     Best Selling Products
                   </h2>
-                  <p className="text-xs sm:text-base text-muted-foreground">Discover our most loved spices and masalas</p>
+                  <p className="text-xs sm:text-base text-muted-foreground">Customer favorites across India</p>
                 </div>
                 <Button variant="outline" className="w-full sm:w-auto hidden sm:flex" asChild>
                   <Link to="/products">
@@ -220,7 +226,7 @@ const Index = () => {
             <div className="container mx-auto px-2 sm:px-4">
               <div className="mb-4">
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1">Trending Now</h2>
-                <p className="text-xs sm:text-base text-muted-foreground">Hot off the shelf — just bought by other foodies!</p>
+                <p className="text-xs sm:text-base text-muted-foreground">Spices everyone is trying this season</p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6">
                 {trending.map(product => <ProductCard key={product.id} {...product} />)}
@@ -236,7 +242,7 @@ const Index = () => {
               <div className="text-center mb-6">
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Shop by Category</h2>
                 <p className="text-xs sm:text-base text-muted-foreground max-w-2xl mx-auto">
-                  Explore our wide range of authentic Indian spices and masalas
+                  Find exactly what you need for your cooking
                 </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-6">
@@ -263,10 +269,10 @@ const Index = () => {
             <div className="container mx-auto px-2 sm:px-4">
               <div className="text-center mb-5">
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Special Combo Offers
+                  Combo Offers
                 </h2>
                 <p className="text-xs sm:text-base text-muted-foreground max-w-2xl mx-auto">
-                  Save more with our specially curated combo packs
+                  Save more with our curated spice bundles
                 </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-8 max-w-4xl mx-auto">
@@ -280,8 +286,8 @@ const Index = () => {
         <section className="py-6 sm:py-10">
           <div className="container mx-auto px-2 sm:px-4">
             <div className="text-center mb-4 sm:mb-6">
-              <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">What Our Customers Say</h2>
-              <p className="text-xs sm:text-base text-muted-foreground">Real reviews from real customers</p>
+              <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Customer Testimonials</h2>
+              <p className="text-xs sm:text-base text-muted-foreground">What our happy customers say</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-8">
               {testimonials.map((testimonial, index) => (
@@ -306,7 +312,8 @@ const Index = () => {
               Ready to Spice Up Your Kitchen?
             </h2>
             <p className="text-sm sm:text-base text-primary-foreground/90 mb-4 sm:mb-8 max-w-2xl mx-auto">
-              Order now and experience the authentic taste of India
+              Experience the true essence of Indian tradition with our handcrafted spices.
+              Pure, authentic, and delivered to your doorstep.
             </p>
             <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
               <Link to="/products" className="flex items-center justify-center">

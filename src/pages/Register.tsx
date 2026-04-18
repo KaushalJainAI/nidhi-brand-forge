@@ -39,6 +39,14 @@ const Register = () => {
       toast.error("Passwords don't match");
       return;
     }
+    if (formData.password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return;
+    }
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      toast.error("Password must contain at least one uppercase letter, one lowercase letter, and one number");
+      return;
+    }
     setIsLoading(true);
     try {
       await authAPI.register({

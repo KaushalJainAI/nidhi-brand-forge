@@ -28,6 +28,7 @@ import Favorites from "./pages/Favorites";
 import VoiceOrder from "./pages/VoiceOrder";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import InterestSuccess from "./pages/InterestSuccess";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -68,6 +69,7 @@ const AnimatedRoutes = () => {
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
         <Route path="/return-policy" element={<ReturnPolicy />} />
         <Route path="/order-success" element={<OrderSuccess />} />
+        <Route path="/interest-success" element={<InterestSuccess />} />
         <Route path="/offer-zone" element={<OfferZone />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

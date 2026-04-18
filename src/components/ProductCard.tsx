@@ -7,6 +7,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import CachedImage from "@/components/CachedImage";
 
 
 interface ProductCardProps {
@@ -67,7 +68,7 @@ const ProductCard = ({
       <Link to={itemType === 'combo' ? `/combos/${id}` : `/products/${id}`} className="flex-grow flex flex-col">
         <CardContent className="p-0 flex flex-col h-full">
           <div className="relative">
-            <img
+            <CachedImage
               src={image}
               alt={name}
               className="w-full h-32 sm:h-48 object-contain group-hover:scale-105 transition-transform duration-300"

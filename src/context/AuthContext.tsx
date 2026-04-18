@@ -42,33 +42,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Initialize auth state on mount
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem("access_token");
       const cachedUser = localStorage.getItem("user");
 
-      if (token) {
-        try {
-          // Try to get fresh user data
-          const userData = await userAPI.getProfile();
-          setUser(userData);
-          localStorage.setItem("user", JSON.stringify(userData));
-        } catch (error: any) {
-          // Check if error is 401 (token expired/invalid)
-          const status = error?.status || error?.response?.status;
-          
-          if (status === 401) {
-            // Token is expired/invalid - clear everything and logout
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            localStorage.removeItem("user");
-            setUser(null);
-          } else if (cachedUser) {
-            // For other errors (network issues), use cached user
-            setUser(JSON.parse(cachedUser));
-          } else {
-            // No cached user and can't fetch - clear tokens
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-          }
+      try {
+        // Try to get fresh user data using HttpOnly cookies
+        const userData = await userAPI.getProfile();
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+      } catch (error: any) {
+        const status = error?.status || error?.response?.status;
+        
+        if (status === 401) {
+          localStorage.removeItem("user");
+          setUser(null);
+        } else if (cachedUser) {
+          setUser(JSON.parse(cachedUser));
         }
       }
       setIsLoading(false);
@@ -112,8 +100,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return false;
     } catch (error: any) {
       console.error("Login error:", error);
-      const errorMessage = error.data?.detail || error.data?.message || "Login failed";
-      toast.error(errorMessage);
+      toast.error("Login failed. Please check your credentials.");
       return false;
     }
   };
@@ -150,11 +137,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8000/api"}/auth/logout/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
     toast.success("Logged out successfully!");
   };
 
@@ -168,7 +164,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const isLoggedIn = !!user && !!localStorage.getItem("access_token");
+  const isLoggedIn = !!user;
 
   return (
     <AuthContext.Provider 

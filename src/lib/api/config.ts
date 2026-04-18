@@ -40,34 +40,24 @@ export class APIError extends Error {
   }
 }
 
-export const getAccessToken = () => localStorage.getItem("access_token");
-export const getRefreshToken = () => localStorage.getItem("refresh_token");
+export const getAccessToken = () => null; // Now handled via HttpOnly cookies
+export const getRefreshToken = () => null; // Now handled via HttpOnly cookies
 
-let refreshPromise: Promise<string> | null = null;
+let refreshPromise: Promise<boolean> | null = null;
 
-export const refreshAccessToken = async (): Promise<string> => {
+export const refreshAccessToken = async (): Promise<boolean> => {
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
     try {
-      const refreshToken = getRefreshToken();
-      if (!refreshToken) throw new Error("No refresh token available");
       const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ refresh: refreshToken }),
+        body: JSON.stringify({}),
       });
       if (!response.ok) throw new Error("Token refresh failed");
-      const data = await response.json();
-      localStorage.setItem("access_token", data.access);
-      if (data.refresh) {
-        localStorage.setItem("refresh_token", data.refresh);
-      }
-      return data.access;
+      return true;
     } catch (error) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("user");
       window.dispatchEvent(new Event("auth:unauthorized"));
       throw error;
     } finally {
@@ -85,37 +75,41 @@ const getCookie = (name: string): string | null => {
 };
 
 
-// config.ts - CORRECT implementation with token refresh
+// config.ts - implementation with HTTPOnly cookies for tokens
 export const authFetch = async (url: string, options: RequestInit = {}) => {
-  let token = getAccessToken();
   const csrfToken = getCookie("csrftoken");
+  const headersObj: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (csrfToken) {
+    headersObj['X-CSRFToken'] = csrfToken;
+  }
   
   let response = await fetch(url, {
     ...options,
     credentials: "include",
     headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...(csrfToken && { 'X-CSRFToken': csrfToken }),
-      ...options.headers,
+      ...headersObj,
+      ...(options.headers as any),
     },
   });
 
   // Handle token expiration
-  if (response.status === 401 && getRefreshToken()) {
+  if (response.status === 401) {
     try {
-      token = await refreshAccessToken();
+      await refreshAccessToken();
       const freshCsrfToken = getCookie("csrftoken");
+      if (freshCsrfToken) {
+        headersObj['X-CSRFToken'] = freshCsrfToken;
+      }
       
-      // Retry with new token
+      // Retry with new token cookies automatically included
       response = await fetch(url, {
         ...options,
         credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-          ...(freshCsrfToken && { 'X-CSRFToken': freshCsrfToken }),
-          ...options.headers,
+          ...headersObj,
+          ...(options.headers as any),
         },
       });
     } catch (error) {

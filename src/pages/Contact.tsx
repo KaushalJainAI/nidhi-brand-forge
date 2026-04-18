@@ -6,6 +6,7 @@ import { Mail, Phone, MapPin } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { contactAPI } from "@/lib/api/support";
+import DOMPurify from "dompurify";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -23,11 +24,11 @@ const Contact = () => {
     
     try {
       await contactAPI.submit({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        subject: formData.subject || "General Inquiry",
-        message: formData.message,
+        name: DOMPurify.sanitize(formData.name),
+        email: DOMPurify.sanitize(formData.email),
+        phone: DOMPurify.sanitize(formData.phone),
+        subject: DOMPurify.sanitize(formData.subject) || "General Inquiry",
+        message: DOMPurify.sanitize(formData.message),
       });
       toast.success("Thank you! We'll get back to you soon.");
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });

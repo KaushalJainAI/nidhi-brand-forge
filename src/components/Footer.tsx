@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
-
+import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -13,7 +12,7 @@ const Footer = () => {
               Nidhi Grah Udyog
             </h3>
             <p className="text-muted-foreground text-xs sm:text-base mb-2 sm:mb-4">
-              Premium quality spices and masalas for authentic Indian flavors
+              Pioneering the authentic taste of Indian spices since 1995. Quality that feels like home.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
@@ -46,7 +45,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">
-                  Contact
+                  Contact Us
                 </Link>
               </li>
             </ul>
@@ -81,7 +80,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div className="col-span-2 sm:col-span-1">
-            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">Contact Us</h4>
+            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">Contact Detail</h4>
             <ul className="space-y-1 sm:space-y-3 text-xs sm:text-base">
               <li className="hidden sm:flex items-start space-x-3 text-muted-foreground">
                 <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
@@ -109,3 +108,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

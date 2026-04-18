@@ -3,18 +3,18 @@ import { Home, ShoppingBag, Gift, Package, Mic } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 
-const footerItems = [
-  { label: "Home", icon: Home, path: "/" },
-  { label: "Products", icon: ShoppingBag, path: "/products" },
-  { label: "Voice", icon: Mic, path: "/voice-order", isSpecial: true }, // Coming Soon feature
-  { label: "Offers", icon: Gift, path: "/offer-zone" },
-  { label: "Orders", icon: Package, path: "/my-orders" },
-];
-
 const MobileFooterNav = () => {
   const { cart } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const footerItems = [
+    { label: "Home", icon: Home, path: "/" },
+    { label: "Products", icon: ShoppingBag, path: "/products" },
+    { label: "Voice", icon: Mic, path: "/voice-order", isSpecial: true },
+    { label: "Offers", icon: Gift, path: "/offer-zone" },
+    { label: "Orders", icon: Package, path: "/my-orders" },
+  ];
 
   return (
     <nav className="fixed bottom-0 z-50 w-full bg-card border-t border-border flex justify-around items-end md:hidden h-16 transition-all duration-300">
