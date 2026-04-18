@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
           {/* Company Info */}
           <div className="col-span-2 sm:col-span-1">
-            <h3 className="text-base sm:text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2 sm:mb-4">
+            <h3 className="notranslate text-base sm:text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2 sm:mb-4">
               Nidhi Grah Udyog
             </h3>
             <p className="text-muted-foreground text-xs sm:text-base mb-2 sm:mb-4">
@@ -82,12 +82,12 @@ const Footer = () => {
           <div className="col-span-2 sm:col-span-1">
             <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">Contact Detail</h4>
             <ul className="space-y-1 sm:space-y-3 text-xs sm:text-base">
-              <li className="hidden sm:flex items-start space-x-3 text-muted-foreground">
+              <li className="notranslate hidden sm:flex items-start space-x-3 text-muted-foreground">
                 <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <span>7, Industrial Area, Runija Road, Barnagar. PIN-456771 <br />
                       Ujjain, MP, India</span>
               </li>
-              <li className="flex items-center space-x-2 sm:space-x-3 text-muted-foreground">
+              <li className="notranslate flex items-center space-x-2 sm:space-x-3 text-muted-foreground">
                 <Phone className="h-3 w-3 sm:h-5 sm:w-5 flex-shrink-0" />
                 <span>+91 93029 22251</span>
               </li>

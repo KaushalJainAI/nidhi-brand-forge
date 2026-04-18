@@ -31,6 +31,7 @@ import ResetPassword from "./pages/ResetPassword";
 import InterestSuccess from "./pages/InterestSuccess";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { FavoritesProvider } from "./context/FavoritesContext";
 import ScrollToTop from "./functions/ScrollToTop";
@@ -86,21 +87,23 @@ const App = () => (
     <TooltipProvider>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
         <AuthProvider>
-          <FavoritesProvider>
-            <CartProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <ScrollToTop />
-                {/* Navbar is outside AnimatedRoutes so it doesn't reload on page change */}
-                <Navbar />
-                <AnimatedRoutes />
-                {/* MobileFooter is outside AnimatedRoutes so it doesn't reload on page change */}
-                <MobileFooter />
-                <FloatingChatIcon />
-              </BrowserRouter>
-            </CartProvider>
-          </FavoritesProvider>
+          <LanguageProvider>
+            <FavoritesProvider>
+              <CartProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <ScrollToTop />
+                  {/* Navbar is outside AnimatedRoutes so it doesn't reload on page change */}
+                  <Navbar />
+                  <AnimatedRoutes />
+                  {/* MobileFooter is outside AnimatedRoutes so it doesn't reload on page change */}
+                  <MobileFooter />
+                  <FloatingChatIcon />
+                </BrowserRouter>
+              </CartProvider>
+            </FavoritesProvider>
+          </LanguageProvider>
         </AuthProvider>
       </GoogleOAuthProvider>
     </TooltipProvider>

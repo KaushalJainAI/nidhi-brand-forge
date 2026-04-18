@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { toggleGoogleTranslate, getGoogleTranslateLang } from "@/utils/googleTranslate";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,16 +15,13 @@ import {
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentLang, setCurrentLang] = useState<'en' | 'hi'>('en');
+  const { language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const { cart } = useCart();
   const { isLoggedIn } = useAuth();
 
   useEffect(() => {
-    // Sync language state with cookie on mount
-    setCurrentLang(getGoogleTranslateLang());
-
     // Force hide Google Translate banner if it somehow appears
     const interval = setInterval(() => {
       const banner = document.querySelector('.goog-te-banner-frame') as HTMLElement;
@@ -40,9 +37,7 @@ const Navbar = () => {
   }, []);
 
   const handleLanguageToggle = () => {
-    const newLang = currentLang === 'en' ? 'hi' : 'en';
-    setCurrentLang(newLang);
-    toggleGoogleTranslate(newLang);
+    toggleLanguage();
   };
 
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -143,7 +138,7 @@ const Navbar = () => {
                 className="h-9 px-2 flex items-center gap-1 font-bold text-primary"
               >
                 <Languages className="h-4 w-4" />
-                <span>{currentLang === 'en' ? 'हिन्दी' : 'EN'}</span>
+                <span>{language === 'en' ? 'हिन्दी' : 'EN'}</span>
               </Button>
 
               <Button 
@@ -175,7 +170,7 @@ const Navbar = () => {
               >
                 <ShoppingCart className="h-5 w-5" />
                 {totalQuantity > 0 && (
-                  <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                  <span className="notranslate absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                     {totalQuantity}
                   </span>
                 )}
@@ -208,7 +203,7 @@ const Navbar = () => {
             >
               <ShoppingCart className="h-5 w-5" />
               {totalQuantity > 0 && (
-                <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                <span className="notranslate absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                   {totalQuantity}
                 </span>
               )}

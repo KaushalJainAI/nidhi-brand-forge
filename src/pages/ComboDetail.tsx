@@ -12,6 +12,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 import { combosAPI, Combo, ComboItem } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import ProductCard from "@/components/ProductCard";
+import CachedImage from "@/components/CachedImage";
 import product1 from "@/assets/product-1.jpg";
 import { API_BASE_URL } from "@/lib/api/config";
 
@@ -225,13 +226,11 @@ const ComboDetail = () => {
                     : "border-border hover:border-primary/50"
                 }`}
               >
-                <img 
+                <CachedImage 
                   src={getImageUrl(combo.image)} 
                   alt="Combo"
                   className="w-full h-full object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = product1;
-                  }}
+                  fallbackSrc={product1}
                 />
               </button>
               {/* Product images as additional thumbnails */}
@@ -245,13 +244,11 @@ const ComboDetail = () => {
                       : "border-border hover:border-primary/50"
                   }`}
                 >
-                  <img 
+                  <CachedImage 
                     src={getImageUrl(item.product_image)} 
                     alt={item.product_name}
                     className="w-full h-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = product1;
-                    }}
+                    fallbackSrc={product1}
                   />
                   {/* Quantity indicator on thumbnail */}
                   <span className="absolute bottom-0.5 right-0.5 bg-primary text-primary-foreground text-[10px] px-1 rounded">
@@ -264,7 +261,7 @@ const ComboDetail = () => {
             {/* Main Image Display */}
             <div className="flex-1 relative">
               <div className="aspect-square rounded-xl border border-border overflow-hidden bg-gradient-to-br from-primary/5 to-accent/10 group">
-                <img 
+                <CachedImage 
                   src={selectedImageIndex === 0 
                     ? getImageUrl(combo.image) 
                     : getImageUrl(items[selectedImageIndex - 1]?.product_image)
@@ -274,9 +271,8 @@ const ComboDetail = () => {
                     : items[selectedImageIndex - 1]?.product_name
                   }
                   className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = product1;
-                  }}
+                  fallbackSrc={product1}
+                  lazy={false}
                 />
               </div>
               
@@ -377,13 +373,11 @@ const ComboDetail = () => {
                     className="flex items-center gap-3 p-2 bg-background rounded-lg border border-border"
                   >
                     <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                      <img 
+                      <CachedImage 
                         src={getImageUrl(item.product_image)} 
                         alt={item.product_name}
                         className="w-full h-full object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = product1;
-                        }}
+                        fallbackSrc={product1}
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -590,13 +584,11 @@ const ComboDetail = () => {
                 >
                   {/* Product Image */}
                   <div className="aspect-square bg-muted relative overflow-hidden">
-                    <img 
+                    <CachedImage 
                       src={getImageUrl(item.product_image)}
                       alt={item.product_name}
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = product1;
-                      }}
+                      fallbackSrc={product1}
                     />
                     {/* Quantity badge */}
                     <div className="absolute top-2 right-2">

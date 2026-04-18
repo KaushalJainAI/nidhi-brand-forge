@@ -17,6 +17,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
 import { productsAPI, reviewsAPI, Product } from "@/lib/api";
 import { Review } from "@/lib/api/reviews";
+import CachedImage from "@/components/CachedImage";
 import product1 from "@/assets/product-1.jpg";
 
 const ProductDetail = () => {
@@ -287,13 +288,11 @@ const ProductDetail = () => {
                       : "border-border hover:border-primary/50"
                   }`}
                 >
-                  <img 
+                  <CachedImage 
                     src={img} 
                     alt={`${product.name} view ${idx + 1}`}
                     className="w-full h-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = product1;
-                    }}
+                    fallbackSrc={product1}
                   />
                 </button>
               ))}
@@ -302,13 +301,12 @@ const ProductDetail = () => {
             {/* Main Image */}
             <div className="flex-1 relative">
               <div className="aspect-square rounded-xl border border-border overflow-hidden bg-muted group">
-                <img 
+                <CachedImage 
                   src={galleryImages[selectedImageIndex]} 
                   alt={product.name}
                   className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = product1;
-                  }}
+                  fallbackSrc={product1}
+                  lazy={false}
                 />
               </div>
               
