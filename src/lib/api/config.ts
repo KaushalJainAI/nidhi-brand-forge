@@ -1,4 +1,11 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const envApiUrl = import.meta.env.VITE_API_URL;
+export const API_BASE_URL = (envApiUrl && envApiUrl.trim() !== "") ? envApiUrl : "/api";
+
+// Debug helper to detect configuration issues in production
+if (import.meta.env.PROD && (API_BASE_URL === "/api" || !API_BASE_URL.startsWith('http'))) {
+  console.warn("API_BASE_URL is using relative path or default. Ensure VITE_API_URL is set during build.");
+}
+
 
 export class APIError extends Error {
   status: number;
