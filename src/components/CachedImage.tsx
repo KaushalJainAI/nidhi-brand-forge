@@ -12,10 +12,18 @@ const CACHE_NAME = 'ngu-image-cache-v1';
 
 const getProxiedUrl = (url: string) => {
   if (!url) return url;
-  // If it's an S3 URL, route it through our local Nginx proxy to avoid CORS issues
-  if (url.includes('s3.ap-south-1.amazonaws.com')) {
-    return url.replace(/https:\/\/.*\.s3\..*\.amazonaws\.com\//, '/s3-media/');
+
+  // 1. Handle S3 URLs (any bucket or region)
+  if (url.includes('.s3.') || url.includes('.s3-')) {
+    // Matches: https://bucket.s3.region.amazonaws.com/path or https://bucket.s3.amazonaws.com/path
+    return url.replace(/^https?:\/\/[^/]+\.(s3[\.\-][^/]+)\.amazonaws.com\//, '/s3-media/');
   }
+
+  // 2. Handle absolute URLs to our own backend during local dev (avoiding CORS)
+  if (url.includes('127.0.0.1:8000') || url.includes('localhost:8000')) {
+    return url.replace(/^https?:\/\/[^/]+\//, '/');
+  }
+
   return url;
 };
 
