@@ -175,7 +175,12 @@ const About = () => {
               <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
                 {t("about.heroHighlight")}
               </span>
-              {t("about.heroPost", { defaultValue: "" })}
+              {/* heroPost is empty in every locale; guard against i18next
+                  returning the key name itself when the value is "". */}
+              {(() => {
+                const post = t("about.heroPost", { defaultValue: "" });
+                return post === "about.heroPost" ? "" : post;
+              })()}
             </h1>
           </Reveal>
           <Reveal delay={240}>
