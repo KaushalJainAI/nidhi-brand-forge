@@ -175,7 +175,7 @@ const About = () => {
               <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
                 {t("about.heroHighlight")}
               </span>
-              {t("about.heroPost")}
+              {t("about.heroPost", { defaultValue: "" })}
             </h1>
           </Reveal>
           <Reveal delay={240}>
