@@ -1,0 +1,437 @@
+{
+  "nav": {
+    "home": "होम",
+    "products": "प्रॉडक्ट्स",
+    "combos": "कॉम्बो",
+    "offers": "ऑफर",
+    "more": "अधिक",
+    "aboutUs": "आमच्याबद्दल",
+    "contact": "संपर्क",
+    "trackOrder": "ऑर्डर ट्रॅक करा",
+    "myOrders": "माझे ऑर्डर",
+    "search": "शोधा...",
+    "searchMobile": "मसाले शोधा...",
+    "wishlist": "विशलिस्ट",
+    "account": "अकाउंट",
+    "cart": "कार्ट",
+    "language": "भाषा"
+  },
+  "common": {
+    "viewAll": "सर्व पहा",
+    "loading": "लोड होत आहे...",
+    "shopNow": "आता खरेदी करा",
+    "currency": "₹"
+  },
+  "hero": {
+    "badge": "खरे भारतीय मसाले",
+    "headlineStart": "प्रत्येक मसाल्यात ",
+    "headlineHighlight": "परंपरा",
+    "headlineEnd": "ची चव",
+    "description": "आमच्या प्रीमियम मसाल्यांसह भारताच्या खऱ्या चवीचा अनुभव घ्या. प्रेमाने बनवले, काळजीने पोहोचवले.",
+    "learnMore": "अधिक जाणा",
+    "statsProducts": "प्रॉडक्ट्स",
+    "statsPure": "शुद्ध आणि नैसर्गिक",
+    "statsCustomers": "आनंदी ग्राहक",
+    "handPackedFresh": "Hand-packed fresh",
+    "since": "Since 1998"
+  },
+  "home": {
+    "features": {
+      "freeShippingTitle": "मोफत शिपिंग",
+      "freeShippingDesc": "₹299 वरील ऑर्डरवर",
+      "authenticTitle": "100% शुद्ध",
+      "authenticDesc": "शुद्ध आणि नैसर्गिक घटक",
+      "deliveryTitle": "जलद डिलिव्हरी",
+      "deliveryDesc": "घरापर्यंत जलद डिलिव्हरी",
+      "qualityTitle": "गुणवत्तेची हमी",
+      "qualityDesc": "प्रीमियम क्वालिटी प्रॉडक्ट्स"
+    },
+    "recommended": {
+      "title": "तुमच्यासाठी सूचना",
+      "subtitle": "तुमच्या आवडीनुसार निवडलेले"
+    },
+    "new": {
+      "title": "नवीन प्रॉडक्ट्स",
+      "subtitle": "ताजे पॅक, तुमच्या स्वयंपाकघरासाठी तयार"
+    },
+    "specials": {
+      "title": "आमचे विशेष",
+      "subtitle": "आमचे हाताने बनवलेले मसाले जे घरी खरी चव आणतात."
+    },
+    "bestsellers": {
+      "title": "बेस्ट सेलिंग प्रॉडक्ट्स",
+      "subtitle": "संपूर्ण भारतात ग्राहकांचे आवडते"
+    },
+    "trending": {
+      "title": "ट्रेंडिंग",
+      "subtitle": "या हंगामात सर्वजण जे आजमावत आहेत"
+    },
+    "categories": {
+      "title": "श्रेणीनुसार खरेदी करा",
+      "subtitle": "तुमच्या स्वयंपाकासाठी जे हवे ते शोधा"
+    },
+    "combos": {
+      "title": "कॉम्बो ऑफर",
+      "subtitle": "आमच्या निवडक मसाला बंडलसह अधिक बचत करा"
+    },
+    "testimonials": {
+      "title": "ग्राहकांची मते",
+      "subtitle": "आमचे आनंदी ग्राहक काय म्हणतात",
+      "items": [
+        {
+          "name": "प्रिया शर्मा",
+          "review": "मसाल्यांची गुणवत्ता अप्रतिम आहे! आता माझे पदार्थ खूपच जास्त चविष्ट लागतात.",
+          "rating": 5
+        },
+        {
+          "name": "राजेश कुमार",
+          "review": "खरी चव आणि उत्तम पॅकेजिंग. नक्की शिफारस करतो!",
+          "rating": 5
+        },
+        {
+          "name": "अनिता पटेल",
+          "review": "आतापर्यंतचे सर्वोत्तम मसाले. पुन्हा नक्की ऑर्डर करेन!",
+          "rating": 5
+        }
+      ]
+    },
+    "cta": {
+      "title": "तुमच्या स्वयंपाकघरात चव भरण्यास तयार आहात?",
+      "subtitle": "आमच्या हाताने बनवलेल्या मसाल्यांसह भारतीय परंपरेचा खरा सार अनुभवा. शुद्ध, अस्सल, आणि तुमच्या दारापर्यंत पोहोचवलेले.",
+      "handPacked": "🌿 Hand-packed in small batches",
+      "viewOffers": "View Offers"
+    },
+    "eyebrow": {
+      "forYou": "तुमच्यासाठी",
+      "justIn": "नुकतेच आले",
+      "bestsellers": "बेस्टसेलर",
+      "trending": "आता ट्रेंडिंग",
+      "explore": "एक्सप्लोर करा",
+      "valueBundles": "व्हॅल्यू बंडल",
+      "lovedByKitchens": "स्वयंपाकघरांचे आवडते"
+    }
+  },
+  "product": {
+    "addToCart": "कार्टमध्ये टाका",
+    "outOfStock": "स्टॉकमध्ये नाही",
+    "inStock": "स्टॉकमध्ये आहे",
+    "off": "सूट",
+    "viewDetails": "तपशील पहा",
+    "selectSize": "Select Size",
+    "from": "from",
+    "sizes": "sizes",
+    "youSave": "You save ₹{{amount}}",
+    "loginRequired": "You need to log in to add items to your cart.",
+    "addedToFavorites": "Added to favorites",
+    "removedFromFavorites": "Removed from favorites",
+    "addedToCart": "Added to cart!",
+    "featured": "Featured",
+    "prevSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "organicCertified": "100% Organic Certified",
+    "naturalIngredients": "Made from natural ingredients",
+    "aboutProduct": "About This Product",
+    "ingredientsLabel": "Ingredients:",
+    "customersAlsoBought": "Customers Also Bought",
+    "customerReviews": "Customer Reviews",
+    "showingReviews": "Showing {{count}} of {{total}} reviews",
+    "defaultReviewTitle": "Great Product!",
+    "verifiedPurchase": "Verified Purchase",
+    "reviewBy": "By {{name}}",
+    "loadMoreReviews": "Load More Reviews",
+    "noReviews": "No reviews yet. Be the first to review this product!",
+    "copyLink": "Copy link",
+    "inclusiveTaxes": "Inclusive of all taxes",
+    "sizeLabel": "Size:",
+    "weightLabel": "Weight:",
+    "formLabel": "Form:",
+    "originLabel": "Origin:",
+    "shelfLifeLabel": "Shelf Life:",
+    "months": "{{count}} months",
+    "months_other": "{{count}} months",
+    "available": "({{count}} available)",
+    "quantityLabel": "Quantity:",
+    "inCart": "in cart",
+    "noRatings": "No ratings",
+    "reviewsCount": "{{count}} review",
+    "reviewsCount_other": "{{count}} reviews",
+    "buyNow": "Buy Now"
+  },
+  "footer": {
+    "tagline": "1995 पासून भारतीय मसाल्यांची खरी चव. घरासारखी वाटणारी गुणवत्ता.",
+    "quickLinks": "जलद दुवे",
+    "contactUs": "संपर्क करा",
+    "customerService": "ग्राहक सेवा",
+    "shippingPolicy": "शिपिंग धोरण",
+    "returnPolicy": "परतावा धोरण",
+    "faqs": "वारंवार विचारले जाणारे प्रश्न",
+    "contactDetail": "संपर्क तपशील",
+    "rights": "सर्व हक्क राखीव.",
+    "privacyPolicy": "Privacy Policy",
+    "whatsapp": "Chat with us on WhatsApp"
+  },
+  "cart": {
+    "title": "शॉपिंग कार्ट",
+    "empty": "तुमचे कार्ट रिकामे आहे",
+    "continueShopping": "खरेदी सुरू ठेवा",
+    "orderSummary": "ऑर्डर सारांश",
+    "total": "एकूण",
+    "clearCart": "कार्ट रिकामे करा",
+    "checkout": "चेकआउट करा",
+    "peopleAlsoBuy": "लोक हेही खरेदी करतात",
+    "loading": "कार्ट लोड होत आहे...",
+    "quantity": "प्रमाण",
+    "remove": "काढा",
+    "removed": "वस्तू कार्टमधून काढली",
+    "cleared": "कार्ट रिकामे केले",
+    "emptyToast": "तुमचे कार्ट रिकामे आहे",
+    "noStock": "चेकआउटसाठी स्टॉकमध्ये कोणतीही वस्तू नाही",
+    "subtotal": "उप-एकूण",
+    "tax": "कर (5%)",
+    "processing": "प्रक्रिया सुरू आहे...",
+    "noItems": "कोणतीही वस्तू नाही",
+    "item": "item",
+    "items": "items",
+    "viewCart": "View Cart",
+    "freeShippingUnlocked": "🎉 You've unlocked FREE shipping!",
+    "addMoreForShipping": "Add ₹{{amount}} more for FREE shipping"
+  },
+  "auth": {
+    "welcomeBack": "पुन्हा स्वागत आहे",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "orContinueWith": "किंवा यासह सुरू ठेवा",
+    "login": "लॉगिन",
+    "loggingIn": "लॉगिन होत आहे...",
+    "forgotPassword": "पासवर्ड विसरलात?",
+    "noAccount": "खाते नाही?",
+    "signUp": "साइन अप करा",
+    "loginFailed": "लॉगिन अयशस्वी. कृपया तुमची माहिती तपासा.",
+    "networkError": "नेटवर्क त्रुटी. कृपया पुन्हा प्रयत्न करा.",
+    "googleFailed": "गूगल लॉगिन अयशस्वी. कृपया पुन्हा प्रयत्न करा.",
+    "subtitle": "तुमच्या खात्यात प्रवेशासाठी तुमची माहिती प्रविष्ट करा",
+    "registerHere": "येथे नोंदणी करा"
+  },
+  "about": {
+    "badge": "स्थापना 1990 चे दशक · उज्जैन, भारत",
+    "heroPre": "प्रत्येक चिमूट सांगते एक ",
+    "heroHighlight": "कहाणी",
+    "heroPost": "",
+    "heroSubtitle": "बडनगरमधील एका छोट्या कौटुंबिक स्वयंपाकघरापासून ते लाखो जेवणाच्या टेबलांपर्यंत — हा निधि मसालाचा प्रवास आहे, एक-एक परंपरा दळत.",
+    "heroCta": "आमची कहाणी चाखा",
+    "beginEyebrow": "जिथून सुरुवात झाली",
+    "beginTitle": "पिढ्यानपिढ्या चालत आलेली रेसिपी, कधीच लिहिली गेली नाही",
+    "beginP1": "सुरुवात एका साध्या विश्वासाने झाली — की भारतीय स्वयंपाकाचा आत्मा त्याच्या मसाल्यांत वसतो. जे कुटुंब आणि शेजाऱ्यांसाठी हाताने दळलेल्या मसाल्यांनी सुरू झाले, ते हळूहळू संपूर्ण प्रदेशात विश्वासाचे नाव बनले.",
+    "beginP2": "प्रत्येक हंगामात आम्ही एक वचन पाळले: शेतापासून स्वयंपाकघरापर्यंत खरेपणा, मध्ये काहीही कृत्रिम नाही.",
+    "heritageLabel": "वर्षांचा वारसा",
+    "journeyEyebrow": "आमचा प्रवास",
+    "journeyTitle": "चवीची तीन दशके",
+    "timeline": [
+      {
+        "year": "1990 चे दशक",
+        "title": "एक नम्र सुरुवात",
+        "text": "निधि गृह उद्योगाची सुरुवात बडनगरमधील एका छोट्या कौटुंबिक स्वयंपाकघरात झाली, जिथे आजी-पणजीप्रमाणे हाताने मसाले दळले जात."
+      },
+      {
+        "year": "2005",
+        "title": "मुळे मजबूत झाली",
+        "text": "आमच्या सुगंधाची चर्चा संपूर्ण उज्जैनमध्ये पसरली. आम्ही उत्तम पिकासाठी थेट स्थानिक शेतकऱ्यांशी भागीदारी केली."
+      },
+      {
+        "year": "2015",
+        "title": "स्वयंपाकघरापासून उद्योगापर्यंत",
+        "text": "आम्ही आमची प्रक्रिया आधुनिक केली, सोबतच आमची ओळख असलेल्या पारंपरिक रेसिपींचे कसून रक्षण केले."
+      },
+      {
+        "year": "आज",
+        "title": "लाखो स्वयंपाकघरांत",
+        "text": "दहा लाखांहून अधिक कुटुंबे आपल्या रोजच्या जेवणात खऱ्या चवीसाठी निधि मसालावर विश्वास ठेवतात."
+      }
+    ],
+    "processEyebrow": "शेतापासून स्वयंपाकघरापर्यंत",
+    "processTitle": "प्रत्येक बरणी कशी बनते",
+    "process": [
+      {
+        "title": "शेतांमधून मिळवलेले",
+        "text": "विश्वासू स्थानिक शेतकऱ्यांकडून थेट हाताने निवडलेले पीक."
+      },
+      {
+        "title": "मंद आचेवर भाजलेले",
+        "text": "तेल आणि सुगंध टिकवण्यासाठी लहान बॅचमध्ये भाजलेले."
+      },
+      {
+        "title": "जात्यावर दळलेले",
+        "text": "नैसर्गिक चवीची प्रत्येक छटा जपण्यासाठी बारीक दळलेले."
+      },
+      {
+        "title": "ताजे सील केलेले",
+        "text": "हवाबंद पॅक, जेणेकरून पहिली चिमूट शेवटच्यासारखीच लागेल."
+      }
+    ],
+    "valuesEyebrow": "आम्ही कशासाठी उभे आहोत",
+    "valuesTitle": "आमची मूल्ये",
+    "values": [
+      {
+        "title": "गुणवत्ता सर्वप्रथम",
+        "description": "आम्ही आमच्या उत्पादनांच्या गुणवत्तेशी कधीही तडजोड करत नाही."
+      },
+      {
+        "title": "ग्राहक केंद्रित",
+        "description": "तुमचे समाधान नेहमीच आमचे सर्वोच्च प्राधान्य आहे."
+      },
+      {
+        "title": "प्रेमाने बनवलेले",
+        "description": "प्रत्येक उत्पादन काळजी आणि उत्कटतेने तयार केले जाते."
+      },
+      {
+        "title": "100% नैसर्गिक",
+        "description": "शुद्ध घटक, कोणतेही कृत्रिम मिश्रण नाही."
+      }
+    ],
+    "stats": [
+      {
+        "label": "प्रीमियम उत्पादने"
+      },
+      {
+        "label": "आनंदी ग्राहक"
+      },
+      {
+        "label": "शुद्ध आणि नैसर्गिक"
+      },
+      {
+        "label": "वर्षांचा वारसा"
+      }
+    ],
+    "ctaTitle": "तुमचे स्वयंपाकघर आमच्या कहाणीत जोडा",
+    "ctaSubtitle": "ते हस्तनिर्मित मसाले शोधा जे नेहमी जसे बनायला हवे होते तसेच बनवले आहेत.",
+    "ctaButton": "मसाले खरेदी करा"
+  },
+  "ribbon": {
+    "freeShipping": "FREE shipping on orders above ₹299",
+    "pure": "100% pure & natural — no fillers",
+    "cod": "Cash on Delivery available",
+    "handPacked": "Hand-packed in Indore",
+    "trusted": "Trusted by 1.1M+ kitchens"
+  },
+  "ourStory": {
+    "eyebrow": "Nidhi kitchen story",
+    "label": "Our Story",
+    "heading": "Authentic Indian Flavors",
+    "body": "Experience the rich heritage of traditional Indian spices, carefully sourced and blended to perfection. Each product tells a story of generations of expertise and passion for authentic flavors.",
+    "feature1Title": "Pure ingredients",
+    "feature1Desc": "No fillers, clean blends",
+    "feature2Title": "Fresh batches",
+    "feature2Desc": "Packed close to order",
+    "cta": "Explore the Collection"
+  },
+  "flashSale": {
+    "endsIn": "Ends in",
+    "saleEndsIn": "Sale ends in"
+  },
+  "trust": {
+    "freeShipping": "🚚 Free shipping ₹299+",
+    "cod": "💰 Cash on Delivery",
+    "happyKitchens": "⭐ 1.1M+ happy kitchens"
+  },
+  "trustBand": {
+    "pureBlends": "Pure blends",
+    "noFillers": "No fillers",
+    "qualityChecked": "Quality checked",
+    "batchTested": "Batch tested",
+    "fastDelivery": "Fast delivery",
+    "packedFresh": "Packed fresh",
+    "easySupport": "Easy support",
+    "simpleHelp": "Simple help"
+  },
+  "mobileNav": {
+    "home": "Home",
+    "shop": "Shop",
+    "chat": "Chat",
+    "offers": "Offers",
+    "orders": "Orders"
+  },
+  "combo": {
+    "items": "items",
+    "more": "more",
+    "pieceKit": "{{count}}-piece kit",
+    "addBundle": "Add bundle",
+    "details": "Details",
+    "defaultStory": "A ready-made kit of {{count}} kitchen essentials.",
+    "defaultStorySavings": "A ready-made kit of {{count}} kitchen essentials, bundled to save you ₹{{amount}} versus buying them one by one.",
+    "comboOffer": "Combo Offers",
+    "comboSubtitle": "Save more with our value bundles",
+    "comboDeal": "COMBO DEAL",
+    "productBundle": "{{count}} products bundle",
+    "savePercent": "Save {{percent}}%",
+    "addedToCart": "{{count}} combo added to cart!",
+    "addedToCart_other": "{{count}} combos added to cart!",
+    "saveWithCombo": "You save ₹{{amount}} with this combo!",
+    "whatsIncluded": "What's Included ({{count}} items)",
+    "totalWeight": "Total Weight:",
+    "freeDelivery": "Free Delivery",
+    "ordersMin": "Orders ₹500+",
+    "secure": "Secure",
+    "payment": "Payment",
+    "sevenDays": "7 Days",
+    "return": "Return",
+    "greatValue": "Great Value!",
+    "saveSeparately": "Save ₹{{amount}} compared to buying separately",
+    "aboutCombo": "About This Combo",
+    "whyChoose": "Why Choose This Combo?",
+    "betterValue": "Better Value",
+    "saveTogether": "Save more when you buy together",
+    "curatedSelection": "Curated Selection",
+    "expertlyPaired": "Expertly paired products",
+    "singleDelivery": "Single Delivery",
+    "allInOne": "All items in one package",
+    "genuine": "100% genuine products",
+    "productsInCombo": "Products In This Combo"
+  },
+  "promo": {
+    "flat20Title": "Flat 20% off",
+    "flat20Subtitle": "On orders above Rs. 299",
+    "freeDeliveryTitle": "Free delivery",
+    "freeDeliverySubtitle": "Unlock shipping savings",
+    "comboSaverTitle": "Combo saver",
+    "comboSaverSubtitle": "Extra value on bundles",
+    "copied": "Copied {{code}}",
+    "copyFailed": "Could not copy code"
+  },
+  "category": {
+    "allSpices": "All Spices",
+    "categories": "Categories"
+  },
+  "products": {
+    "filterAll": "All",
+    "filterOffers": "⚡ Offers",
+    "filterRating": "⭐ Rating 4.0+",
+    "sortPriceLow": "💰 Price: Low → High",
+    "sortBy": "Sort by",
+    "sortFeatured": "Featured",
+    "sortPriceLowToHigh": "Price: Low to High",
+    "sortPriceHighToLow": "Price: High to Low",
+    "sortName": "Name: A to Z",
+    "productCount": "{{count}} product",
+    "productCount_other": "{{count}} products",
+    "noProducts": "No products found.",
+    "loadingProducts": "Loading…"
+  },
+  "offerZone": {
+    "heroTitle": "Exclusive Offers",
+    "heroSubtitle": "Amazing deals and discounts on premium spices and masalas",
+    "heroBadge": "🔥 Up to 30% OFF - Limited Time!",
+    "comboOffersTitle": "Combo Offers",
+    "comboOffersSubtitle": "Save more with our value bundles",
+    "hotDealsTitle": "🔥 Hot Deals",
+    "hotDealsSubtitle": "Grab these before they're gone!",
+    "viewDetails": "View Details",
+    "noOffers": "No offers available at the moment.",
+    "checkBack": "Check back soon for amazing deals!"
+  },
+  "search": {
+    "searching": "Searching for products...",
+    "noResults": "No products found matching your search",
+    "tryDifferent": "Try searching with different keywords",
+    "sortRelevance": "Relevance"
+  }
+}

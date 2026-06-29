@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+  const { t } = useTranslation();
   return (
     <footer className="bg-card border-t border-border mt-20 pb-20 md:pb-0">
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
@@ -12,13 +14,13 @@ const Footer = () => {
               Nidhi Grah Udyog
             </h3>
             <p className="text-muted-foreground text-xs sm:text-base mb-2 sm:mb-4">
-              Pioneering the authentic taste of Indian spices since 1995. Quality that feels like home.
+              {t('footer.tagline')}
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+            <div className="flex space-x-3">
+              <a href="#" aria-label="Facebook" className="h-9 w-9 rounded-full spice-backdrop grid place-items-center text-muted-foreground hover:text-primary hover:scale-110 transition-all">
                 <Facebook className="h-4 w-4 sm:h-5 sm:w-5" />
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              <a href="#" aria-label="Instagram" className="h-9 w-9 rounded-full spice-backdrop grid place-items-center text-muted-foreground hover:text-primary hover:scale-110 transition-all">
                 <Instagram className="h-4 w-4 sm:h-5 sm:w-5" />
               </a>
             </div>
@@ -26,26 +28,26 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">Quick Links</h4>
+            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">{t('footer.quickLinks')}</h4>
             <ul className="space-y-1 sm:space-y-2 text-xs sm:text-base">
               <li>
                 <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
-                  Home
+                  {t('nav.home')}
                 </Link>
               </li>
               <li>
                 <Link to="/products" className="text-muted-foreground hover:text-primary transition-colors">
-                  Products
+                  {t('nav.products')}
                 </Link>
               </li>
               <li>
                 <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
-                  About Us
+                  {t('nav.aboutUs')}
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">
-                  Contact Us
+                  {t('footer.contactUs')}
                 </Link>
               </li>
             </ul>
@@ -53,26 +55,31 @@ const Footer = () => {
 
           {/* Customer Service */}
           <div>
-            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">Customer Service</h4>
+            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">{t('footer.customerService')}</h4>
             <ul className="space-y-1 sm:space-y-2 text-xs sm:text-base">
               <li>
                 <Link to="/my-orders" className="text-muted-foreground hover:text-primary transition-colors">
-                  My Orders
+                  {t('nav.myOrders')}
                 </Link>
               </li>
               <li>
                 <Link to="/shipping-policy" className="text-muted-foreground hover:text-primary transition-colors">
-                  Shipping Policy
+                  {t('footer.shippingPolicy')}
                 </Link>
               </li>
               <li>
                 <Link to="/return-policy" className="text-muted-foreground hover:text-primary transition-colors">
-                  Return Policy
+                  {t('footer.returnPolicy')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
+                  {t('footer.privacyPolicy')}
                 </Link>
               </li>
               <li>
                 <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  FAQs
+                  {t('footer.faqs')}
                 </a>
               </li>
             </ul>
@@ -80,7 +87,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div className="col-span-2 sm:col-span-1">
-            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">Contact Detail</h4>
+            <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2 sm:mb-4">{t('footer.contactDetail')}</h4>
             <ul className="space-y-1 sm:space-y-3 text-xs sm:text-base">
               <li className="notranslate hidden sm:flex items-start space-x-3 text-muted-foreground">
                 <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
@@ -91,7 +98,7 @@ const Footer = () => {
                 <Phone className="h-3 w-3 sm:h-5 sm:w-5 flex-shrink-0" />
                 <span>+91 93029 22251</span>
               </li>
-              <li className="flex items-center space-x-2 sm:space-x-3 text-muted-foreground">
+              <li className="notranslate flex items-center space-x-2 sm:space-x-3 text-muted-foreground">
                 <Mail className="h-3 w-3 sm:h-5 sm:w-5 flex-shrink-0" />
                 <span>www.nidhigrahudyog.com</span>
               </li>
@@ -100,7 +107,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-border mt-4 sm:mt-8 pt-4 sm:pt-8 text-center text-muted-foreground text-xs sm:text-base">
-          <p>&copy; 2025 Nidhi Grah Udyog. All rights reserved.</p>
+          <p>&copy; 2025 <span className="notranslate">Nidhi Grah Udyog</span>. {t('footer.rights')}</p>
         </div>
       </div>
     </footer>

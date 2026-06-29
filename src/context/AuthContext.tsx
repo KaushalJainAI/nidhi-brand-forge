@@ -65,8 +65,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     initAuth();
 
     const handleUnauthorized = () => {
+      localStorage.removeItem("user");
       setUser(null);
-      // Optional: Redirect or show toast here using your app's router/toast setup
     };
 
     window.addEventListener("auth:unauthorized", handleUnauthorized);

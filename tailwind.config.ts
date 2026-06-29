@@ -2,14 +2,23 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  // Include .js/.jsx too — some components (e.g. MobileFooter.jsx) are JSX, and
+  // classes used *only* in those files (like `bottom-0`) would otherwise never
+  // be generated, silently breaking their layout.
+  content: ["./pages/**/*.{ts,tsx,js,jsx}", "./components/**/*.{ts,tsx,js,jsx}", "./app/**/*.{ts,tsx,js,jsx}", "./src/**/*.{ts,tsx,js,jsx}"],
   prefix: "",
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1rem",
+      // Match the redesign concept: cap the whole site at max-w-6xl (1152px)
+      // instead of the wide default, for a tighter, app-like storefront.
       screens: {
-        "2xl": "1400px",
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1152px",
+        "2xl": "1152px",
       },
     },
     extend: {

@@ -1,73 +1,85 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/spices-hero.jpg";
+import { useTranslation } from "react-i18next";
 
 const HeroSection = () => {
+  const { t } = useTranslation();
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10"></div>
-      
-      <div className="container mx-auto px-3 sm:px-4 py-10 sm:py-20 lg:py-32">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 items-center">
-          {/* Text Content */}
+    <section className="relative overflow-hidden border-b border-border/70 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--accent)/0.16),transparent_34%),linear-gradient(115deg,hsl(var(--background))_0%,hsl(var(--muted)/0.55)_54%,hsl(var(--secondary)/0.08)_100%)]">
+      <svg
+        className="pointer-events-none absolute left-0 top-0 h-full w-full text-primary/10"
+        viewBox="0 0 1200 640"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path d="M-90 438 C 164 250 322 555 562 337 S 1002 154 1296 306" fill="none" stroke="currentColor" strokeWidth="18" strokeLinecap="round" />
+        <path d="M819 50 C 858 104 913 112 971 79 C 949 140 967 191 1019 229 C 954 224 908 254 884 313 C 868 249 830 213 764 204 C 823 171 842 118 819 50Z" fill="currentColor" opacity=".42" />
+        <path d="M158 94 C 191 133 237 139 285 114 C 268 164 284 208 328 239 C 273 238 234 263 214 313 C 199 260 166 231 111 225 C 160 196 177 153 158 94Z" fill="currentColor" opacity=".28" />
+      </svg>
+
+      <div className="container relative mx-auto px-3 sm:px-4 py-8 sm:py-16 lg:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.94fr_1.06fr] gap-7 sm:gap-12 items-center">
           <div className="relative z-10 space-y-4 sm:space-y-6 animate-fade-in-up">
-            <div className="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/10 rounded-full text-primary font-semibold text-xs sm:text-sm transition-all duration-300 hover:bg-primary/20">
-              Authentic Indian Spices
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-card/85 border border-primary/15 rounded-full text-primary font-semibold text-xs sm:text-sm shadow-sm transition-all duration-300 hover:bg-primary/10">
+              <Sparkles className="h-3.5 w-3.5" />
+              {t('hero.badge')}
             </div>
-            
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-              Taste of <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Tradition</span> in Every Spice
+
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight tracking-normal">
+              {t('hero.headlineStart')}<span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{t('hero.headlineHighlight')}</span>{t('hero.headlineEnd')}
             </h1>
-            
-            <p className="text-sm sm:text-lg text-muted-foreground max-w-xl">
-              Experience the authentic flavors of India with our premium quality spices and masalas. Made with love, delivered with care.
+
+            <p className="text-sm sm:text-lg text-muted-foreground max-w-xl leading-relaxed">
+              {t('hero.description')}
             </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="group transition-all duration-300 hover:shadow-lg active:scale-95" asChild>
+
+            <div className="flex flex-col min-[420px]:flex-row gap-3">
+              <Button size="lg" className="group rounded-full shadow-lg shadow-primary/30 transition-all duration-300 hover:shadow-xl hover:brightness-110 active:scale-95" asChild>
                 <Link to="/products" className="flex items-center">
-                  Shop Now
+                  {t('common.shopNow')}
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="transition-all duration-300 hover:bg-primary/5 active:scale-95" asChild>
-                <Link to="/about">Learn More</Link>
+              <Button size="lg" variant="outline" className="rounded-full border-2 border-primary text-primary transition-all duration-300 hover:bg-primary/5 active:scale-95" asChild>
+                <Link to="/about">{t('hero.learnMore')}</Link>
               </Button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-6 pt-4 sm:pt-8">
-              <div className="transition-all duration-300 hover:scale-105">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-2 sm:pt-5">
+              <div className="rounded-lg border border-border/80 bg-card/80 p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                 <div className="text-xl sm:text-3xl font-bold text-primary">50+</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Products</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">{t('hero.statsProducts')}</div>
               </div>
-              <div className="transition-all duration-300 hover:scale-105">
+              <div className="rounded-lg border border-border/80 bg-card/80 p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                 <div className="text-xl sm:text-3xl font-bold text-primary">100%</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Pure & Natural</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">{t('hero.statsPure')}</div>
               </div>
-              <div className="transition-all duration-300 hover:scale-105">
+              <div className="rounded-lg border border-border/80 bg-card/80 p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                 <div className="text-xl sm:text-3xl font-bold text-primary">1.1M+</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Happy Customers</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">{t('hero.statsCustomers')}</div>
               </div>
             </div>
           </div>
 
-          {/* Image */}
-          <div className="relative hidden sm:block animate-slide-in-right">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl sm:rounded-3xl transform rotate-6 transition-transform duration-500 group-hover:rotate-3"></div>
+          <div className="relative animate-slide-in-right hidden lg:block">
+            <div className="absolute -inset-2 sm:-inset-4 rounded-[2rem] border border-primary/20 bg-accent/10 rotate-3"></div>
+            <div className="absolute -bottom-4 left-4 z-10 hidden sm:flex items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 text-sm font-semibold text-foreground shadow-lg">
+              <CheckCircle2 className="h-4 w-4 text-secondary" />
+              {t('hero.handPackedFresh')}
+            </div>
+            <div className="absolute right-3 top-3 z-10 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-lg sm:right-6 sm:top-6">
+              {t('hero.since')}
+            </div>
             <img 
               src={heroImage} 
               alt="Premium Indian Spices"
-              className="relative rounded-2xl sm:rounded-3xl shadow-2xl w-full h-auto object-cover transition-transform duration-500 hover:scale-[1.02]"
+              className="relative aspect-[4/3] w-full rounded-2xl object-cover shadow-2xl transition-transform duration-500 hover:scale-[1.015] sm:rounded-[1.75rem] lg:aspect-[5/4]"
             />
           </div>
         </div>
       </div>
-
-      {/* Decorative Elements */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
     </section>
   );
 };

@@ -1,5 +1,8 @@
+import { Link } from "react-router-dom";
+import { Heart } from "lucide-react";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/context/FavoritesContext";
 
 const Favorites = () => {
@@ -9,10 +12,6 @@ const Favorites = () => {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 sm:mb-8">
-          My Wishlist
-        </h1>
-        
         {favorites.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-6">
             {favorites.map((product) => (
@@ -20,12 +19,19 @@ const Favorites = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-10 sm:py-16">
-            <p className="text-muted-foreground text-base sm:text-lg">Your wishlist is empty</p>
+          <div className="text-center py-12 sm:py-20">
+            <div className="mx-auto mb-4 h-20 w-20 rounded-full spice-backdrop grid place-items-center">
+              <Heart className="h-9 w-9 text-primary" />
+            </div>
+            <p className="text-foreground font-semibold text-lg mb-1">Your wishlist is empty</p>
+            <p className="text-muted-foreground text-sm mb-6">Tap the heart on any product to save it here.</p>
+            <Button asChild className="rounded-full font-bold shadow-lg shadow-primary/30 active-press">
+              <Link to="/products">Browse Products</Link>
+            </Button>
           </div>
         )}
       </div>
-      
+
       <Footer />
     </div>
   );

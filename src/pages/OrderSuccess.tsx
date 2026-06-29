@@ -4,10 +4,17 @@ import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
+import { track } from "@/lib/api/analytics";
 
 const OrderSuccess = () => {
   const navigate = useNavigate();
   const { fetchCartFromBackend, setCart } = useCart();
+
+  // Funnel signal: checkout completed. (The authoritative purchase event is
+  // recorded server-side from the order; this closes the client-side funnel.)
+  useEffect(() => {
+    track({ event_type: "checkout_completed" }, { metric: "checkout_completed" });
+  }, []);
 
   useEffect(() => {
     // Clear cart and sync with backend on mount

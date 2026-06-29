@@ -1,4 +1,4 @@
-import { API_BASE_URL, publicFetch } from "./config";
+import { API_BASE_URL, publicFetch, authFetch } from "./config";
 
 export interface SearchProduct {
   id: number;
@@ -23,11 +23,25 @@ export interface SearchResponse {
   query: string;
   total_results: number;
   products: SearchProduct[];
-  combos: any[];
+  combos: unknown[];
   stats: {
     direct_matches: number;
     other_recs: number;
   };
+}
+
+export interface Suggestion {
+  id: number;
+  name: string;
+  slug: string;
+  type: "product" | "combo";
+  price: number;
+  image: string | null;
+}
+
+export interface SuggestResponse {
+  query: string;
+  suggestions: Suggestion[];
 }
 
 export const searchAPI = {
@@ -38,15 +52,49 @@ export const searchAPI = {
       queryParams.append("top_k", total_results.toString());
     }
     const queryString = queryParams.toString();
-    return publicFetch(`${API_BASE_URL}/search/?${queryString}`);
+    return publicFetch<SearchResponse>(`${API_BASE_URL}/search/?${queryString}`);
   },
 
   /**
-   * Get product recommendations for display (e.g., "People Also Buy" section)
-   * Uses a generic query to fetch trending/popular products
+   * Lightweight autocomplete suggestions for the navbar search box.
    */
-  getRecommendations: async (limit: number = 8): Promise<SearchResponse> => {
-    // Use a generic query that will return featured/trending products
-    return searchAPI.search("popular masala spices", limit);
+  suggest: async (query: string, limit: number = 8): Promise<SuggestResponse> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("q", query);
+    queryParams.append("limit", limit.toString());
+    return publicFetch<SuggestResponse>(`${API_BASE_URL}/search/suggest/?${queryParams.toString()}`);
+  },
+
+  /**
+   * Personalized product recommendations for the logged-in user.
+   *
+   * Calls GET /api/recommendations/ (per-user, signal-based). For logged-out
+   * users the endpoint returns 401, which we swallow and return an empty result
+   * so callers transparently fall back to their static/popular content.
+   */
+  getRecommendations: async (
+    limit: number = 8,
+    context: string = "home",
+  ): Promise<SearchResponse> => {
+    try {
+      const params = new URLSearchParams({ limit: limit.toString(), context });
+      const res = await authFetch<{ products?: SearchProduct[] }>(`${API_BASE_URL}/recommendations/?${params.toString()}`);
+      const products = res?.products || [];
+      return {
+        query: "",
+        total_results: products.length,
+        products,
+        combos: [],
+        stats: { direct_matches: products.length, other_recs: 0 },
+      };
+    } catch {
+      return {
+        query: "",
+        total_results: 0,
+        products: [],
+        combos: [],
+        stats: { direct_matches: 0, other_recs: 0 },
+      };
+    }
   },
 };

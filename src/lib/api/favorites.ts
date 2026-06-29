@@ -31,7 +31,7 @@ export const favoritesAPI = {
     }
   },
 
-  sync: async (items: any[]) => {
+  sync: async (items: unknown[]) => {
     try {
       return await authFetch(`${API_BASE_URL}/favorites/sync/`, {
         method: "POST",

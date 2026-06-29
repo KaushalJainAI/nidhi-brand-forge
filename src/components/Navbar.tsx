@@ -1,8 +1,8 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ShoppingCart, User, Search, Heart, Languages, ChevronDown, MoreHorizontal } from "lucide-react";
+import { Languages, ChevronDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import SearchAutocomplete from "@/components/SearchAutocomplete";
+import { useTranslation } from "react-i18next";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -14,41 +14,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const { language, toggleLanguage } = useLanguage();
+  const { t } = useTranslation();
+  const { language, setLanguage, languages } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const { cart } = useCart();
   const { isLoggedIn } = useAuth();
 
-  useEffect(() => {
-    // Force hide Google Translate banner if it somehow appears
-    const interval = setInterval(() => {
-      const banner = document.querySelector('.goog-te-banner-frame') as HTMLElement;
-      if (banner) {
-        banner.style.display = 'none';
-        banner.style.visibility = 'hidden';
-        document.body.style.top = '0px';
-        document.documentElement.style.marginTop = '0px';
-      }
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleLanguageToggle = () => {
-    toggleLanguage();
-  };
-
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const currentLangLabel =
+    languages.find((l) => l.code === language)?.label ?? "English";
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${searchQuery}`);
-      setSearchQuery("");
-    }
-  };
+  // Active-tab styling: highlight the current section with a brand underline.
+  const isActivePath = (path: string) =>
+    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+  const navLinkClass = (path: string, base = "text-foreground") =>
+    `hidden md:flex items-center gap-1.5 text-sm font-semibold transition-colors active-press border-b-2 pb-0.5 ${
+      isActivePath(path)
+        ? "border-primary text-primary"
+        : `border-transparent hover:text-primary ${base}`
+    }`;
 
   const handleProfileClick = () => {
     if (isLoggedIn) {
@@ -58,171 +43,188 @@ const Navbar = () => {
     }
   };
 
+  // Small badge reused on the cart buttons (desktop + mobile).
+  const CartBadge = () =>
+    totalQuantity > 0 ? (
+      <span className="notranslate absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold animate-bounce-in">
+        {totalQuantity}
+      </span>
+    ) : null;
+
+  // A single language menu reused on desktop (with label) and mobile (icon only).
+  const LanguageMenu = ({ compact = false }: { compact?: boolean }) => (
+    // modal={false}: a nav menu must not lock body scroll — modal mode mutates
+    // <body> styles and breaks the sticky navbar (it visually disappears on open).
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger asChild>
+        {compact ? (
+          <Button variant="ghost" size="icon" className="text-primary font-bold" aria-label={t('nav.language')}>
+            <Languages className="h-5 w-5" />
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 px-2 flex items-center gap-1 font-bold text-primary"
+            aria-label={t('nav.language')}
+          >
+            <Languages className="h-4 w-4" />
+            <span className="notranslate">{currentLangLabel}</span>
+            <ChevronDown className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-44">
+        {languages.map((l) => (
+          <DropdownMenuItem
+            key={l.code}
+            onClick={() => setLanguage(l.code)}
+            className="flex items-center justify-between"
+          >
+            <span className="notranslate">{l.label}</span>
+            {l.code === language && <Check className="h-4 w-4 text-primary" />}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   return (
-    <nav className="sticky top-0 z-50 bg-card/95 border-b border-border backdrop-blur-md shadow-sm">
+    <nav className="sticky top-0 z-50 bg-background/90 border-b border-border backdrop-blur-md shadow-sm">
       <div className="container mx-auto px-4">
         {/* Main Navbar Row */}
-        <div className="flex items-center justify-between h-16 md:h-18">
+        <div className="flex items-center justify-between gap-4 h-16 md:h-18">
           {/* Logo Section */}
-          <div className="flex items-center space-x-2 flex-shrink-0">
-            <Link to="/" className="flex items-center space-x-2">
-              <img 
-                src="/logo.png" 
-                alt="Logo" 
-                className="h-9 w-auto md:h-11"
+          <div className="flex items-center min-w-0">
+            <Link to="/" className="flex items-center gap-2 min-w-0">
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="h-9 w-auto md:h-11 object-contain shrink-0"
               />
-              <div className="text-lg md:text-xl font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hidden lg:block">
-                Nidhi Grah Udyog
+              {/* Stacked brand lock-up matching the redesign concept */}
+              <div className="leading-tight notranslate min-w-0">
+                <div className="font-extrabold text-primary text-base md:text-lg truncate">Nidhi Masala</div>
+                <div className="text-[10px] text-muted-foreground -mt-0.5 truncate">निधि गृह उद्योग</div>
               </div>
             </Link>
           </div>
 
-          {/* Optimized Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-5 lg:space-x-8">
-            <Link to="/" className="text-sm lg:text-base font-semibold text-foreground hover:text-primary transition-colors">
-              Home
+          {/* Centered search pill (concept layout) */}
+          <div className="hidden md:flex flex-1 max-w-md mx-auto">
+            <SearchAutocomplete
+              placeholder={t('nav.search')}
+              inputClassName="w-full"
+            />
+          </div>
+
+          {/* Desktop nav links + actions */}
+          <div className="hidden md:flex items-center gap-4 lg:gap-6 flex-shrink-0">
+            <Link to="/" className={navLinkClass("/")}>
+              <span aria-hidden>🏠</span>{t('nav.home')}
             </Link>
-            <Link to="/products" className="text-sm lg:text-base font-semibold text-foreground hover:text-primary transition-colors">
-              Products
+            <Link to="/products" className={navLinkClass("/products")}>
+              <span aria-hidden>🛍️</span>{t('nav.products')}
             </Link>
-            <Link to="/combos" className="text-sm lg:text-base font-semibold text-foreground hover:text-primary transition-colors">
-              Combos
+            <Link to="/combos" className={navLinkClass("/combos")}>
+              <span aria-hidden>🧺</span>{t('nav.combos')}
             </Link>
-            <Link to="/offer-zone" className="text-sm lg:text-base font-semibold text-primary hover:text-primary/80 transition-colors">
-              Offers
+            <Link to="/offer-zone" className={navLinkClass("/offer-zone", "text-primary")}>
+              <span aria-hidden>🎁</span>{t('nav.offers')}
             </Link>
 
             {/* "More" Dropdown to free up space */}
-            <DropdownMenu>
+            {/* modal={false}: prevents Radix's scroll-lock from mutating <body>,
+                which otherwise breaks the sticky navbar (it disappears on open). */}
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center space-x-1 text-sm lg:text-base font-semibold text-foreground hover:text-primary transition-colors outline-none">
-                  <span>More</span>
+                <button className="hidden lg:flex items-center gap-1 text-sm font-semibold text-foreground hover:text-primary transition-colors outline-none">
+                  <span aria-hidden>⋯</span>
+                  <span>{t('nav.more')}</span>
                   <ChevronDown className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={() => navigate('/about')}>
-                  About Us
+                  {t('nav.aboutUs')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/contact')}>
-                  Contact
+                  {t('nav.contact')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/track-order')}>
-                  Track Order
+                  {t('nav.trackOrder')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/my-orders')}>
-                  My Orders
+                  {t('nav.myOrders')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
 
-          {/* Desktop Actions Section */}
-          <div className="hidden md:flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
-            <form onSubmit={handleSearch} className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input 
-                type="search" 
-                placeholder="Search..."
-                className="pl-9 h-9 w-44 lg:w-56 bg-muted/50 border-none focus-visible:ring-1"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </form>
-            
-            <div className="flex items-center border-l border-border pl-2 lg:pl-4 space-x-1 lg:space-x-2">
+            <div className="flex items-center gap-1 lg:gap-2 border-l border-border pl-2 lg:pl-4">
+              <LanguageMenu />
+
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={handleLanguageToggle}
-                className="h-9 px-2 flex items-center gap-1 font-bold text-primary"
-              >
-                <Languages className="h-4 w-4" />
-                <span>{language === 'en' ? 'हिन्दी' : 'EN'}</span>
-              </Button>
-
-              <Button 
-                variant="ghost" 
                 size="icon"
-                className="h-9 w-9"
+                className="h-9 w-9 rounded-full text-xl leading-none"
                 onClick={() => navigate('/favorites')}
-                title="Wishlist"
+                title={t('nav.wishlist')}
               >
-                <Heart className="h-5 w-5" />
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="h-9 w-9"
-                onClick={handleProfileClick}
-                title="Account"
-              >
-                <User className="h-5 w-5" />
+                <span aria-hidden>❤️</span>
               </Button>
 
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-9 w-9 relative"
-                onClick={() => navigate('/cart')}
-                title="Cart"
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-full text-xl leading-none"
+                onClick={handleProfileClick}
+                title={t('nav.account')}
               >
-                <ShoppingCart className="h-5 w-5" />
-                {totalQuantity > 0 && (
-                  <span className="notranslate absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                    {totalQuantity}
-                  </span>
-                )}
+                <span aria-hidden>👤</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-full relative text-xl leading-none"
+                onClick={() => navigate('/cart')}
+                title={t('nav.cart')}
+              >
+                <span aria-hidden>🛒</span>
+                <CartBadge />
               </Button>
             </div>
           </div>
 
           {/* Mobile Actions Only */}
-          <div className="md:hidden flex items-center space-x-1">
+          <div className="md:hidden flex items-center gap-0.5">
+            <LanguageMenu compact />
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleLanguageToggle}
-              className="text-primary font-bold"
-            >
-              <Languages className="h-5 w-5" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon"
+              className="rounded-full text-xl leading-none"
               onClick={() => navigate('/favorites')}
             >
-              <Heart className="h-5 w-5" />
+              <span aria-hidden>❤️</span>
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="relative"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative rounded-full text-xl leading-none"
               onClick={() => navigate('/cart')}
             >
-              <ShoppingCart className="h-5 w-5" />
-              {totalQuantity > 0 && (
-                <span className="notranslate absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                  {totalQuantity}
-                </span>
-              )}
+              <span aria-hidden>🛒</span>
+              <CartBadge />
             </Button>
           </div>
         </div>
 
         {/* Mobile Search - Compact */}
         <div className="pb-3 md:hidden">
-          <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input 
-              type="search" 
-              placeholder="Search spices, masalas..."
-              className="pl-9 h-9 w-full bg-muted/50 border-none"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </form>
+          <SearchAutocomplete
+            placeholder={t('nav.searchMobile')}
+            inputClassName="w-full"
+          />
         </div>
       </div>
     </nav>
@@ -230,4 +232,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

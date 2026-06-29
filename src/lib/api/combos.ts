@@ -33,7 +33,8 @@ export interface Combo {
 }
 
 export const combosAPI = {
-  getAll: () => publicFetch(`${API_BASE_URL}/combos/`),
-  getById: (id: number | string) => publicFetch(`${API_BASE_URL}/combos/${id}/`),
-  getFeatured: () => publicFetch(`${API_BASE_URL}/combos/?is_featured=true`),
+  // ComboProductViewSet has pagination_class = None, so list endpoints return a plain array.
+  getAll: () => publicFetch<Combo[]>(`${API_BASE_URL}/combos/`),
+  getById: (id: number | string) => publicFetch<Combo>(`${API_BASE_URL}/combos/${id}/`),
+  getFeatured: () => publicFetch<Combo[]>(`${API_BASE_URL}/combos/?is_featured=true`),
 };

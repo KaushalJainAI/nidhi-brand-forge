@@ -1,5 +1,28 @@
 // lib/api/orders.ts
-import { API_BASE_URL, authFetch } from "./config";
+import { API_BASE_URL, authFetch, unwrap, ApiEnvelope } from "./config";
+
+export interface CreateOrderPayload {
+  shipping_address: string;
+  phone_number?: string;
+  payment_method?: string;
+  coupon_code?: string;
+}
+
+export interface CouponValidationResponse {
+  valid?: boolean;
+  message?: string;
+  error?: string;
+  coupon_code?: string;
+  discount_amount?: number;
+  discount_percent?: number;
+  discount_type?: string;
+  discount_value?: number;
+  shipping_charge?: number;
+  subtotal?: number;
+  tax?: number;
+  total_amount?: number;
+  savings?: number;
+}
 
 export interface OrderItem {
   id: number;
@@ -29,35 +52,59 @@ export interface Order {
 
 export const ordersAPI = {
   getAll: async (): Promise<Order[]> => {
-    const res = await authFetch(`${API_BASE_URL}/orders/`);
-    return (res as any).data ?? res;
+    const res = await authFetch<ApiEnvelope<Order[]> | Order[]>(`${API_BASE_URL}/orders/`);
+    return unwrap(res);
   },
 
   getById: async (id: string): Promise<Order> => {
-    const res = await authFetch(`${API_BASE_URL}/orders/${id}/`);
-    return (res as any).data ?? res;
+    const res = await authFetch<ApiEnvelope<Order> | Order>(`${API_BASE_URL}/orders/${id}/`);
+    return unwrap(res);
   },
 
-  create: async (orderData: any): Promise<Order> => {
-    const res = await authFetch(`${API_BASE_URL}/orders/`, {
+  create: async (orderData: CreateOrderPayload): Promise<Order> => {
+    const res = await authFetch<ApiEnvelope<Order> | Order>(`${API_BASE_URL}/orders/`, {
       method: "POST",
       body: JSON.stringify(orderData),
     });
-    return (res as any).data ?? res;
+    return unwrap(res);
   },
 
   cancel: async (id: number): Promise<Order> => {
-    const res = await authFetch(`${API_BASE_URL}/orders/${id}/cancel/`, {
+    const res = await authFetch<ApiEnvelope<Order> | Order>(`${API_BASE_URL}/orders/${id}/cancel/`, {
       method: "POST",
     });
-    return (res as any).data ?? res;
+    return unwrap(res);
   },
 
-  validateCoupon: async (couponCode: string) => {
-    const res = await authFetch(`${API_BASE_URL}/orders/validate_coupon/`, {
-      method: "POST",
-      body: JSON.stringify({ coupon_code: couponCode }),
+  validateCoupon: async (couponCode: string): Promise<CouponValidationResponse> => {
+    const res = await authFetch<ApiEnvelope<CouponValidationResponse> | CouponValidationResponse>(
+      `${API_BASE_URL}/orders/validate_coupon/`,
+      {
+        method: "POST",
+        body: JSON.stringify({ coupon_code: couponCode }),
+      },
+    );
+    return unwrap(res);
+  },
+
+  // Download the PDF invoice/bill for an order and trigger a browser download.
+  // The endpoint returns a binary PDF (not JSON), so we fetch the blob directly
+  // instead of going through authFetch.
+  downloadInvoice: async (id: number, orderNumber?: string): Promise<void> => {
+    const res = await fetch(`${API_BASE_URL}/orders/${id}/invoice/`, {
+      credentials: "include",
     });
-    return (res as any).data ?? res;
+    if (!res.ok) {
+      throw new Error("Failed to download invoice");
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invoice-${orderNumber || `order-${id}`}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
   },
 };

@@ -7,12 +7,20 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { authAPI, cartAPI, ordersAPI } from "@/lib/api.ts";
+import { authAPI, cartAPI, ordersAPI, geoAPI } from "@/lib/api.ts";
 import { receivableAccountsAPI } from "@/lib/api/recievableAccounts.ts";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { MapPin, Loader2 } from "lucide-react";
 import QRCode from "qrcode";
+import { track } from "@/lib/api/analytics";
 
 const Billing = () => {
   const navigate = useNavigate();
+
+  // Funnel signal: the visitor reached checkout.
+  useEffect(() => {
+    track({ event_type: "checkout_started" }, { metric: "checkout_started" });
+  }, []);
 
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -37,6 +45,12 @@ const Billing = () => {
   const [hasPaid, setHasPaid] = useState(false);
   const [receivableAccount, setReceivableAccount] = useState<any>(null);
 
+  // Location detection: offer to auto-fill the address when the user has no
+  // saved default address on their profile.
+  const geo = useGeolocation();
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [hasDefaultAddress, setHasDefaultAddress] = useState(true);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -56,6 +70,9 @@ const Billing = () => {
 
         // 2. Load user profile
         const profile = await authAPI.getProfile();
+        // Whether the user already has a saved default address. If not, we'll
+        // surface the "use my current location" affordance more prominently.
+        setHasDefaultAddress(Boolean(profile.address && profile.city));
         setFormData((prev) => ({
           ...prev,
           fullName: profile.first_name && profile.last_name 
@@ -88,8 +105,14 @@ const Billing = () => {
         );
         
         const shipping = subtotal >= 500 ? 0 : 50;
-        const tax = subtotal * 0.05;
-        
+        // Per-product GST from each line's tax_rate (papad/papad katran are 0).
+        // Falls back to 0 when absent — the backend column is authoritative.
+        const tax = items.reduce(
+          (acc: number, item: any) =>
+            acc + item.price * item.quantity * ((item.tax_rate ?? 0) / 100),
+          0
+        );
+
         setCartSummary({
           subtotal,
           discount: 0,
@@ -191,10 +214,15 @@ const Billing = () => {
       setCouponCode("");
       setAppliedCoupon(null);
       
-      // Recalculate without coupon
+      // Recalculate without coupon (per-product GST from the cart lines;
+      // falls back to 0 when a line has no tax_rate).
       const subtotal = cartSummary.subtotal;
       const shipping = subtotal >= 500 ? 0 : 50;
-      const tax = subtotal * 0.05;
+      const tax = cartItems.reduce(
+        (acc: number, item: any) =>
+          acc + item.price * item.quantity * ((item.tax_rate ?? 0) / 100),
+        0
+      );
       const total = subtotal + shipping + tax;
       
       setCartSummary({
@@ -212,9 +240,49 @@ const Billing = () => {
     }
   };
 
+  const handleDetectLocation = async () => {
+    setDetectingLocation(true);
+    try {
+      const coords = await geo.request();
+      if (!coords) {
+        toast.error(geo.error || "Couldn't access your location.");
+        return;
+      }
+
+      const addr = await geoAPI.reverseGeocode(coords.lat, coords.lng);
+      setFormData((prev) => ({
+        ...prev,
+        address: addr.address_line || prev.address,
+        city: addr.city || prev.city,
+        state: addr.state || prev.state,
+        zipCode: addr.pincode || prev.zipCode,
+      }));
+
+      // Persist a coarse copy for personalized recommendations. Best-effort —
+      // the precise coordinates are rounded server-side before storage.
+      geoAPI
+        .update({
+          lat: coords.lat,
+          lng: coords.lng,
+          city: addr.city,
+          state: addr.state,
+          pincode: addr.pincode,
+        })
+        .catch(() => {
+          /* recommendation signal is non-critical */
+        });
+
+      toast.success("Address filled from your location. Please review it.");
+    } catch (err) {
+      toast.error("Couldn't determine your address. Please enter it manually.");
+    } finally {
+      setDetectingLocation(false);
+    }
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Name is required";
     }
@@ -313,7 +381,31 @@ const Billing = () => {
             <div className="lg:col-span-2 space-y-4 sm:space-y-8">
               <Card>
                 <CardHeader className="p-3 sm:p-6">
-                  <CardTitle className="text-base sm:text-lg">Shipping Information</CardTitle>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <CardTitle className="text-base sm:text-lg">Shipping Information</CardTitle>
+                    {geo.supported && (
+                      <Button
+                        type="button"
+                        variant={hasDefaultAddress ? "outline" : "default"}
+                        size="sm"
+                        onClick={handleDetectLocation}
+                        disabled={detectingLocation}
+                        className="h-8 text-xs sm:text-sm"
+                      >
+                        {detectingLocation ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <MapPin className="h-3.5 w-3.5" />
+                        )}
+                        <span className="ml-1.5">Use my location</span>
+                      </Button>
+                    )}
+                  </div>
+                  {!hasDefaultAddress && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      No saved address yet — detect it automatically, then review the fields below.
+                    </p>
+                  )}
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
@@ -437,7 +529,7 @@ const Billing = () => {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tax (5%)</span>
+                      <span className="text-muted-foreground">Tax (GST)</span>
                       <span className="font-semibold">₹{cartSummary.tax.toFixed(2)}</span>
                     </div>
                     <Separator className="my-2" />

@@ -1,4 +1,4 @@
-import { API_BASE_URL, authFetch } from "./config";
+import { API_BASE_URL, authFetch, Paginated } from "./config";
 
 export interface PaymentMethod {
   id: number;
@@ -17,7 +17,7 @@ export interface PaymentMethod {
 }
 
 export const paymentMethodsAPI = {
-  getAll: () => authFetch(`${API_BASE_URL}/payment-methods/`),
+  getAll: () => authFetch<Paginated<PaymentMethod>>(`${API_BASE_URL}/payment-methods/`),
 
   getDefault: () => authFetch(`${API_BASE_URL}/payment-methods/default/`),
 

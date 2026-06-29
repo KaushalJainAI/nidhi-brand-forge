@@ -1,9 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import checker from "vite-plugin-checker";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ command }) => ({
   server: {
     host: "::",
     port: 5173,
@@ -29,7 +30,14 @@ export default defineConfig(({ mode }) => ({
       }
     }
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Live TypeScript error overlay during `npm run dev` only. Never runs during
+    // `vite build`, so production builds stay fast and are never blocked by types.
+    ...(command === "serve"
+      ? [checker({ typescript: true })]
+      : []),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

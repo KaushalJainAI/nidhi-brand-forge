@@ -15,6 +15,7 @@ import ProductCard from "@/components/ProductCard";
 import CachedImage from "@/components/CachedImage";
 import product1 from "@/assets/product-1.jpg";
 import { API_BASE_URL } from "@/lib/api/config";
+import { useTranslation } from "react-i18next";
 
 // Helper to resolve image URLs from backend (may be relative paths)
 const getImageUrl = (imagePath: string | null | undefined): string => {
@@ -27,6 +28,7 @@ const getImageUrl = (imagePath: string | null | undefined): string => {
 };
 
 const ComboDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -92,7 +94,7 @@ const ComboDetail = () => {
       badge: combo.badge,
       quantity: quantity,
     });
-    toast.success(`${quantity} ${quantity > 1 ? 'combos' : 'combo'} added to cart!`);
+    toast.success(quantity === 1 ? t('combo.addedToCart', { count: quantity }) : t('combo.addedToCart_other', { count: quantity }));
   };
 
   const handleToggleFavorite = () => {
@@ -110,7 +112,7 @@ const ComboDetail = () => {
       badge: combo.badge || "Combo",
     });
     
-    toast.success(isCurrentlyFavorite ? "Removed from favorites" : "Added to favorites");
+    toast.success(isCurrentlyFavorite ? t('product.removedFromFavorites') : t('product.addedToFavorites'));
   };
 
   const handleShare = async () => {
@@ -354,17 +356,17 @@ const ComboDetail = () => {
               {savings > 0 && (
                 <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                   <Gift className="h-4 w-4" />
-                  <p className="font-medium">You save ₹{savings.toFixed(0)} with this combo!</p>
+                  <p className="font-medium">{t('combo.saveWithCombo', { amount: savings.toFixed(0) })}</p>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Inclusive of all taxes</p>
+              <p className="text-xs text-muted-foreground">{t('product.inclusiveTaxes')}</p>
             </div>
 
             {/* What's Included */}
             <div className="bg-muted/50 rounded-xl p-4">
               <h2 className="font-semibold mb-3 flex items-center gap-2">
                 <Package className="h-5 w-5 text-primary" />
-                What's Included ({items.length} items)
+                {t('combo.whatsIncluded', { count: items.length })}
               </h2>
               <div className="space-y-2">
                 {items.map((item: ComboItem, index: number) => (
@@ -383,7 +385,7 @@ const ComboDetail = () => {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{item.product_name}</p>
                       <p className="text-xs text-muted-foreground">
-                        Qty: {item.quantity} × ₹{item.product_price}
+                        {t('product.quantityLabel')} {item.quantity} × ₹{item.product_price}
                       </p>
                     </div>
                     <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -395,14 +397,14 @@ const ComboDetail = () => {
             {/* Total Weight */}
             {combo.total_weight && (
               <p className="text-sm">
-                <span className="font-medium">Total Weight:</span>{" "}
+                <span className="font-medium">{t('combo.totalWeight')}</span>{" "}
                 <span className="text-muted-foreground">{combo.total_weight}</span>
               </p>
             )}
 
             {/* Quantity Selector */}
             <div className="flex items-center gap-4">
-              <span className="font-medium">Quantity:</span>
+              <span className="font-medium">{t('product.quantityLabel')}</span>
               {itemInCart ? (
                 <div className="flex items-center gap-2">
                   <Button 
@@ -422,7 +424,7 @@ const ComboDetail = () => {
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
-                  <span className="text-sm text-muted-foreground">in cart</span>
+                  <span className="text-sm text-muted-foreground">{t('product.inCart')}</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
@@ -454,14 +456,14 @@ const ComboDetail = () => {
                 onClick={handleAddToCart}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                Add to Cart
+                {t('product.addToCart')}
               </Button>
               <Button 
                 variant="outline" 
                 size="icon" 
                 className="h-12 w-12"
                 onClick={handleShareWhatsApp}
-                title="Share on WhatsApp"
+                title={t('footer.whatsapp')}
               >
                 <MessageCircle className="h-5 w-5" />
               </Button>
@@ -470,7 +472,7 @@ const ComboDetail = () => {
                 size="icon" 
                 className="h-12 w-12"
                 onClick={handleShare}
-                title="Copy link"
+                title={t('product.copyLink')}
               >
                 <Share2 className="h-5 w-5" />
               </Button>
@@ -480,18 +482,18 @@ const ComboDetail = () => {
             <div className="grid grid-cols-3 gap-3 pt-2">
               <div className="flex flex-col items-center text-center p-3 bg-muted/50 rounded-lg">
                 <Truck className="h-5 w-5 text-primary mb-1" />
-                <span className="text-xs font-medium">Free Delivery</span>
-                <span className="text-xs text-muted-foreground">Orders ₹500+</span>
+                <span className="text-xs font-medium">{t('combo.freeDelivery')}</span>
+                <span className="text-xs text-muted-foreground">{t('combo.ordersMin')}</span>
               </div>
               <div className="flex flex-col items-center text-center p-3 bg-muted/50 rounded-lg">
                 <Shield className="h-5 w-5 text-primary mb-1" />
-                <span className="text-xs font-medium">Secure</span>
-                <span className="text-xs text-muted-foreground">Payment</span>
+                <span className="text-xs font-medium">{t('combo.secure')}</span>
+                <span className="text-xs text-muted-foreground">{t('combo.payment')}</span>
               </div>
               <div className="flex flex-col items-center text-center p-3 bg-muted/50 rounded-lg">
                 <RotateCcw className="h-5 w-5 text-primary mb-1" />
-                <span className="text-xs font-medium">7 Days</span>
-                <span className="text-xs text-muted-foreground">Return</span>
+                <span className="text-xs font-medium">{t('combo.sevenDays')}</span>
+                <span className="text-xs text-muted-foreground">{t('combo.return')}</span>
               </div>
             </div>
 
@@ -504,9 +506,9 @@ const ComboDetail = () => {
                       <Gift className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="font-semibold text-green-700 dark:text-green-300">Great Value!</p>
+                      <p className="font-semibold text-green-700 dark:text-green-300">{t('combo.greatValue')}</p>
                       <p className="text-sm text-green-600 dark:text-green-400">
-                        Save ₹{savings.toFixed(0)} compared to buying separately
+                        {t('combo.saveSeparately', { amount: savings.toFixed(0) })}
                       </p>
                     </div>
                   </div>
@@ -519,7 +521,7 @@ const ComboDetail = () => {
         {/* Description Section */}
         {combo.description && (
           <section className="max-w-4xl mb-8">
-            <h2 className="text-xl font-bold mb-4">About This Combo</h2>
+            <h2 className="text-xl font-bold mb-4">{t('combo.aboutCombo')}</h2>
             <p className="text-muted-foreground leading-relaxed">{combo.description}</p>
           </section>
         )}
@@ -527,43 +529,43 @@ const ComboDetail = () => {
         {/* Why This Combo Section - Compact on mobile, spacious on desktop */}
         <section className="mb-8 md:mb-12">
           <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 text-center">
-            Why Choose This Combo?
+            {t('combo.whyChoose')}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-6">
             <div className="flex flex-col items-center text-center p-3 sm:p-4 md:p-8 bg-card rounded-xl md:rounded-2xl border border-border hover:shadow-xl transition-all md:hover:-translate-y-1">
               <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl md:rounded-2xl p-2.5 sm:p-3 md:p-5 mb-2 md:mb-4">
                 <Gift className="h-5 w-5 sm:h-6 sm:w-6 md:h-10 md:w-10 text-primary" />
               </div>
-              <p className="text-xs sm:text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-2">Better Value</p>
+              <p className="text-xs sm:text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-2">{t('combo.betterValue')}</p>
               <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground hidden sm:block">
-                Save more when you buy together
+                {t('combo.saveTogether')}
               </p>
             </div>
             <div className="flex flex-col items-center text-center p-3 sm:p-4 md:p-8 bg-card rounded-xl md:rounded-2xl border border-border hover:shadow-xl transition-all md:hover:-translate-y-1">
               <div className="bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl md:rounded-2xl p-2.5 sm:p-3 md:p-5 mb-2 md:mb-4">
                 <Package className="h-5 w-5 sm:h-6 sm:w-6 md:h-10 md:w-10 text-accent" />
               </div>
-              <p className="text-xs sm:text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-2">Curated Selection</p>
+              <p className="text-xs sm:text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-2">{t('combo.curatedSelection')}</p>
               <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground hidden sm:block">
-                Expertly paired products
+                {t('combo.expertlyPaired')}
               </p>
             </div>
             <div className="flex flex-col items-center text-center p-3 sm:p-4 md:p-8 bg-card rounded-xl md:rounded-2xl border border-border hover:shadow-xl transition-all md:hover:-translate-y-1">
               <div className="bg-gradient-to-br from-secondary/20 to-secondary/5 rounded-xl md:rounded-2xl p-2.5 sm:p-3 md:p-5 mb-2 md:mb-4">
                 <Truck className="h-5 w-5 sm:h-6 sm:w-6 md:h-10 md:w-10 text-secondary" />
               </div>
-              <p className="text-xs sm:text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-2">Single Delivery</p>
+              <p className="text-xs sm:text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-2">{t('combo.singleDelivery')}</p>
               <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground hidden sm:block">
-                All items in one package
+                {t('combo.allInOne')}
               </p>
             </div>
             <div className="flex flex-col items-center text-center p-3 sm:p-4 md:p-8 bg-card rounded-xl md:rounded-2xl border border-border hover:shadow-xl transition-all md:hover:-translate-y-1">
               <div className="bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl md:rounded-2xl p-2.5 sm:p-3 md:p-5 mb-2 md:mb-4">
                 <Check className="h-5 w-5 sm:h-6 sm:w-6 md:h-10 md:w-10 text-green-600" />
               </div>
-              <p className="text-xs sm:text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-2">Quality Assured</p>
+              <p className="text-xs sm:text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-2">{t('home.features.qualityTitle')}</p>
               <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground hidden sm:block">
-                100% genuine products
+                {t('combo.genuine')}
               </p>
             </div>
           </div>
@@ -573,7 +575,7 @@ const ComboDetail = () => {
         {items.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-6 text-center">
-              Products In This Combo
+              {t('combo.productsInCombo')}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
               {items.map((item: ComboItem, index: number) => (
@@ -624,7 +626,7 @@ const ComboDetail = () => {
               )}
             </div>
             {savings > 0 && (
-              <p className="text-xs text-green-600">Save ₹{savings.toFixed(0)}</p>
+              <p className="text-xs text-green-600">{t('product.youSave', { amount: savings.toFixed(0) })}</p>
             )}
           </div>
           <Button 
@@ -633,12 +635,12 @@ const ComboDetail = () => {
             className="h-10 px-6"
           >
             <ShoppingCart className="mr-2 h-4 w-4" />
-            Add to Cart
+            {t('product.addToCart')}
           </Button>
           {cart.length > 0 && (
             <Button size="sm" variant="secondary" asChild className="h-10 px-4">
               <Link to="/cart">
-                Cart ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+                {t('nav.cart')} ({cart.reduce((sum, item) => sum + item.quantity, 0)})
               </Link>
             </Button>
           )}

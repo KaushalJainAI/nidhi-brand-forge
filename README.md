@@ -1,20 +1,24 @@
-# 🛒 NGU Spices - Customer Frontend
+# NGU Spices — Customer Frontend
 
-A modern React + TypeScript e-commerce frontend for NGU Spices.
+React + TypeScript e-commerce storefront for Nidhi Masala spices.
 
-## ✨ Features
+## Features
 
-- **Product Browsing** - Categories, search, filters
-- **Product/Combo Details** - Gallery, reviews, add to cart
-- **Shopping Cart** - Persistent cart with stock validation
-- **Checkout** - Address, payment, order confirmation
-- **User Auth** - Login, register, profile management
-- **My Orders** - Order history and tracking
-- **Favorites** - Save products for later
-- **Chat Support** - Order-specific customer support
-- **Responsive Design** - Mobile-first approach
+- **Product Browsing** — categories, search with autocomplete, filters
+- **Product/Combo Details** — image gallery, reviews, add to cart
+- **Shopping Cart** — persistent cart, stock validation
+- **Checkout** — address, Razorpay payment, order confirmation
+- **User Auth** — JWT login/register, Google OAuth, password reset
+- **My Orders** — order history and status tracking
+- **Favorites** — save products for later
+- **AI Shopping Assistant** — conversational product Q&A widget
+- **Personalized Recommendations** — based on browsing/purchase history
+- **Voice Order** — voice-input product search
+- **AI Chat Support** — unified AI + human-admin chat widget (via `AssistantWidget`)
+- **Multilingual** — English, Hindi, Hinglish, Gujarati, Marathi, Punjabi
+- **Responsive** — mobile-first design
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Technology | Purpose |
 |------------|---------|
@@ -23,36 +27,35 @@ A modern React + TypeScript e-commerce frontend for NGU Spices.
 | Vite | Build tool |
 | TailwindCSS | Styling |
 | Shadcn/UI | Component library |
-| React Router | Navigation |
+| React Router v6 | Navigation |
 | Axios | API calls |
+| i18next | Multilingual UI |
 | Lucide | Icons |
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 src/
 ├── components/     # Reusable UI components
-├── pages/          # Route pages
-├── lib/
-│   └── api/        # API client functions
-├── contexts/       # React contexts (Auth, Cart)
-├── hooks/          # Custom hooks
-└── types/          # TypeScript definitions
+├── pages/          # Route-level page components
+├── lib/api/        # API client functions (grouped by domain)
+├── contexts/       # Global state (Auth, Cart)
+├── hooks/          # Custom React hooks
+├── i18n/           # i18next config + locale JSON files (en/hi/hinglish/gu/mr/pa)
+├── types/          # TypeScript type definitions
+└── utils/          # Helpers (Google Translate patch, etc.)
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Start dev server
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173)
+Open `http://localhost:5173`
 
 ### Build for Production
 
@@ -68,51 +71,71 @@ docker build -t ngu-frontend .
 docker run -p 3000:80 ngu-frontend
 ```
 
-## 🔧 Environment Variables
+## Environment Variables
 
-Create `.env.local`:
+Create `.env.local` for local dev:
 
 ```env
 VITE_API_URL=http://localhost:8000/api
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
-For production:
+For production builds (baked in at build time):
+
 ```env
-VITE_API_URL=https://api.your-domain.com/api
+VITE_API_URL=https://nidhimasala.kaushaljain.com/api
+VITE_GOOGLE_CLIENT_ID=860732387709-osb9oeant94oa302egqqqvqdj4jmkiuh.apps.googleusercontent.com
 ```
 
-## 📱 Pages
+> Both variables are compile-time — they are embedded in the JS bundle during `npm run build`.
+> Changing them requires a rebuild and redeploy.
+
+## Pages
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | Home | Landing page, featured products |
-| `/products` | Products | Browse all products |
-| `/products/:slug` | Product Detail | View product details |
-| `/combos` | Offer Zone | Product combos |
-| `/combos/:slug` | Combo Detail | View combo details |
+| `/` | Index | Home — featured sections, assistant widget |
+| `/products` | Products | Browse + filter all products |
+| `/products/:slug` | ProductDetail | Product detail, gallery, reviews |
+| `/combos` | Combos | Combo packs listing |
+| `/offer-zone` | OfferZone | Highlighted deals/offers |
+| `/combos/:slug` | ComboDetail | Combo detail |
+| `/search` | SearchResults | Full search results page |
 | `/cart` | Cart | Shopping cart |
-| `/checkout` | Checkout | Complete purchase |
-| `/login` | Login | User authentication |
+| `/billing` | Billing | Address + payment details entry |
+| `/checkout` | Checkout | Order review + placement |
+| `/my-orders` | MyOrders | Order history (auth required) |
+| `/track-order` | TrackOrder | Track order by ID |
+| `/order-success` | OrderSuccess | Confirmation after purchase |
+| `/favorites` | Favorites | Saved products (auth required) |
+| `/login` | Login | JWT + Google OAuth login |
 | `/register` | Register | New user signup |
-| `/profile` | Profile | User profile |
-| `/my-orders` | Orders | Order history |
-| `/favorites` | Favorites | Saved products |
-| `/support/:orderId` | Chat Support | Order-specific chat |
+| `/profile` | Profile | User profile + address (auth required) |
+| `/forgot-password` | ForgotPassword | Request password reset |
+| `/reset-password` | ResetPassword | Set new password |
 | `/about` | About | Company info |
 | `/contact` | Contact | Contact form |
+| `/shipping-policy` | ShippingPolicy | Shipping policy content |
+| `/return-policy` | ReturnPolicy | Return policy content |
 
-## 🎨 Design System
+## Multilingual Support
 
-- **Primary Color**: Brand red/orange
-- **Dark Mode**: Supported
-- **Responsive**: Mobile-first
-- **Animations**: Smooth transitions
-- **Typography**: Modern, readable fonts
+The UI is fully translated into 6 languages via **i18next**:
 
-## 🚢 Deployment
+| Code | Language |
+|------|----------|
+| `en` | English (default) |
+| `hi` | Hindi |
+| `hinglish` | Hinglish |
+| `gu` | Gujarati |
+| `mr` | Marathi |
+| `pa` | Punjabi |
 
-See [DEPLOYMENT.md](../../DEPLOYMENT.md) for EC2 deployment instructions.
+Language is stored in `localStorage` (key: `site_lang`) and sent to the backend as a
+`?lang=` query parameter so API responses (product names, descriptions) return in the
+selected language. The AI assistant also replies in the chosen language.
 
----
+## Deployment
 
-Made with ❤️ for NGU Spices
+See [DEPLOYMENT.md](../../DEPLOYMENT.md) for EC2 deployment.
+See [HOSTING_PLAN.md](../../HOSTING_PLAN.md) for Cloudflare Pages (free) deployment.

@@ -3,6 +3,8 @@ import { API_BASE_URL, authFetch } from "./config";
 export interface CartItem {
   id: number;
   product_id: number;
+  variant_id?: number | null;
+  variant_slug?: string | null;
   item_type: "product" | "combo";
   name: string;
   image: string;
@@ -16,6 +18,14 @@ export interface CartSummary {
   tax: number;
   discount: number;
   total: number;
+}
+
+export interface CartResponse {
+  success?: boolean;
+  items?: CartItem[];
+  summary?: CartSummary;
+  error?: string;
+  message?: string;
 }
 
 export interface PaymentQRResponse {
@@ -33,7 +43,7 @@ export interface PaymentQRResponse {
 export const cartAPI = {
   get: async () => {
     try {
-      const data = await authFetch(`${API_BASE_URL}/cart/`);
+      const data = await authFetch<CartResponse>(`${API_BASE_URL}/cart/`);
       return data;
     } catch (error) {
       console.error('Get cart error:', error);
@@ -41,13 +51,14 @@ export const cartAPI = {
     }
   },
 
-  addItem: async (data: { 
-    product_id: number; 
+  addItem: async (data: {
+    product_id: number;
     item_type: "product" | "combo";
     quantity: number;
+    variant_id?: number | null;
   }) => {
     try {
-      const result = await authFetch(`${API_BASE_URL}/cart/add_item/`, {
+      const result = await authFetch<CartResponse>(`${API_BASE_URL}/cart/add_item/`, {
         method: "POST",
         body: JSON.stringify(data),
       });
@@ -58,13 +69,14 @@ export const cartAPI = {
     }
   },
 
-  updateItem: async (data: { 
-    product_id: number; 
+  updateItem: async (data: {
+    product_id: number;
     item_type: "product" | "combo";
     quantity: number;
+    variant_id?: number | null;
   }) => {
     try {
-      const result = await authFetch(`${API_BASE_URL}/cart/update_item/`, {
+      const result = await authFetch<CartResponse>(`${API_BASE_URL}/cart/update_item/`, {
         method: "POST",
         body: JSON.stringify(data),
       });
@@ -78,9 +90,10 @@ export const cartAPI = {
   removeItem: async (data: {
     product_id: number;
     item_type: "product" | "combo";
+    variant_id?: number | null;
   }) => {
     try {
-      const result = await authFetch(`${API_BASE_URL}/cart/remove_item/`, {
+      const result = await authFetch<CartResponse>(`${API_BASE_URL}/cart/remove_item/`, {
         method: "POST",
         body: JSON.stringify(data),
       });
@@ -93,7 +106,7 @@ export const cartAPI = {
 
   clear: async () => {
     try {
-      const result = await authFetch(`${API_BASE_URL}/cart/clear/`, {
+      const result = await authFetch<CartResponse>(`${API_BASE_URL}/cart/clear/`, {
         method: "POST",
       });
       return result;
@@ -107,11 +120,12 @@ export const cartAPI = {
     product_id: number;
     item_type: "product" | "combo";
     quantity: number;
+    variant_id?: number | null;
   }>) => {
     try {
 
       
-      const data = await authFetch(`${API_BASE_URL}/cart/sync/`, {
+      const data = await authFetch<CartResponse>(`${API_BASE_URL}/cart/sync/`, {
         method: "POST",
         body: JSON.stringify({ items }),
       });
@@ -129,7 +143,7 @@ export const cartAPI = {
     couponCode?: string
   ): Promise<PaymentQRResponse> => {
     try {
-      const payload: any = {
+      const payload: { receivable_account_id: number; coupon_code?: string } = {
         receivable_account_id: receivableAccountId,
       };
       
@@ -138,7 +152,7 @@ export const cartAPI = {
         payload.coupon_code = couponCode.trim();
       }
       
-      const result = await authFetch(`${API_BASE_URL}/cart/payment_qr/`, {
+      const result = await authFetch<PaymentQRResponse>(`${API_BASE_URL}/cart/payment_qr/`, {
         method: "POST",
         body: JSON.stringify(payload),
       });

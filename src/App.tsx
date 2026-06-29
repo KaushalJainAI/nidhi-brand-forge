@@ -16,16 +16,15 @@ import SearchResults from "./pages/SearchResults";
 import MyOrders from "./pages/MyOrders";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import ReturnPolicy from "./pages/ReturnPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import OrderSuccess from "./pages/OrderSuccess";
 import OfferZone from "./pages/OfferZone";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Billing from "./pages/Billing";
-import ChatSupport from "./pages/ChatSupport";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Favorites from "./pages/Favorites";
-import VoiceOrder from "./pages/VoiceOrder";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import InterestSuccess from "./pages/InterestSuccess";
@@ -35,16 +34,21 @@ import { LanguageProvider } from "./context/LanguageContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { FavoritesProvider } from "./context/FavoritesContext";
 import ScrollToTop from "./functions/ScrollToTop";
+import { usePageTracking } from "./hooks/usePageTracking";
 import Navbar from "./components/Navbar";
+import UspRibbon from "./components/UspRibbon";
 import MobileFooter from "./components/MobileFooter";
-import FloatingChatIcon from "./components/FloatingChatIcon";
+import FloatingCartBar from "./components/FloatingCartBar";
+import AssistantWidget from "./components/AssistantWidget";
+import FloatingWhatsApp from "./components/FloatingWhatsApp";
 
 const queryClient = new QueryClient();
 
 // Animated routes wrapper
 const AnimatedRoutes = () => {
   const location = useLocation();
-  
+  usePageTracking();
+
   return (
     <div 
       key={location.pathname}
@@ -62,13 +66,12 @@ const AnimatedRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/billing" element={<Billing />} />
-        <Route path="/chat-support" element={<ChatSupport />} />
         <Route path="/favorites" element={<Favorites />} />
-        <Route path="/voice-order" element={<VoiceOrder />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
         <Route path="/return-policy" element={<ReturnPolicy />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/order-success" element={<OrderSuccess />} />
         <Route path="/interest-success" element={<InterestSuccess />} />
         <Route path="/offer-zone" element={<OfferZone />} />
@@ -94,12 +97,15 @@ const App = () => (
                 <Sonner />
                 <BrowserRouter>
                   <ScrollToTop />
-                  {/* Navbar is outside AnimatedRoutes so it doesn't reload on page change */}
+                  {/* USP ribbon + Navbar are outside AnimatedRoutes so they don't reload on page change */}
+                  <UspRibbon />
                   <Navbar />
                   <AnimatedRoutes />
                   {/* MobileFooter is outside AnimatedRoutes so it doesn't reload on page change */}
                   <MobileFooter />
-                  <FloatingChatIcon />
+                  <FloatingCartBar />
+                  <FloatingWhatsApp />
+                  <AssistantWidget />
                 </BrowserRouter>
               </CartProvider>
             </FavoritesProvider>

@@ -1,0 +1,437 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "combos": "Combos",
+    "offers": "Offers",
+    "more": "More",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "trackOrder": "Track Order",
+    "myOrders": "My Orders",
+    "search": "Search...",
+    "searchMobile": "Search spices, masalas...",
+    "wishlist": "Wishlist",
+    "account": "Account",
+    "cart": "Cart",
+    "language": "Language"
+  },
+  "common": {
+    "viewAll": "View All",
+    "loading": "Loading...",
+    "shopNow": "Shop Now",
+    "currency": "₹"
+  },
+  "ribbon": {
+    "freeShipping": "FREE shipping on orders above ₹299",
+    "pure": "100% pure & natural — no fillers",
+    "cod": "Cash on Delivery available",
+    "handPacked": "Hand-packed in Indore",
+    "trusted": "Trusted by 1.1M+ kitchens"
+  },
+  "hero": {
+    "badge": "Authentic Indian Spices",
+    "headlineStart": "Taste of ",
+    "headlineHighlight": "Tradition",
+    "headlineEnd": " in Every Spice",
+    "description": "Experience the authentic flavors of India with our premium quality spices and masalas. Made with love, delivered with care.",
+    "learnMore": "Learn More",
+    "statsProducts": "Products",
+    "statsPure": "Pure & Natural",
+    "statsCustomers": "Happy Customers",
+    "handPackedFresh": "Hand-packed fresh",
+    "since": "Since 1998"
+  },
+  "home": {
+    "features": {
+      "freeShippingTitle": "Free Shipping",
+      "freeShippingDesc": "On orders above ₹299",
+      "authenticTitle": "100% Authentic",
+      "authenticDesc": "Pure & natural ingredients",
+      "deliveryTitle": "Quick Delivery",
+      "deliveryDesc": "Fast doorstep delivery",
+      "qualityTitle": "Quality Assured",
+      "qualityDesc": "Premium quality products"
+    },
+    "recommended": {
+      "title": "Recommended For You",
+      "subtitle": "Picked from what you browse and buy"
+    },
+    "new": {
+      "title": "Newly Launched",
+      "subtitle": "Freshly packed and ready for your kitchen"
+    },
+    "specials": {
+      "title": "Our Specials",
+      "subtitle": "Discover our handcrafted spice blends that bring authentic flavors to your home."
+    },
+    "bestsellers": {
+      "title": "Best Selling Products",
+      "subtitle": "Customer favorites across India"
+    },
+    "trending": {
+      "title": "Trending Now",
+      "subtitle": "Spices everyone is trying this season"
+    },
+    "categories": {
+      "title": "Shop by Category",
+      "subtitle": "Find exactly what you need for your cooking"
+    },
+    "combos": {
+      "title": "Combo Offers",
+      "subtitle": "Save more with our curated spice bundles"
+    },
+    "testimonials": {
+      "title": "Customer Testimonials",
+      "subtitle": "What our happy customers say",
+      "items": [
+        {
+          "name": "Priya Sharma",
+          "review": "The quality of spices is exceptional! My dishes taste so much better now.",
+          "rating": 5
+        },
+        {
+          "name": "Rajesh Kumar",
+          "review": "Authentic flavors and great packaging. Highly recommended!",
+          "rating": 5
+        },
+        {
+          "name": "Anita Patel",
+          "review": "Best masalas I've ever used. Will definitely order again!",
+          "rating": 5
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to Spice Up Your Kitchen?",
+      "subtitle": "Experience the true essence of Indian tradition with our handcrafted spices. Pure, authentic, and delivered to your doorstep.",
+      "handPacked": "🌿 Hand-packed in small batches",
+      "viewOffers": "View Offers"
+    },
+    "eyebrow": {
+      "forYou": "For You",
+      "justIn": "Just In",
+      "bestsellers": "Bestsellers",
+      "trending": "Trending Now",
+      "explore": "Explore",
+      "valueBundles": "Value Bundles",
+      "lovedByKitchens": "Loved by Kitchens"
+    }
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock",
+    "off": "% OFF",
+    "viewDetails": "View Details",
+    "selectSize": "Select Size",
+    "from": "from",
+    "sizes": "sizes",
+    "youSave": "You save ₹{{amount}}",
+    "loginRequired": "You need to log in to add items to your cart.",
+    "addedToFavorites": "Added to favorites",
+    "removedFromFavorites": "Removed from favorites",
+    "addedToCart": "Added to cart!",
+    "featured": "Featured",
+    "prevSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "organicCertified": "100% Organic Certified",
+    "naturalIngredients": "Made from natural ingredients",
+    "aboutProduct": "About This Product",
+    "ingredientsLabel": "Ingredients:",
+    "customersAlsoBought": "Customers Also Bought",
+    "customerReviews": "Customer Reviews",
+    "showingReviews": "Showing {{count}} of {{total}} reviews",
+    "defaultReviewTitle": "Great Product!",
+    "verifiedPurchase": "Verified Purchase",
+    "reviewBy": "By {{name}}",
+    "loadMoreReviews": "Load More Reviews",
+    "noReviews": "No reviews yet. Be the first to review this product!",
+    "copyLink": "Copy link",
+    "inclusiveTaxes": "Inclusive of all taxes",
+    "sizeLabel": "Size:",
+    "weightLabel": "Weight:",
+    "formLabel": "Form:",
+    "originLabel": "Origin:",
+    "shelfLifeLabel": "Shelf Life:",
+    "months": "{{count}} months",
+    "months_other": "{{count}} months",
+    "available": "({{count}} available)",
+    "quantityLabel": "Quantity:",
+    "inCart": "in cart",
+    "noRatings": "No ratings",
+    "reviewsCount": "{{count}} review",
+    "reviewsCount_other": "{{count}} reviews",
+    "buyNow": "Buy Now"
+  },
+  "ourStory": {
+    "eyebrow": "Nidhi kitchen story",
+    "label": "Our Story",
+    "heading": "Authentic Indian Flavors",
+    "body": "Experience the rich heritage of traditional Indian spices, carefully sourced and blended to perfection. Each product tells a story of generations of expertise and passion for authentic flavors.",
+    "feature1Title": "Pure ingredients",
+    "feature1Desc": "No fillers, clean blends",
+    "feature2Title": "Fresh batches",
+    "feature2Desc": "Packed close to order",
+    "cta": "Explore the Collection"
+  },
+  "flashSale": {
+    "endsIn": "Ends in",
+    "saleEndsIn": "Sale ends in"
+  },
+  "trust": {
+    "freeShipping": "🚚 Free shipping ₹299+",
+    "cod": "💰 Cash on Delivery",
+    "happyKitchens": "⭐ 1.1M+ happy kitchens"
+  },
+  "trustBand": {
+    "pureBlends": "Pure blends",
+    "noFillers": "No fillers",
+    "qualityChecked": "Quality checked",
+    "batchTested": "Batch tested",
+    "fastDelivery": "Fast delivery",
+    "packedFresh": "Packed fresh",
+    "easySupport": "Easy support",
+    "simpleHelp": "Simple help"
+  },
+  "mobileNav": {
+    "home": "Home",
+    "shop": "Shop",
+    "chat": "Chat",
+    "offers": "Offers",
+    "orders": "Orders"
+  },
+  "combo": {
+    "items": "items",
+    "more": "more",
+    "pieceKit": "{{count}}-piece kit",
+    "addBundle": "Add bundle",
+    "details": "Details",
+    "defaultStory": "A ready-made kit of {{count}} kitchen essentials.",
+    "defaultStorySavings": "A ready-made kit of {{count}} kitchen essentials, bundled to save you ₹{{amount}} versus buying them one by one.",
+    "comboOffer": "Combo Offers",
+    "comboSubtitle": "Save more with our value bundles",
+    "comboDeal": "COMBO DEAL",
+    "productBundle": "{{count}} products bundle",
+    "savePercent": "Save {{percent}}%",
+    "addedToCart": "{{count}} combo added to cart!",
+    "addedToCart_other": "{{count}} combos added to cart!",
+    "saveWithCombo": "You save ₹{{amount}} with this combo!",
+    "whatsIncluded": "What's Included ({{count}} items)",
+    "totalWeight": "Total Weight:",
+    "freeDelivery": "Free Delivery",
+    "ordersMin": "Orders ₹500+",
+    "secure": "Secure",
+    "payment": "Payment",
+    "sevenDays": "7 Days",
+    "return": "Return",
+    "greatValue": "Great Value!",
+    "saveSeparately": "Save ₹{{amount}} compared to buying separately",
+    "aboutCombo": "About This Combo",
+    "whyChoose": "Why Choose This Combo?",
+    "betterValue": "Better Value",
+    "saveTogether": "Save more when you buy together",
+    "curatedSelection": "Curated Selection",
+    "expertlyPaired": "Expertly paired products",
+    "singleDelivery": "Single Delivery",
+    "allInOne": "All items in one package",
+    "genuine": "100% genuine products",
+    "productsInCombo": "Products In This Combo"
+  },
+  "footer": {
+    "tagline": "Pioneering the authentic taste of Indian spices since 1995. Quality that feels like home.",
+    "quickLinks": "Quick Links",
+    "contactUs": "Contact Us",
+    "customerService": "Customer Service",
+    "shippingPolicy": "Shipping Policy",
+    "returnPolicy": "Return Policy",
+    "privacyPolicy": "Privacy Policy",
+    "faqs": "FAQs",
+    "contactDetail": "Contact Detail",
+    "rights": "All rights reserved.",
+    "whatsapp": "Chat with us on WhatsApp"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "orderSummary": "Order Summary",
+    "total": "Total",
+    "clearCart": "Clear Cart",
+    "checkout": "Proceed to Checkout",
+    "peopleAlsoBuy": "People Also Buy",
+    "loading": "Loading cart...",
+    "quantity": "Quantity",
+    "remove": "Remove",
+    "removed": "Item removed from cart",
+    "cleared": "Cart cleared",
+    "emptyToast": "Your cart is empty",
+    "noStock": "No in-stock items to checkout",
+    "subtotal": "Subtotal",
+    "tax": "Tax (5%)",
+    "processing": "Processing...",
+    "noItems": "No Items",
+    "item": "item",
+    "items": "items",
+    "viewCart": "View Cart",
+    "freeShippingUnlocked": "🎉 You've unlocked FREE shipping!",
+    "addMoreForShipping": "Add ₹{{amount}} more for FREE shipping"
+  },
+  "promo": {
+    "flat20Title": "Flat 20% off",
+    "flat20Subtitle": "On orders above Rs. 299",
+    "freeDeliveryTitle": "Free delivery",
+    "freeDeliverySubtitle": "Unlock shipping savings",
+    "comboSaverTitle": "Combo saver",
+    "comboSaverSubtitle": "Extra value on bundles",
+    "copied": "Copied {{code}}",
+    "copyFailed": "Could not copy code"
+  },
+  "category": {
+    "allSpices": "All Spices",
+    "categories": "Categories"
+  },
+  "products": {
+    "filterAll": "All",
+    "filterOffers": "⚡ Offers",
+    "filterRating": "⭐ Rating 4.0+",
+    "sortPriceLow": "💰 Price: Low → High",
+    "sortBy": "Sort by",
+    "sortFeatured": "Featured",
+    "sortPriceLowToHigh": "Price: Low to High",
+    "sortPriceHighToLow": "Price: High to Low",
+    "sortName": "Name: A to Z",
+    "productCount": "{{count}} product",
+    "productCount_other": "{{count}} products",
+    "noProducts": "No products found.",
+    "loadingProducts": "Loading…"
+  },
+  "offerZone": {
+    "heroTitle": "Exclusive Offers",
+    "heroSubtitle": "Amazing deals and discounts on premium spices and masalas",
+    "heroBadge": "🔥 Up to 30% OFF - Limited Time!",
+    "comboOffersTitle": "Combo Offers",
+    "comboOffersSubtitle": "Save more with our value bundles",
+    "hotDealsTitle": "🔥 Hot Deals",
+    "hotDealsSubtitle": "Grab these before they're gone!",
+    "viewDetails": "View Details",
+    "noOffers": "No offers available at the moment.",
+    "checkBack": "Check back soon for amazing deals!"
+  },
+  "search": {
+    "searching": "Searching for products...",
+    "noResults": "No products found matching your search",
+    "tryDifferent": "Try searching with different keywords",
+    "sortRelevance": "Relevance"
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "email": "Email",
+    "password": "Password",
+    "orContinueWith": "Or continue with",
+    "login": "Login",
+    "loggingIn": "Logging in...",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign Up",
+    "loginFailed": "Login failed. Please check your credentials.",
+    "networkError": "Network error. Please try again.",
+    "googleFailed": "Google login failed. Please try again.",
+    "subtitle": "Enter your credentials to access your account",
+    "registerHere": "Register here"
+  },
+  "about": {
+    "badge": "Est. 1990s · Ujjain, India",
+    "heroPre": "Every pinch tells a ",
+    "heroHighlight": "story",
+    "heroPost": "",
+    "heroSubtitle": "From a small family kitchen in Barnagar to a million dining tables — this is the journey of Nidhi Masala, ground one tradition at a time.",
+    "heroCta": "Taste our story",
+    "beginEyebrow": "Where it began",
+    "beginTitle": "A recipe passed down, never written down",
+    "beginP1": "It started with a simple belief — that the soul of Indian cooking lives in its spices. What began as masalas hand-ground for family and neighbours slowly became a name people across the region trusted.",
+    "beginP2": "Through every season we held on to one promise: authenticity from farm to kitchen, with nothing artificial in between.",
+    "heritageLabel": "years of heritage",
+    "journeyEyebrow": "Our journey",
+    "journeyTitle": "Three decades of flavour",
+    "timeline": [
+      {
+        "year": "1990s",
+        "title": "A humble beginning",
+        "text": "Nidhi Grah Udyog began in a small family kitchen in Barnagar, hand-grinding spices the way grandmothers always had."
+      },
+      {
+        "year": "2005",
+        "title": "Growing roots",
+        "text": "Word of our aroma spread across Ujjain. We partnered directly with local farmers to source the finest harvest."
+      },
+      {
+        "year": "2015",
+        "title": "From kitchen to industry",
+        "text": "We modernised our processing while fiercely protecting the traditional recipes that made us who we are."
+      },
+      {
+        "year": "Today",
+        "title": "In a million kitchens",
+        "text": "Over a million families trust Nidhi Masala to bring authentic flavour to their everyday meals."
+      }
+    ],
+    "processEyebrow": "From farm to kitchen",
+    "processTitle": "How every jar is made",
+    "process": [
+      {
+        "title": "Sourced from farms",
+        "text": "Hand-picked harvest, straight from trusted local growers."
+      },
+      {
+        "title": "Slow-roasted",
+        "text": "Roasted in small batches to lock in oils and aroma."
+      },
+      {
+        "title": "Stone-ground",
+        "text": "Ground fine to preserve every note of natural flavour."
+      },
+      {
+        "title": "Sealed fresh",
+        "text": "Packed airtight so the first pinch tastes like the last."
+      }
+    ],
+    "valuesEyebrow": "What we stand for",
+    "valuesTitle": "Our Values",
+    "values": [
+      {
+        "title": "Quality First",
+        "description": "We never compromise on the quality of our products."
+      },
+      {
+        "title": "Customer Focused",
+        "description": "Your satisfaction is our top priority, always."
+      },
+      {
+        "title": "Made with Love",
+        "description": "Each product is crafted with care and passion."
+      },
+      {
+        "title": "100% Natural",
+        "description": "Pure ingredients with no artificial additives."
+      }
+    ],
+    "stats": [
+      {
+        "label": "Premium Products"
+      },
+      {
+        "label": "Happy Customers"
+      },
+      {
+        "label": "Pure & Natural"
+      },
+      {
+        "label": "Years of Heritage"
+      }
+    ],
+    "ctaTitle": "Add your kitchen to our story",
+    "ctaSubtitle": "Discover handcrafted masalas made the way they were always meant to be.",
+    "ctaButton": "Shop Spices"
+  }
+}

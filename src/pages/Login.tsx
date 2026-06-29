@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
 import Footer from "@/components/Footer";
@@ -12,6 +13,7 @@ import { Link } from "react-router-dom";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { login, googleLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,10 +28,10 @@ const Login: React.FC = () => {
       if (success) {
         navigate("/");
       } else {
-        toast.error("Login failed. Please check your credentials.");
+        toast.error(t('auth.loginFailed'));
       }
     } catch (error) {
-      toast.error("Network error. Please try again.");
+      toast.error(t('auth.networkError'));
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +45,7 @@ const Login: React.FC = () => {
         navigate("/");
       }
     } catch (error) {
-       toast.error("Google login failed. Please try again.");
+       toast.error(t('auth.googleFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -53,17 +55,20 @@ const Login: React.FC = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto">
-          <Card className="border-border shadow-lg">
+          <Card className="border-border shadow-xl rounded-3xl">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
+              <div className="mx-auto mb-2 h-16 w-16 rounded-full spice-backdrop grid place-items-center shadow-sm">
+                <img src="/logo.png" alt="Nidhi" className="h-10 w-10 object-contain" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-center">{t('auth.welcomeBack')}</CardTitle>
               <CardDescription className="text-center">
-                Enter your credentials to access your account
+                {t('auth.subtitle')}
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('auth.email')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -75,7 +80,7 @@ const Login: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t('auth.password')}</Label>
                   <Input
                     id="password"
                     type="password"
@@ -91,7 +96,7 @@ const Login: React.FC = () => {
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                    <span className="bg-background px-2 text-muted-foreground">{t('auth.orContinueWith')}</span>
                   </div>
                 </div>
 
@@ -109,19 +114,19 @@ const Login: React.FC = () => {
               <CardFooter className="flex flex-col space-y-4">
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+                  className="w-full h-11 rounded-full font-bold bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30 hover:brightness-110 active-press transition-all"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Logging in..." : "Login"}
+                  {isLoading ? t('auth.loggingIn') : t('auth.login')}
                 </Button>
                 <div className="flex flex-col space-y-2 text-center text-sm w-full">
                   <Link to="/forgot-password" className="text-primary hover:underline font-medium">
-                    Forgot Password?
+                    {t('auth.forgotPassword')}
                   </Link>
                   <p className="text-muted-foreground w-full">
-                    Don't have an account?{" "}
+                    {t('auth.noAccount')}{" "}
                     <Link to="/register" className="text-primary hover:underline font-medium">
-                      Register here
+                      {t('auth.registerHere')}
                     </Link>
                   </p>
                 </div>

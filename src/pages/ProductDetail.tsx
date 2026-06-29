@@ -7,20 +7,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Heart, Share2, Star, Loader2, Truck, Shield, RotateCcw, Minus, Plus, Check, ChevronRight, Copy, MessageCircle } from "lucide-react";
+import { ShoppingCart, Heart, Share2, Star, Loader2, Minus, Plus, Check, ChevronRight, MessageCircle } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import ProductCard from "@/components/ProductCard";
+import TrustSignalBand from "@/components/TrustSignalBand";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
+import { MAX_ITEM_QUANTITY } from "@/config/limits";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
-import { productsAPI, reviewsAPI, Product } from "@/lib/api";
+import { productsAPI, reviewsAPI, Product, ProductVariant } from "@/lib/api";
+import { trackEvent, track } from "@/lib/api/analytics";
 import { Review } from "@/lib/api/reviews";
 import CachedImage from "@/components/CachedImage";
 import product1 from "@/assets/product-1.jpg";
+import { useTranslation } from "react-i18next";
 
 const ProductDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -30,6 +35,7 @@ const ProductDetail = () => {
   const { isFavorite, toggleFavorite } = useFavorites();
   
   const [product, setProduct] = useState<Product | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,8 +47,14 @@ const ProductDetail = () => {
   const [hasMoreReviews, setHasMoreReviews] = useState(false);
   const [loadingMoreReviews, setLoadingMoreReviews] = useState(false);
 
-  // Check if product is already in cart
-  const itemInCart = cart.find(item => item.id === Number(id) && item.itemType === "product");
+  // Check if the currently-selected size is already in cart
+  const itemInCart = cart.find(
+    item =>
+      item.itemType === "product" &&
+      (selectedVariant
+        ? item.variantId === selectedVariant.id
+        : item.id === Number(product?.id ?? id))
+  );
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -63,7 +75,28 @@ const ProductDetail = () => {
         }
         
         setProduct(productData);
-        
+
+        // Choose the active variant: the one named by a variant-slug URL, else
+        // the default, else the first available size.
+        const vs: ProductVariant[] = (productData.variants || []).filter((v: ProductVariant) => v.is_active);
+        const chosen =
+          vs.find((v) => v.id === productData.selected_variant_id) ||
+          vs.find((v) => v.is_default) ||
+          vs[0] ||
+          null;
+        setSelectedVariant(chosen);
+
+        // Record a product view: a per-user personalization signal when logged
+        // in, or a coarse anonymous counter otherwise.
+        track(
+          {
+            event_type: "view",
+            product_id: Number(productData.id),
+            category_id: productData.category ? Number(productData.category) : undefined,
+          },
+          { metric: "product_view", product_id: Number(productData.id) },
+        );
+
         try {
           const reviewsData = await reviewsAPI.getByProduct(productData.id, 1);
           setReviews(reviewsData.results || []);
@@ -79,8 +112,7 @@ const ProductDetail = () => {
         if (productData.category) {
           try {
             const similarData = await productsAPI.getByCategory(String(productData.category));
-            const similarList = similarData.results || similarData || [];
-            const similar = similarList
+            const similar = (similarData || [])
               .filter((p: Product) => p.id !== productData.id)
               .slice(0, 4);
             setSimilarProducts(similar);
@@ -127,16 +159,38 @@ const ProductDetail = () => {
       return;
     }
     
+    const effPrice = selectedVariant
+      ? Number(selectedVariant.final_price)
+      : (product.final_price || Number(product.discount_price) || Number(product.price));
+    const effOriginal = selectedVariant
+      ? (selectedVariant.discount_price ? Number(selectedVariant.price) : undefined)
+      : (product.discount_price ? Number(product.price) : undefined);
+
     addToCart({
       id: Number(product.id),
+      variantId: selectedVariant ? selectedVariant.id : undefined,
+      variantSlug: selectedVariant ? selectedVariant.slug : undefined,
+      weight: selectedVariant ? selectedVariant.formatted_weight : undefined,
       name: product.name,
       itemType: "product" as const,
       image: product.image || product1,
-      price: product.final_price || Number(product.discount_price) || Number(product.price),
-      originalPrice: product.discount_price ? Number(product.price) : undefined,
+      price: effPrice,
+      originalPrice: effOriginal,
       quantity: quantity,
     });
     toast.success(`${quantity} ${quantity > 1 ? 'items' : 'item'} added to cart!`);
+  };
+
+  // Add the selected item, then jump straight to the cart for a fast checkout.
+  const handleBuyNow = () => {
+    if (!product) return;
+    if (!isLoggedIn) {
+      window.alert("You need to log in to add items to your cart.");
+      navigate('/login', { state: { from: '/cart' } });
+      return;
+    }
+    if (!itemInCart) handleAddToCart();
+    navigate('/cart');
   };
 
   const handleToggleFavorite = () => {
@@ -154,7 +208,7 @@ const ProductDetail = () => {
       badge: product.badge,
     });
     
-    toast.success(isCurrentlyFavorite ? "Removed from favorites" : "Added to favorites");
+    toast.success(isCurrentlyFavorite ? t('product.removedFromFavorites') : t('product.addedToFavorites'));
   };
 
   const handleShare = async () => {
@@ -205,6 +259,7 @@ const ProductDetail = () => {
     originalPrice: p.discount_price ? Number(p.price) : undefined,
     weight: `${p.weight || ''}${p.unit || ''}` || "100g",
     itemType: "product" as const,
+    variantCount: p.variant_count ?? 1,
   });
 
   if (loading) {
@@ -249,11 +304,20 @@ const ProductDetail = () => {
     : [productImage];
   const rating = product.average_rating || 0;
   const reviewsCount = product.reviews_count || reviews.length;
-  const price = product.final_price || Number(product.discount_price) || Number(product.price);
-  const originalPrice = product.discount_price ? Number(product.price) : null;
-  const discountPercent = product.discount_percentage || 
+  // Pricing/stock follow the selected packaging size when variants exist.
+  const variants = (product.variants || []).filter((v) => v.is_active);
+  const price = selectedVariant
+    ? Number(selectedVariant.final_price)
+    : (product.final_price || Number(product.discount_price) || Number(product.price));
+  const originalPrice = selectedVariant
+    ? (selectedVariant.discount_price ? Number(selectedVariant.price) : null)
+    : (product.discount_price ? Number(product.price) : null);
+  const discountPercent = (selectedVariant ? selectedVariant.discount_percentage : product.discount_percentage) ||
     (originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0);
   const savings = originalPrice && originalPrice > price ? originalPrice - price : 0;
+  const effectiveStock = selectedVariant ? selectedVariant.stock : product.stock;
+  const effectiveInStock = selectedVariant ? selectedVariant.in_stock : product.in_stock;
+  const effectiveWeight = selectedVariant ? selectedVariant.formatted_weight : `${product.weight}${product.unit || 'g'}`;
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
@@ -316,7 +380,7 @@ const ProductDetail = () => {
                   <Badge className="bg-primary text-primary-foreground">{product.badge}</Badge>
                 )}
                 {discountPercent > 0 && (
-                  <Badge className="bg-secondary text-secondary-foreground">{discountPercent}% OFF</Badge>
+                  <Badge className="bg-secondary text-secondary-foreground">{discountPercent}{t('product.off')}</Badge>
                 )}
               </div>
               
@@ -324,7 +388,7 @@ const ProductDetail = () => {
               <button
                 onClick={handleToggleFavorite}
                 className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:bg-card transition-all hover:scale-110"
-                aria-label={isFavorite(Number(product.id)) ? "Remove from favorites" : "Add to favorites"}
+                aria-label={isFavorite(Number(product.id)) ? t('product.removedFromFavorites') : t('product.addedToFavorites')}
               >
                 <Heart className={`h-5 w-5 ${isFavorite(Number(product.id)) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
               </button>
@@ -349,10 +413,10 @@ const ProductDetail = () => {
                 ))}
               </div>
               <span className="text-sm text-primary font-medium">
-                {rating > 0 ? rating.toFixed(1) : "No ratings"}
+                {rating > 0 ? rating.toFixed(1) : t('product.noRatings')}
               </span>
               <span className="text-sm text-muted-foreground">
-                ({reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'})
+                ({reviewsCount} {reviewsCount === 1 ? t('product.reviewsCount', { count: reviewsCount }) : t('product.reviewsCount_other', { count: reviewsCount })})
               </span>
             </div>
 
@@ -373,98 +437,134 @@ const ProductDetail = () => {
               </div>
               {savings > 0 && (
                 <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                  You save ₹{savings.toFixed(0)} on this purchase
+                  {t('product.youSave', { amount: savings.toFixed(0) })}
                 </p>
               )}
-              <p className="text-xs text-muted-foreground">Inclusive of all taxes</p>
+              <p className="text-xs text-muted-foreground">{t('product.inclusiveTaxes')}</p>
             </div>
+
+            {/* Packaging / Size Selector */}
+            {variants.length > 1 && (
+              <div className="space-y-2">
+                <span className="font-medium text-sm">{t('product.sizeLabel')}</span>
+                <div className="flex flex-wrap gap-2">
+                  {variants.map((v) => {
+                    const isSelected = selectedVariant?.id === v.id;
+                    const soldOut = !v.in_stock;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        disabled={soldOut}
+                        onClick={() => {
+                          setSelectedVariant(v);
+                          setQuantity(1);
+                          // Keep the URL shareable for this size without a reload.
+                          navigate(`/products/${v.slug}`, { replace: true });
+                        }}
+                        className={`px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all active-press ${
+                          isSelected
+                            ? "border-primary bg-primary/5 text-primary shadow-sm shadow-primary/20"
+                            : "border-border hover:border-primary/50"
+                        } ${soldOut ? "opacity-40 cursor-not-allowed line-through" : ""}`}
+                      >
+                        {v.formatted_weight}
+                        <span className="block text-xs font-normal text-muted-foreground">
+                          ₹{Number(v.final_price).toFixed(0)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Quick Info */}
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center gap-2 text-sm">
-                <span className="font-medium">Weight:</span>
-                <span className="text-muted-foreground">{product.weight}{product.unit || 'g'}</span>
+                <span className="font-medium">{t('product.weightLabel')}</span>
+                <span className="text-muted-foreground">{effectiveWeight}</span>
               </div>
               {product.spice_form && (
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="font-medium">Form:</span>
+                  <span className="font-medium">{t('product.formLabel')}</span>
                   <span className="text-muted-foreground">{product.spice_form}</span>
                 </div>
               )}
               {product.origin_country && (
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="font-medium">Origin:</span>
+                  <span className="font-medium">{t('product.originLabel')}</span>
                   <span className="text-muted-foreground">{product.origin_country}</span>
                 </div>
               )}
               {product.shelf_life && (
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="font-medium">Shelf Life:</span>
-                  <span className="text-muted-foreground">{product.shelf_life} months</span>
+                  <span className="font-medium">{t('product.shelfLifeLabel')}</span>
+                  <span className="text-muted-foreground">{t('product.months', { count: product.shelf_life })}</span>
                 </div>
               )}
             </div>
 
             {/* Stock Status */}
             <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg ${
-              product.in_stock 
-                ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300" 
+              effectiveInStock
+                ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300"
                 : "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300"
             }`}>
-              {product.in_stock ? (
+              {effectiveInStock ? (
                 <>
                   <Check className="h-4 w-4" />
-                  <span className="font-medium">In Stock</span>
-                  <span className="text-sm">({product.stock} available)</span>
+                  <span className="font-medium">{t('product.inStock')}</span>
+                  <span className="text-sm">{t('product.available', { count: effectiveStock })}</span>
                 </>
               ) : (
-                <span className="font-medium">Out of Stock</span>
+                <span className="font-medium">{t('product.outOfStock')}</span>
               )}
             </div>
 
             {/* Quantity Selector */}
-            {product.in_stock && (
+            {effectiveInStock && (
               <div className="flex items-center gap-4">
-                <span className="font-medium">Quantity:</span>
+                <span className="font-medium">{t('product.quantityLabel')}</span>
                 {itemInCart ? (
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
+                    <Button
+                      variant="outline"
+                      size="icon"
                       className="h-9 w-9"
-                      onClick={() => updateCartQuantity(Number(id), itemInCart.quantity - 1, "product")}
+                      onClick={() => updateCartQuantity(Number(product.id), itemInCart.quantity - 1, "product", selectedVariant?.id)}
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
                     <span className="w-10 text-center font-semibold">{itemInCart.quantity}</span>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
+                    <Button
+                      variant="outline"
+                      size="icon"
                       className="h-9 w-9"
-                      onClick={() => updateCartQuantity(Number(id), itemInCart.quantity + 1, "product")}
-                      disabled={itemInCart.quantity >= product.stock}
+                      onClick={() => updateCartQuantity(Number(product.id), itemInCart.quantity + 1, "product", selectedVariant?.id)}
+                      disabled={itemInCart.quantity >= effectiveStock}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
-                    <span className="text-sm text-muted-foreground">in cart</span>
+                    <span className="text-sm text-muted-foreground">{t('product.inCart')}</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
+                    <Button
+                      variant="outline"
+                      size="icon"
                       className="h-9 w-9"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
                     <span className="w-10 text-center font-semibold">{quantity}</span>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
+                    <Button
+                      variant="outline"
+                      size="icon"
                       className="h-9 w-9"
-                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                      disabled={quantity >= product.stock}
+                      onClick={() => setQuantity(Math.min(effectiveStock, MAX_ITEM_QUANTITY, quantity + 1))}
+                      disabled={quantity >= Math.min(effectiveStock, MAX_ITEM_QUANTITY)}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
@@ -475,60 +575,50 @@ const ProductDetail = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <Button 
-                className="flex-1 h-12" 
+              <Button
+                variant="outline"
+                className="flex-1 h-12 rounded-xl border-2 border-primary text-primary font-bold hover:bg-primary/10 active-press"
                 onClick={handleAddToCart}
-                disabled={!product.in_stock}
+                disabled={!effectiveInStock}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                Add to Cart
+                {t('product.addToCart')}
               </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="h-12 w-12"
+              <Button
+                className="flex-1 h-12 rounded-xl font-bold shadow-lg shadow-primary/30 hover:brightness-110 active-press"
+                onClick={handleBuyNow}
+                disabled={!effectiveInStock}
+              >
+                {t('product.buyNow')}
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12 rounded-xl"
                 onClick={handleShareWhatsApp}
-                title="Share on WhatsApp"
+                title={t('footer.whatsapp')}
               >
                 <MessageCircle className="h-5 w-5" />
               </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="h-12 w-12"
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12 rounded-xl"
                 onClick={handleShare}
-                title="Copy link"
+                title={t('product.copyLink')}
               >
                 <Share2 className="h-5 w-5" />
               </Button>
             </div>
-
-            {/* Trust Indicators */}
-            <div className="grid grid-cols-3 gap-3 pt-2">
-              <div className="flex flex-col items-center text-center p-3 bg-muted/50 rounded-lg">
-                <Truck className="h-5 w-5 text-primary mb-1" />
-                <span className="text-xs font-medium">Free Delivery</span>
-                <span className="text-xs text-muted-foreground">Orders ₹500+</span>
-              </div>
-              <div className="flex flex-col items-center text-center p-3 bg-muted/50 rounded-lg">
-                <Shield className="h-5 w-5 text-primary mb-1" />
-                <span className="text-xs font-medium">Secure</span>
-                <span className="text-xs text-muted-foreground">Payment</span>
-              </div>
-              <div className="flex flex-col items-center text-center p-3 bg-muted/50 rounded-lg">
-                <RotateCcw className="h-5 w-5 text-primary mb-1" />
-                <span className="text-xs font-medium">7 Days</span>
-                <span className="text-xs text-muted-foreground">Return</span>
-              </div>
-            </div>
+            <TrustSignalBand />
 
             {/* Organic Badge */}
             {product.organic && (
               <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl">
                 <span className="text-2xl">🌿</span>
                 <div>
-                  <p className="font-semibold text-green-700 dark:text-green-300">100% Organic Certified</p>
-                  <p className="text-sm text-green-600 dark:text-green-400">Made from natural ingredients</p>
+                  <p className="font-semibold text-green-700 dark:text-green-300">{t('product.organicCertified')}</p>
+                  <p className="text-sm text-green-600 dark:text-green-400">{t('product.naturalIngredients')}</p>
                 </div>
               </div>
             )}
@@ -537,12 +627,12 @@ const ProductDetail = () => {
 
         {/* Product Description */}
         <div className="max-w-4xl mb-10">
-          <h2 className="text-xl font-bold mb-4">About This Product</h2>
+          <h2 className="text-xl font-bold mb-4">{t('product.aboutProduct')}</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">{product.description}</p>
           
           {product.ingredients && (
             <div className="mt-4">
-              <h3 className="font-semibold mb-2">Ingredients:</h3>
+              <h3 className="font-semibold mb-2">{t('product.ingredientsLabel')}</h3>
               <p className="text-muted-foreground">{product.ingredients}</p>
             </div>
           )}
@@ -551,7 +641,7 @@ const ProductDetail = () => {
         {/* Similar Products */}
         {similarProducts.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-xl font-bold mb-6">Customers Also Bought</h2>
+            <h2 className="text-xl font-bold mb-6">{t('product.customersAlsoBought')}</h2>
             <Carousel opts={{ align: "start", loop: false }} className="w-full">
               <CarouselContent className="-ml-4">
                 {similarProducts.map((p) => (
@@ -569,10 +659,10 @@ const ProductDetail = () => {
         {/* Reviews Section */}
         <section className="max-w-4xl">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Customer Reviews</h2>
+            <h2 className="text-xl font-bold">{t('product.customerReviews')}</h2>
             {totalReviews > 0 && (
               <span className="text-sm text-muted-foreground">
-                Showing {reviews.length} of {totalReviews} reviews
+                {t('product.showingReviews', { count: reviews.length, total: totalReviews })}
               </span>
             )}
           </div>
@@ -589,14 +679,14 @@ const ProductDetail = () => {
                           className={`h-4 w-4 ${index < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} 
                         />
                       ))}
-                      <span className="text-sm font-medium ml-2">{review.title || "Great Product!"}</span>
+                      <span className="text-sm font-medium ml-2">{review.title || t('product.defaultReviewTitle')}</span>
                       {review.is_verified_purchase && (
-                        <Badge variant="secondary" className="ml-2 text-xs">Verified Purchase</Badge>
+                        <Badge variant="secondary" className="ml-2 text-xs">{t('product.verifiedPurchase')}</Badge>
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">{review.comment}</p>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {review.user_name && <span>By {review.user_name}</span>}
+                      {review.user_name && <span>{t('product.reviewBy', { name: review.user_name })}</span>}
                       {review.created_at && (
                         <span>• {new Date(review.created_at).toLocaleDateString()}</span>
                       )}
@@ -617,10 +707,10 @@ const ProductDetail = () => {
                     {loadingMoreReviews ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Loading...
+                        {t('common.loading')}
                       </>
                     ) : (
-                      `Load More Reviews`
+                      t('product.loadMoreReviews')
                     )}
                   </Button>
                 </div>
@@ -628,14 +718,14 @@ const ProductDetail = () => {
             </div>
           ) : (
             <div className="text-center py-8 bg-muted/50 rounded-xl">
-              <p className="text-muted-foreground">No reviews yet. Be the first to review this product!</p>
+              <p className="text-muted-foreground">{t('product.noReviews')}</p>
             </div>
           )}
         </section>
       </div>
 
-      {/* Sticky Mobile Cart Bar */}
-      <div className="fixed bottom-16 left-0 right-0 bg-card border-t border-border p-3 md:hidden z-40 shadow-lg">
+      {/* Sticky Mobile Cart Bar — floats cleanly above the bottom nav */}
+      <div className="fixed bottom-[4.5rem] left-3 right-3 bg-card/95 backdrop-blur-md border border-border rounded-2xl p-3 md:hidden z-40 shadow-xl shadow-primary/10 animate-cart-slide-up">
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <div className="flex items-baseline gap-2">
@@ -645,7 +735,7 @@ const ProductDetail = () => {
               )}
             </div>
             <p className={`text-xs ${product.in_stock ? "text-green-600" : "text-red-600"}`}>
-              {product.in_stock ? "In Stock" : "Out of Stock"}
+              {product.in_stock ? t('product.inStock') : t('product.outOfStock')}
             </p>
           </div>
           <Button 
@@ -655,12 +745,12 @@ const ProductDetail = () => {
             className="h-10 px-6"
           >
             <ShoppingCart className="mr-2 h-4 w-4" />
-            Add to Cart
+            {t('product.addToCart')}
           </Button>
           {cart.length > 0 && (
             <Button size="sm" variant="secondary" asChild className="h-10 px-4">
               <Link to="/cart">
-                Cart ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+                {t('nav.cart')} ({cart.reduce((sum, item) => sum + item.quantity, 0)})
               </Link>
             </Button>
           )}

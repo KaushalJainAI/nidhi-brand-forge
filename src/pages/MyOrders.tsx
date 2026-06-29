@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ordersAPI, Order } from "@/lib/api/orders";
 import { reviewsAPI } from "@/lib/api/reviews";
+import { MAX_REVIEW_COMMENT } from "@/config/limits";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 
@@ -174,13 +175,24 @@ const MyOrders = () => {
     }
   };
 
-  const handleDownloadBill = (orderNumber: string) => {
-    toast.success(`Downloading bill for ${orderNumber}`);
+  const handleDownloadBill = async (order: Order) => {
+    try {
+      await ordersAPI.downloadInvoice(order.id, order.order_number);
+      toast.success(`Downloaded bill for ${order.order_number}`);
+    } catch (error) {
+      console.error("Failed to download bill:", error);
+      toast.error("Failed to download bill. Please try again.");
+    }
   };
 
   const handleChatSupport = (order: Order) => {
-    // Navigate to chat support with order info
-    navigate(`/chat-support?order=${order.order_number}`);
+    // Open the unified assistant widget, pre-seeded with the order context.
+    // (Order-scoped chat now lives in the same thread as the AI assistant.)
+    window.dispatchEvent(
+      new CustomEvent("assistant:open", {
+        detail: { seed: `I need help with my order ${order.order_number}.` },
+      })
+    );
   };
 
   const openProductReviewDialog = (itemType: 'product' | 'combo', itemId: number, itemName: string, orderId: number) => {
@@ -285,18 +297,35 @@ const MyOrders = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <section className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 py-10 sm:py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground mb-2 sm:mb-4">
-            My Orders
-          </h1>
-          <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-            View and manage your orders
-          </p>
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0" style={{ background: "var(--backdrop-spice)" }} aria-hidden />
+        <span aria-hidden className="pointer-events-none absolute right-[8%] top-1/2 -translate-y-1/2 text-5xl sm:text-7xl animate-float opacity-80" style={{ ["--rot" as string]: "8deg" }}>📦</span>
+        <div className="relative container mx-auto px-4 py-8 sm:py-14 max-w-5xl animate-fade-in-up">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="grid h-12 w-12 sm:h-16 sm:w-16 place-items-center rounded-full bg-gradient-to-br from-primary to-accent text-white shadow-[var(--shadow-elegant)]">
+              <Package className="h-6 w-6 sm:h-8 sm:w-8" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+                My{" "}
+                <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
+                  Orders
+                </span>
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground mt-0.5">
+                {loading
+                  ? "Fetching your orders…"
+                  : orders.length > 0
+                  ? `You've placed ${orders.length} order${orders.length > 1 ? "s" : ""} with us`
+                  : "Track and manage everything you order"}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="py-6 sm:py-16">
+      <section className="py-6 sm:py-10">
         <div className="container mx-auto px-3 sm:px-4 max-w-5xl">
           {loading ? (
             <p className="text-center text-muted-foreground">
@@ -310,7 +339,11 @@ const MyOrders = () => {
                 const delivered = isDelivered(order.status);
 
                 return (
-                  <Card key={order.id} ref={(el) => { orderRefs.current[order.id] = el; }}>
+                  <Card
+                    key={order.id}
+                    ref={(el) => { orderRefs.current[order.id] = el; }}
+                    className="overflow-hidden rounded-2xl border-border shadow-card hover-lift"
+                  >
                     <CardContent className="p-3 sm:p-6">
                       {/* Header */}
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2 sm:gap-4">
@@ -452,7 +485,7 @@ const MyOrders = () => {
                           variant="outline"
                           size="sm"
                           className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 hidden sm:flex"
-                          onClick={() => handleDownloadBill(order.order_number)}
+                          onClick={() => handleDownloadBill(order)}
                         >
                           <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           Bill
@@ -618,9 +651,13 @@ const MyOrders = () => {
                                   <Textarea
                                     placeholder="Tell us what you think about this product..."
                                     value={currentReview}
-                                    onChange={(e) => setCurrentReview(e.target.value)}
+                                    onChange={(e) => setCurrentReview(e.target.value.slice(0, MAX_REVIEW_COMMENT))}
+                                    maxLength={MAX_REVIEW_COMMENT}
                                     rows={4}
                                   />
+                                  <p className="text-xs text-muted-foreground text-right mt-1">
+                                    {currentReview.length}/{MAX_REVIEW_COMMENT}
+                                  </p>
                                 </div>
                                 
                                 {/* Submit Button */}
@@ -651,15 +688,19 @@ const MyOrders = () => {
               })}
             </div>
           ) : (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-10 sm:py-16">
-                <Package className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mb-3 sm:mb-4" />
-                <h3 className="text-lg sm:text-xl font-semibold mb-2">No orders yet</h3>
-                <p className="text-sm sm:text-base text-muted-foreground mb-4 text-center max-w-md">
+            <Card className="rounded-2xl border-border shadow-card">
+              <CardContent className="flex flex-col items-center justify-center py-12 sm:py-20">
+                <div className="grid h-20 w-20 sm:h-24 sm:w-24 place-items-center rounded-full bg-gradient-to-br from-primary/15 to-accent/15 mb-4 sm:mb-5">
+                  <Package className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-2xl font-bold mb-2">No orders yet</h3>
+                <p className="text-sm sm:text-base text-muted-foreground mb-5 text-center max-w-md">
                   Looks like you haven't placed any orders yet. Explore our amazing collection and start shopping!
                 </p>
                 <Link to="/products">
-                  <Button className="text-sm sm:text-base">Continue Shopping</Button>
+                  <Button size="lg" className="rounded-full text-sm sm:text-base active-press">
+                    Continue Shopping
+                  </Button>
                 </Link>
               </CardContent>
             </Card>

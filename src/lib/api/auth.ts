@@ -1,6 +1,38 @@
-import { API_BASE_URL, APIError, authFetch, getAccessToken } from "./config";
+import { API_BASE_URL, APIError, authFetch } from "./config";
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  email: string;
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  profile_picture?: string;
+}
+
+export interface RegisterPayload {
+  first_name?: string;
+  last_name?: string;
+  name?: string;
+  email: string;
+  username: string;
+  password: string;
+  password2: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  profile_picture?: string;
+}
+
 export const authAPI = {
-  register: async (userData: any) => {
+  register: async (userData: RegisterPayload) => {
     const response = await fetch(`${API_BASE_URL}/auth/register/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -27,10 +59,10 @@ export const authAPI = {
     return data;
   },
 
-  getProfile: () => authFetch(`${API_BASE_URL}/auth/profile/`),
+  getProfile: () => authFetch<UserProfile>(`${API_BASE_URL}/auth/profile/`),
 
-  updateProfile: (data: any) =>
-    authFetch(`${API_BASE_URL}/auth/profile/`, {
+  updateProfile: (data: Partial<UserProfile>) =>
+    authFetch<UserProfile>(`${API_BASE_URL}/auth/profile/`, {
       method: "PATCH",
       body: JSON.stringify(data),
     }),

@@ -13,10 +13,12 @@ import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
 import heroVideo from "@/assets/grok-video-2e290515-947f-4dd0-baca-4581ae53774a (1).mp4";
+import { useTranslation } from "react-i18next";
 
 const comboImages = [product1, product2, product3, product4];
 
 const OfferZone = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { cart, addToCart, updateQuantity } = useCart();
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,7 @@ const OfferZone = () => {
             image: p.image || product1,
             price: p.final_price || p.discount_price || p.price,
             originalPrice: p.price,
-            badge: p.badge || `${Math.round(((p.price - (p.final_price || p.discount_price || p.price)) / p.price) * 100)}% OFF`,
+            badge: p.badge || `${Math.round(((p.price - (p.final_price || p.discount_price || p.price)) / p.price) * 100)}${t('product.off')}`,
             weight: p.weight ? `${p.weight}${p.unit || 'g'}` : "100g",
             itemType: "product" as const,
           }));
@@ -54,10 +56,10 @@ const OfferZone = () => {
           id: Number(c.id),
           slug: c.slug || c.id,
           title: c.display_title || c.name,
-          description: c.subtitle || c.description || `${c.products?.length || 0} products bundle`,
+          description: c.subtitle || c.description || t('combo.productBundle', { count: c.products?.length || 0 }),
           price: c.final_price || c.price,
           originalPrice: c.total_original_price || c.price,
-          badge: c.badge || "COMBO DEAL",
+          badge: c.badge || t('combo.comboDeal'),
           image: c.image || comboImages[index % comboImages.length],
           productCount: c.products?.length || 0,
         }));
@@ -112,13 +114,13 @@ const OfferZone = () => {
             <Sparkles className="h-8 w-8 sm:h-12 sm:w-12 text-accent animate-pulse" />
           </div>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-foreground mb-2 sm:mb-4 drop-shadow-lg">
-            Exclusive Offers
+            {t('offerZone.heroTitle')}
           </h1>
           <p className="text-base sm:text-xl text-foreground/90 max-w-2xl mx-auto drop-shadow-md">
-            Amazing deals and discounts on premium spices and masalas
+            {t('offerZone.heroSubtitle')}
           </p>
           <Badge variant="default" className="mt-4 text-sm sm:text-base px-4 py-2 animate-bounce">
-            🔥 Up to 30% OFF - Limited Time!
+            {t('offerZone.heroBadge')}
           </Badge>
         </div>
       </section>
@@ -131,10 +133,10 @@ const OfferZone = () => {
               <div className="text-center mb-6 sm:mb-10">
                 <h2 className="text-2xl sm:text-4xl font-bold mb-2">
                   <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    Combo Offers
+                    {t('offerZone.comboOffersTitle')}
                   </span>
                 </h2>
-                <p className="text-muted-foreground text-sm sm:text-base">Save more with our value bundles</p>
+                <p className="text-muted-foreground text-sm sm:text-base">{t('offerZone.comboOffersSubtitle')}</p>
               </div>
               
               <div className="grid md:grid-cols-2 gap-4 sm:gap-6 max-w-5xl mx-auto mb-12 sm:mb-20">
@@ -171,7 +173,7 @@ const OfferZone = () => {
                         {savings > 0 && (
                           <div className="absolute top-3 right-3">
                             <Badge variant="destructive" className="text-xs px-2 py-1 shadow-lg">
-                              Save {savings}%
+                              {t('combo.savePercent', { percent: savings })}
                             </Badge>
                           </div>
                         )}
@@ -180,7 +182,7 @@ const OfferZone = () => {
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
                           <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg">
                             <Eye className="h-4 w-4" />
-                            <span className="text-sm font-medium">View Details</span>
+                            <span className="text-sm font-medium">{t('offerZone.viewDetails')}</span>
                           </div>
                         </div>
                       </div>
@@ -231,22 +233,22 @@ const OfferZone = () => {
                           ) : (
                             <Button
                               onClick={() => {
-                                addToCart({
-                                  id: combo.id,
-                                  name: combo.title,
-                                  image: combo.image,
-                                  price: combo.price,
-                                  originalPrice: combo.originalPrice,
-                                  badge: combo.badge,
-                                  itemType: "combo",
-                                });
-                                toast.success("Added to cart!");
-                              }}
-                              className="w-full py-3 font-semibold gap-2"
-                            >
-                              <ShoppingCart className="h-4 w-4" />
-                              Add to Cart
-                            </Button>
+                                 addToCart({
+                                   id: combo.id,
+                                   name: combo.title,
+                                   image: combo.image,
+                                   price: combo.price,
+                                   originalPrice: combo.originalPrice,
+                                   badge: combo.badge,
+                                   itemType: "combo",
+                                 });
+                                 toast.success(t('product.addedToCart'));
+                               }}
+                               className="w-full py-3 font-semibold gap-2"
+                             >
+                               <ShoppingCart className="h-4 w-4" />
+                               {t('product.addToCart')}
+                             </Button>
                           )}
                         </div>
                       </div>
@@ -260,13 +262,13 @@ const OfferZone = () => {
           {/* Hot Deals */}
           {hotDeals.length > 0 && (
             <>
-              <div className="text-center mb-6 sm:mb-10">
+               <div className="text-center mb-6 sm:mb-10">
                 <h2 className="text-2xl sm:text-4xl font-bold mb-2">
                   <span className="bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">
-                    🔥 Hot Deals
+                    {t('offerZone.hotDealsTitle')}
                   </span>
                 </h2>
-                <p className="text-muted-foreground text-sm sm:text-base">Grab these before they're gone!</p>
+                <p className="text-muted-foreground text-sm sm:text-base">{t('offerZone.hotDealsSubtitle')}</p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                 {hotDeals.map((product) => (
@@ -280,8 +282,8 @@ const OfferZone = () => {
           {hotDeals.length === 0 && comboOffers.length === 0 && (
             <div className="text-center py-10 sm:py-16">
               <Sparkles className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <p className="text-base sm:text-xl text-muted-foreground">No offers available at the moment.</p>
-              <p className="text-muted-foreground text-sm sm:text-base">Check back soon for amazing deals!</p>
+              <p className="text-base sm:text-xl text-muted-foreground">{t('offerZone.noOffers')}</p>
+              <p className="text-muted-foreground text-sm sm:text-base">{t('offerZone.checkBack')}</p>
             </div>
           )}
         </div>

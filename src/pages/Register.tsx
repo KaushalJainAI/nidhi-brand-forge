@@ -25,6 +25,7 @@ const Register = () => {
     profile_picture: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -45,6 +46,10 @@ const Register = () => {
     }
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
       toast.error("Password must contain at least one uppercase letter, one lowercase letter, and one number");
+      return;
+    }
+    if (!agreedToPrivacy) {
+      toast.error("Please agree to the Privacy Policy to continue");
       return;
     }
     setIsLoading(true);
@@ -76,8 +81,11 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-2 py-4 pb-24 md:pb-4">
-      <Card className="w-full max-w-lg md:max-w-xl">
+      <Card className="w-full max-w-lg md:max-w-xl rounded-3xl shadow-xl">
         <CardHeader className="space-y-1">
+          <div className="mx-auto mb-2 h-16 w-16 rounded-full spice-backdrop grid place-items-center shadow-sm">
+            <img src="/logo.png" alt="Nidhi" className="h-10 w-10 object-contain" />
+          </div>
           <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
           <CardDescription className="text-center">
             Enter your information to create your account
@@ -251,7 +259,24 @@ const Register = () => {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 mt-2">
-            <Button type="submit" className="w-full py-2" disabled={isLoading}>
+            <div className="flex items-start gap-2 w-full">
+              <input
+                id="agreePrivacy"
+                type="checkbox"
+                checked={agreedToPrivacy}
+                onChange={(e) => setAgreedToPrivacy(e.target.checked)}
+                className="mt-1"
+              />
+              <Label htmlFor="agreePrivacy" className="text-sm font-normal text-muted-foreground">
+                I agree to the{" "}
+                <Link to="/privacy-policy" target="_blank" className="text-primary hover:underline">
+                  Privacy Policy
+                </Link>
+                , including how my activity is used for recommendations and
+                anonymous, aggregate analytics.
+              </Label>
+            </div>
+            <Button type="submit" className="w-full h-11 rounded-full font-bold bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30 hover:brightness-110 active-press transition-all" disabled={isLoading || !agreedToPrivacy}>
               {isLoading ? "Creating account..." : "Create account"}
             </Button>
             <p className="text-sm text-center text-muted-foreground">

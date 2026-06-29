@@ -12,6 +12,7 @@ import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cartAPI, searchAPI } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/api/config";
@@ -29,6 +30,7 @@ const getImageUrl = (imagePath: string | null | undefined): string => {
 
 const Cart = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isLoggedIn } = useAuth();
   const { cart, setCart, updateQuantity, removeFromCart, clearCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
@@ -82,13 +84,18 @@ const Cart = () => {
   const outOfStockItems = cart.filter(item => item.inStock === false);
   
   const subtotal = inStockItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * 0.05;
+  // Per-product GST from each line's tax_rate (papad/papad katran are 0).
+  // Falls back to 0 when a rate is absent — the backend column is authoritative.
+  const tax = inStockItems.reduce(
+    (sum, item) => sum + item.price * item.quantity * ((item.taxRate ?? 0) / 100),
+    0
+  );
   const total = subtotal + tax;
 
-  const handleRemoveItem = async (id: number, itemType: "product" | "combo") => {
+  const handleRemoveItem = async (id: number, itemType: "product" | "combo", variantId?: number | null) => {
     try {
-      await removeFromCart(id, itemType);
-      toast.success("Item removed from cart");
+      await removeFromCart(id, itemType, variantId);
+      toast.success(t('cart.removed'));
     } catch (error) {
       console.error('Failed to remove item:', error);
       toast.error("Failed to remove item");
@@ -98,7 +105,7 @@ const Cart = () => {
   const handleClearCart = async () => {
     try {
       await clearCart();
-      toast.success("Cart cleared");
+      toast.success(t('cart.cleared'));
     } catch (error) {
       console.error('Failed to clear cart:', error);
       toast.error("Failed to clear cart");
@@ -107,7 +114,7 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     if (inStockItems.length === 0) {
-      toast.error("No in-stock items to checkout");
+      toast.error(t('cart.noStock'));
       return;
     }
 
@@ -126,7 +133,7 @@ const Cart = () => {
       }
       
       if (!response.items || response.items.length === 0) {
-        toast.error("Your cart is empty");
+        toast.error(t('cart.emptyToast'));
         setCart([]);
         return;
       }
@@ -201,7 +208,7 @@ const Cart = () => {
       <>
         <div className="container py-8">
           <div className="flex items-center justify-center min-h-[400px]">
-            <p className="text-lg text-muted-foreground">Loading cart...</p>
+            <p className="text-lg text-muted-foreground">{t('cart.loading')}</p>
           </div>
         </div>
       </>
@@ -211,24 +218,49 @@ const Cart = () => {
   return (
     <>
       <div className="container py-8 pb-24 md:pb-8">
-        <h1 className="text-4xl font-bold mb-8">Shopping Cart</h1>
+        <h1 className="text-4xl font-bold mb-8">{t('cart.title')}</h1>
         {cart.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
-              <p className="text-xl text-muted-foreground mb-4">Your cart is empty</p>
+              <p className="text-xl text-muted-foreground mb-4">{t('cart.empty')}</p>
               <Button asChild>
-                <a href="/products">Continue Shopping</a>
+                <a href="/products">{t('cart.continueShopping')}</a>
               </Button>
             </CardContent>
           </Card>
         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
+              {/* Free-shipping progress nudge */}
+              {(() => {
+                const FREE_SHIP = 299;
+                const remaining = Math.max(0, FREE_SHIP - subtotal);
+                const pct = Math.min(100, Math.round((subtotal / FREE_SHIP) * 100));
+                return (
+                  <Card className={`border-secondary/30 transition-colors ${remaining === 0 ? "bg-secondary/5 border-secondary/50" : ""}`}>
+                    <CardContent className="p-3 sm:p-4">
+                      <p className="text-sm font-medium mb-2 flex items-center gap-1.5">
+                        {remaining > 0 ? (
+                          <>🚚 You're <span className="text-primary font-bold">₹{remaining.toFixed(0)} away</span> from FREE shipping!</>
+                        ) : (
+                          <><span className="animate-bounce-in">🎉</span> You've unlocked <span className="text-secondary font-bold">FREE shipping!</span></>
+                        )}
+                      </p>
+                      <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700 ease-out bg-gradient-to-r from-secondary via-primary to-accent bg-[length:200%_100%] animate-shimmer"
+                          style={{ width: `${Math.max(pct, 6)}%` }}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
               {cart.map((item) => (
-                <Card key={`${item.itemType}-${item.id}`} className={item.inStock === false ? "opacity-60 border-destructive/30" : ""}>
+                <Card key={`${item.itemType}-${item.id}-${item.variantId ?? ''}`} className={item.inStock === false ? "opacity-60 border-destructive/30" : ""}>
                   <CardContent className="flex items-center gap-2 sm:gap-4 p-3 sm:p-6">
-                    <Link 
-                      to={item.itemType === 'combo' ? `/combos/${item.id}` : `/products/${item.id}`}
+                    <Link
+                      to={item.itemType === 'combo' ? `/combos/${item.id}` : `/products/${item.variantSlug || item.id}`}
                       className="flex-shrink-0"
                     >
                       <img
@@ -238,19 +270,19 @@ const Cart = () => {
                       />
                     </Link>
                     <div className="flex-1 min-w-0">
-                      <Link 
-                        to={item.itemType === 'combo' ? `/combos/${item.id}` : `/products/${item.id}`}
+                      <Link
+                        to={item.itemType === 'combo' ? `/combos/${item.id}` : `/products/${item.variantSlug || item.id}`}
                         className="hover:text-primary transition-colors"
                       >
                         <h3 className="font-semibold text-sm sm:text-lg truncate">{item.name}</h3>
                       </Link>
                       <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                        <span>{item.itemType === "combo" ? "Combo" : "Product"}</span>
+                        <span>{item.itemType === "combo" ? "Combo" : (item.weight || "Product")}</span>
                         <span>•</span>
                         {item.inStock === false ? (
-                          <span className="text-destructive font-medium">Out of Stock</span>
+                          <span className="text-destructive font-medium">{t('product.outOfStock')}</span>
                         ) : (
-                          <span className="text-green-600 font-medium">In Stock</span>
+                          <span className="text-green-600 font-medium">{t('product.inStock')}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
@@ -272,7 +304,7 @@ const Cart = () => {
                         variant="outline"
                         size="icon"
                         className="h-7 w-7 sm:h-10 sm:w-10"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.itemType)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.itemType, item.variantId)}
                         disabled={isLoading || item.inStock === false}
                       >
                         -
@@ -282,7 +314,7 @@ const Cart = () => {
                         variant="outline"
                         size="icon"
                         className="h-7 w-7 sm:h-10 sm:w-10"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.itemType)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.itemType, item.variantId)}
                         disabled={isLoading || item.inStock === false}
                       >
                         +
@@ -292,7 +324,7 @@ const Cart = () => {
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7 sm:h-10 sm:w-10 flex-shrink-0"
-                      onClick={() => handleRemoveItem(item.id, item.itemType)}
+                      onClick={() => handleRemoveItem(item.id, item.itemType, item.variantId)}
                       disabled={isLoading}
                     >
                       <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 text-destructive" />
@@ -306,34 +338,34 @@ const Cart = () => {
                 className="w-full"
                 disabled={isLoading}
               >
-                Clear Cart
+                {t('cart.clearCart')}
               </Button>
             </div>
             <div>
               <Card>
                 <CardHeader className="py-3 sm:py-4">
-                  <CardTitle className="text-base sm:text-lg">Order Summary</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">{t('cart.orderSummary')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 sm:space-y-3 py-2 sm:py-4">
                   {outOfStockItems.length > 0 && (
                     <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-2 sm:p-3">
                       <p className="text-xs sm:text-sm text-destructive font-medium flex items-center gap-1 sm:gap-2">
                         <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-                        {outOfStockItems.length} out of stock
+                        {outOfStockItems.length} {t('product.outOfStock')}
                       </p>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal ({inStockItems.length})</span>
+                    <span className="text-muted-foreground">{t('cart.subtotal')} ({inStockItems.length})</span>
                     <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax (5%)</span>
+                    <span className="text-muted-foreground">{t('cart.tax')}</span>
                     <span className="font-semibold">₹{tax.toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between text-sm sm:text-base">
-                    <span className="font-bold">Total</span>
+                    <span className="font-bold">{t('cart.total')}</span>
                     <span className="font-bold text-primary">₹{total.toFixed(2)}</span>
                   </div>
                 </CardContent>
@@ -343,16 +375,48 @@ const Cart = () => {
                     onClick={handleCheckout}
                     disabled={isLoading || inStockItems.length === 0}
                   >
-                    {isLoading ? "Processing..." : inStockItems.length === 0 ? "No Items" : "Checkout"}
+                    {isLoading ? t('cart.processing') : inStockItems.length === 0 ? t('cart.noItems') : t('cart.checkout')}
                   </Button>
                 </CardFooter>
               </Card>
+
+              {/* Checkout progress timeline */}
+              <div className="mt-4 rounded-lg border border-border bg-card p-4">
+                <div className="flex items-center justify-between">
+                  {[
+                    { icon: "🛒", label: t('cart.steps.cart', { defaultValue: "Cart" }), active: true },
+                    { icon: "📍", label: t('cart.steps.address', { defaultValue: "Address" }) },
+                    { icon: "💳", label: t('cart.steps.payment', { defaultValue: "Payment" }) },
+                    { icon: "✅", label: t('cart.steps.done', { defaultValue: "Done" }) },
+                  ].map((step, i, arr) => (
+                    <div key={i} className="flex flex-1 flex-col items-center text-center relative">
+                      {i < arr.length - 1 && (
+                        <span className="absolute top-4 left-1/2 right-[-50%] h-0.5 bg-border" />
+                      )}
+                      <span
+                        className={`relative z-10 grid h-8 w-8 place-items-center rounded-full text-sm transition-colors ${
+                          step.active
+                            ? "bg-primary text-primary-foreground shadow-md shadow-primary/30 animate-bounce-in"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {step.icon}
+                      </span>
+                      <span className={`mt-1.5 text-[10px] sm:text-xs font-medium ${step.active ? "text-primary" : "text-muted-foreground"}`}>
+                        {step.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
         {cart.length > 0 && recommendations.length > 0 && (
-          <section className="mt-8 sm:mt-12">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">People Also Buy</h2>
+          <section className="mt-8 sm:mt-12 rounded-xl border-2 border-dashed border-primary/40 bg-primary/[0.03] p-4 sm:p-6">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center gap-2">
+              <span className="animate-pulse-subtle">✨</span>{t('cart.peopleAlsoBuy')}
+            </h2>
             <Carousel opts={{ align: "start" }} className="w-full">
               <CarouselContent className="-ml-2 sm:-ml-4">
                 {recommendations.map((product) => (

@@ -1,4 +1,23 @@
 import { API_BASE_URL, authFetch, publicFetch } from "./config";
+import { Combo } from "./combos";
+
+export interface ProductVariant {
+  id: number;
+  slug: string;
+  weight: number | null;
+  unit: string | null;
+  formatted_weight: string;
+  price: number;
+  discount_price?: number | null;
+  final_price: number;
+  discount_percentage: number;
+  stock: number;
+  in_stock: boolean;
+  sku?: string;
+  is_default: boolean;
+  is_active: boolean;
+  display_order: number;
+}
 
 export interface Product {
   id: number;
@@ -30,6 +49,11 @@ export interface Product {
   created_at?: string;
   sections?: number[];
   section_names?: string[];
+  // Multiple-packaging support
+  variants?: ProductVariant[];
+  variant_count?: number;
+  // Set only when a variant slug was used to fetch this product
+  selected_variant_id?: number;
 }
 
 export interface ProductSection {
@@ -43,7 +67,7 @@ export interface ProductSection {
   max_products: number;
   is_active: boolean;
   products: Product[];
-  combos: any[];
+  combos: Combo[];
 }
 
 export const productsAPI = {
@@ -52,20 +76,21 @@ export const productsAPI = {
     if (params?.category) queryParams.append("category", params.category);
     if (params?.search) queryParams.append("search", params.search);
     const query = queryParams.toString();
-    return publicFetch(`${API_BASE_URL}/products/${query ? `?${query}` : ""}`);
+    // ProductViewSet has pagination_class = None, so list endpoints return a plain array.
+    return publicFetch<Product[]>(`${API_BASE_URL}/products/${query ? `?${query}` : ""}`);
   },
 
-  getById: (id: number | string) => publicFetch(`${API_BASE_URL}/products/${id}/`),
+  getById: (id: number | string) => publicFetch<Product>(`${API_BASE_URL}/products/${id}/`),
 
   // FIXED: Detail endpoint by slug, not list filter
-  getBySlug: (slug: string) => publicFetch(`${API_BASE_URL}/products/${slug}/`),
+  getBySlug: (slug: string) => publicFetch<Product>(`${API_BASE_URL}/products/${slug}/`),
 
   getByCategory: (categoryId: string) =>
-    publicFetch(`${API_BASE_URL}/products/?category=${categoryId}`),
+    publicFetch<Product[]>(`${API_BASE_URL}/products/?category=${categoryId}`),
 
-  getFeatured: () => publicFetch(`${API_BASE_URL}/products/?is_featured=true`),
+  getFeatured: () => publicFetch<Product[]>(`${API_BASE_URL}/products/?is_featured=true`),
 
-  getSections: () => publicFetch(`${API_BASE_URL}/products/sections/`),
+  getSections: () => publicFetch<ProductSection[]>(`${API_BASE_URL}/products/sections/`),
 
-  getSpiceForms: () => publicFetch(`${API_BASE_URL}/spice-forms/`),
+  getSpiceForms: () => publicFetch<string[]>(`${API_BASE_URL}/spice-forms/`),
 };

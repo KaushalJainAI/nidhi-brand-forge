@@ -1,4 +1,4 @@
-import { API_BASE_URL, publicFetch } from "./config";
+import { API_BASE_URL, publicFetch, Paginated } from "./config";
 
 export interface Category {
   id: number;
@@ -10,7 +10,7 @@ export interface Category {
 }
 
 export const categoriesAPI = {
-  getAll: () => publicFetch(`${API_BASE_URL}/categories/`),
-  getById: (id: string) => publicFetch(`${API_BASE_URL}/categories/${id}/`),
-  getBySlug: (slug: string) => publicFetch(`${API_BASE_URL}/categories/?slug=${slug}`),
+  getAll: () => publicFetch<Paginated<Category>>(`${API_BASE_URL}/categories/`),
+  getById: (id: string) => publicFetch<Category>(`${API_BASE_URL}/categories/${id}/`),
+  getBySlug: (slug: string) => publicFetch<Paginated<Category>>(`${API_BASE_URL}/categories/?slug=${slug}`),
 };

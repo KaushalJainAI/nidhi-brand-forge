@@ -9,10 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CreditCard, Trash2, Star, Wallet } from "lucide-react";
+import { CreditCard, Trash2, Star, Wallet, MapPin, Loader2 } from "lucide-react";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
-import { paymentMethodsAPI, userAPI } from "@/lib/api";
+import { paymentMethodsAPI, userAPI, geoAPI } from "@/lib/api";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 // --- Types ---
 interface PaymentMethod {
@@ -57,6 +58,10 @@ const Profile = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  // Location detection for the address fields.
+  const geo = useGeolocation();
+  const [detectingLocation, setDetectingLocation] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -93,7 +98,16 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       const data = await userAPI.getProfile();
-      setProfile(data);
+      setProfile({
+        username: data.username || "",
+        name: data.name || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        address: data.address || "",
+        city: data.city || "",
+        state: data.state || "",
+        pincode: data.pincode || "",
+      });
     } catch {
       toast.error("Failed to load profile");
     }
@@ -130,6 +144,42 @@ const Profile = () => {
       toast.error("Failed to update profile");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Detect location and fill the address fields. The user still has to press
+  // "Save" to make it their default address.
+  const handleDetectLocation = async () => {
+    setDetectingLocation(true);
+    try {
+      const coords = await geo.request();
+      if (!coords) {
+        toast.error(geo.error || "Couldn't access your location.");
+        return;
+      }
+      const addr = await geoAPI.reverseGeocode(coords.lat, coords.lng);
+      setProfile((prev) => ({
+        ...prev,
+        address: addr.address_line || prev.address,
+        city: addr.city || prev.city,
+        state: addr.state || prev.state,
+        pincode: addr.pincode || prev.pincode,
+      }));
+      // Store a coarse copy for recommendations (best-effort).
+      geoAPI
+        .update({
+          lat: coords.lat,
+          lng: coords.lng,
+          city: addr.city,
+          state: addr.state,
+          pincode: addr.pincode,
+        })
+        .catch(() => {});
+      toast.success("Address filled from your location. Review it, then Save.");
+    } catch {
+      toast.error("Couldn't determine your address. Please enter it manually.");
+    } finally {
+      setDetectingLocation(false);
     }
   };
 
@@ -308,7 +358,26 @@ const Profile = () => {
                     <Input id="phone" value={profile.phone || ""} onChange={e => setProfile({ ...profile, phone: e.target.value })} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
+                    <div className="flex items-center justify-between gap-2">
+                      <Label htmlFor="address">Address</Label>
+                      {geo.supported && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleDetectLocation}
+                          disabled={detectingLocation}
+                          className="h-7 text-xs"
+                        >
+                          {detectingLocation ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <MapPin className="h-3.5 w-3.5" />
+                          )}
+                          <span className="ml-1.5">Use my location</span>
+                        </Button>
+                      )}
+                    </div>
                     <Input id="address" value={profile.address || ""} onChange={e => setProfile({ ...profile, address: e.target.value })} />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">

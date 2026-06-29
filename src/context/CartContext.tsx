@@ -2,9 +2,14 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { cartAPI } from "@/lib/api";
 import { useAuth } from "./AuthContext";
 import { toast } from "sonner";
+import { trackEvent, track } from "@/lib/api/analytics";
+import { MAX_ITEM_QUANTITY, MAX_CART_ITEMS, clampQuantity } from "@/config/limits";
 
 interface CartItem {
   id: number;
+  variantId?: number | null;
+  variantSlug?: string | null;
+  weight?: string | null;
   itemType: "product" | "combo";
   name: string;
   image: string;
@@ -14,6 +19,9 @@ interface CartItem {
   quantity: number;
   stock?: number;
   inStock?: boolean;
+  /** GST rate (%) for this line, sourced from the product's tax_rate column.
+   *  Falls back to 0 when absent — the backend column is authoritative. */
+  taxRate?: number;
 }
 
 interface AddToCartResult {
@@ -26,8 +34,8 @@ interface CartContextType {
   cart: CartItem[];
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
   addToCart: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => Promise<AddToCartResult>;
-  updateQuantity: (id: number, quantity: number, itemType: "product" | "combo") => Promise<void>;
-  removeFromCart: (id: number, itemType: "product" | "combo") => Promise<void>;
+  updateQuantity: (id: number, quantity: number, itemType: "product" | "combo", variantId?: number | null) => Promise<void>;
+  removeFromCart: (id: number, itemType: "product" | "combo", variantId?: number | null) => Promise<void>;
   clearCart: () => Promise<void>;
   fetchCartFromBackend: () => Promise<void>;
   isLoading: boolean;
@@ -43,8 +51,14 @@ export const useCart = () => {
 
 const CART_STORAGE_KEY = "shopping_cart";
 
-// Helper function to create unique cart key
-const getCartKey = (id: number, itemType: "product" | "combo") => `${itemType}-${id}`;
+// Helper function to create unique cart key. For products the line identity
+// includes the selected variant, so the same spice in different sizes maps to
+// distinct cart lines.
+const getCartKey = (
+  id: number,
+  itemType: "product" | "combo",
+  variantId?: number | null
+) => `${itemType}-${id}-${variantId ?? ""}`;
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isLoggedIn } = useAuth();
@@ -78,6 +92,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const mapBackendToFrontend = useCallback((items: any[]): CartItem[] => {
     return items.map((item: any) => ({
       id: Number(item.product_id || item.id),  // Use product_id (the actual product/combo ID)
+      variantId: item.variant_id ?? null,
+      variantSlug: item.variant_slug ?? null,
+      weight: item.weight ?? null,
       itemType: (item.item_type || "product") as "product" | "combo",
       name: item.name,
       image: item.image,
@@ -87,6 +104,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       badge: item.badge,
       stock: item.stock ?? 999,
       inStock: item.in_stock ?? true,
+      taxRate: item.tax_rate ?? 0,
     }));
   }, []);
 
@@ -120,15 +138,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, requiresLogin: true };
     }
 
+    // Client-side bounds (backend enforces the same): clamp quantity and block
+    // adding a brand-new line once the cart is full. Better UX than a round-trip.
+    const quantity = clampQuantity(item.quantity || 1);
+    const cartKey = getCartKey(item.id, item.itemType, item.variantId);
+    const isNewLine = !cart.some(i => getCartKey(i.id, i.itemType, i.variantId) === cartKey);
+    if (isNewLine && cart.length >= MAX_CART_ITEMS) {
+      toast.error(`Your cart can hold at most ${MAX_CART_ITEMS} different items.`);
+      return { success: false, error: "Cart is full" };
+    }
+
     setIsLoading(true);
     try {
-      // console.log('Adding item to cart:', item);
-      
       // Call backend first
-      const response = await cartAPI.addItem({ 
-        product_id: item.id, 
+      const response = await cartAPI.addItem({
+        product_id: item.id,
         item_type: item.itemType,
-        quantity: item.quantity || 1 
+        quantity,
+        variant_id: item.variantId ?? undefined,
       });
 
       if (response.success && response.items) {
@@ -136,6 +163,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const backendCart = mapBackendToFrontend(response.items);
         
         setCart(backendCart);
+        track(
+          {
+            event_type: "add_to_cart",
+            [item.itemType === "combo" ? "combo_id" : "product_id"]: item.id,
+            metadata: { quantity },
+          },
+          {
+            metric: "add_to_cart",
+            product_id: item.itemType === "combo" ? undefined : item.id,
+          },
+        );
         toast.success("Item added to cart");
         return { success: true };
       } else {
@@ -152,34 +190,40 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateQuantity = async (id: number, quantity: number, itemType: "product" | "combo") => {
+  const updateQuantity = async (id: number, quantity: number, itemType: "product" | "combo", variantId?: number | null) => {
     if (!isLoggedIn) {
       toast.error("Please log in to update cart");
       return;
     }
 
     if (quantity <= 0) {
-      await removeFromCart(id, itemType);
+      await removeFromCart(id, itemType, variantId);
+      return;
+    }
+
+    if (quantity > MAX_ITEM_QUANTITY) {
+      toast.error(`Quantity cannot exceed ${MAX_ITEM_QUANTITY} per item.`);
       return;
     }
 
     // Optimistic update
-    const cartKey = getCartKey(id, itemType);
+    const cartKey = getCartKey(id, itemType, variantId);
     const previousCart = [...cart];
     setCart(prev =>
-      prev.map(i => 
-        getCartKey(i.id, i.itemType) === cartKey 
-          ? { ...i, quantity } 
+      prev.map(i =>
+        getCartKey(i.id, i.itemType, i.variantId) === cartKey
+          ? { ...i, quantity }
           : i
       )
     );
 
     setIsLoading(true);
     try {
-      const response = await cartAPI.updateItem({ 
-        product_id: id, 
+      const response = await cartAPI.updateItem({
+        product_id: id,
         item_type: itemType,
-        quantity 
+        quantity,
+        variant_id: variantId ?? undefined,
       });
 
       if (response.success && response.items) {
@@ -201,29 +245,34 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const removeFromCart = async (id: number, itemType: "product" | "combo") => {
+  const removeFromCart = async (id: number, itemType: "product" | "combo", variantId?: number | null) => {
     if (!isLoggedIn) {
       toast.error("Please log in to remove items");
       return;
     }
 
     // Optimistic update
-    const cartKey = getCartKey(id, itemType);
+    const cartKey = getCartKey(id, itemType, variantId);
     const previousCart = [...cart];
-    setCart(prev => prev.filter(i => getCartKey(i.id, i.itemType) !== cartKey));
+    setCart(prev => prev.filter(i => getCartKey(i.id, i.itemType, i.variantId) !== cartKey));
 
     setIsLoading(true);
     try {
       // Send product_id and item_type to backend
-      const response = await cartAPI.removeItem({ 
-        product_id: id, 
-        item_type: itemType 
+      const response = await cartAPI.removeItem({
+        product_id: id,
+        item_type: itemType,
+        variant_id: variantId ?? undefined,
       });
 
       if (response.success && response.items) {
         // Sync with backend response
         const backendCart = mapBackendToFrontend(response.items);
         setCart(backendCart);
+        trackEvent({
+          event_type: "remove_from_cart",
+          [itemType === "combo" ? "combo_id" : "product_id"]: id,
+        });
       } else if (!response.success) {
         // Revert on error
         setCart(previousCart);
