@@ -107,7 +107,7 @@ const Login: React.FC = () => {
                     useOneTap
                     theme="outline"
                     shape="rectangular"
-                    width="100%"
+                    width="360"
                   />
                 </div>
               </CardContent>

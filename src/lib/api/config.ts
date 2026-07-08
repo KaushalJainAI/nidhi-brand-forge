@@ -78,6 +78,22 @@ export class APIError extends Error {
   }
 }
 
+/**
+ * Definitively end the client session: clear the cached login state and notify
+ * the app (AuthContext listens for `auth:unauthorized` and resets `user`). This
+ * is the single choke point for logging a user out on an unrecoverable 401 —
+ * every terminal-unauthorized path must route through here so the React state
+ * and the localStorage cache can never drift apart. Idempotent.
+ */
+export const forceLogout = (): void => {
+  try {
+    localStorage.removeItem("user");
+  } catch {
+    /* storage unavailable — the event below still resets in-memory state */
+  }
+  window.dispatchEvent(new Event("auth:unauthorized"));
+};
+
 let refreshPromise: Promise<boolean> | null = null;
 
 export const refreshAccessToken = async (): Promise<boolean> => {
@@ -93,7 +109,8 @@ export const refreshAccessToken = async (): Promise<boolean> => {
       if (!response.ok) throw new Error("Token refresh failed");
       return true;
     } catch (error) {
-      window.dispatchEvent(new Event("auth:unauthorized"));
+      // Refresh token is missing/expired/invalid — the session is over.
+      forceLogout();
       throw error;
     } finally {
       refreshPromise = null;
@@ -168,8 +185,12 @@ export const authFetch = async <T = unknown>(url: string, options: RequestInit =
   }
 
   if (!response.ok) {
-    if (response.status === 401 || response.status === 403) {
-      localStorage.removeItem("user");
+    // A 401 that survived the refresh-and-retry above is unrecoverable: the
+    // session is dead, so log the user out (clears cache AND React state).
+    // (403 is "authenticated but forbidden" under our JWT cookie auth — a
+    // permission/CSRF denial, not an expired session — so it must NOT log out.)
+    if (response.status === 401) {
+      forceLogout();
     }
     const errorData = await response.json().catch(() => ({}));
     throw new APIError(response.status, response.statusText, errorData);
@@ -178,6 +199,43 @@ export const authFetch = async <T = unknown>(url: string, options: RequestInit =
   if (response.status === 204) return null as T;
 
   // Return parsed JSON directly
+  return response.json() as Promise<T>;
+};
+
+
+/**
+ * Authenticated multipart/form-data POST (e.g. audio upload for voice
+ * transcription). Unlike `authFetch`, it does NOT set Content-Type — the browser
+ * must set the multipart boundary itself. Mirrors authFetch's CSRF handling and
+ * one-shot 401 refresh-and-retry.
+ */
+export const authFetchForm = async <T = unknown>(url: string, form: FormData): Promise<T> => {
+  const send = () => {
+    const csrfToken = getCookie("csrftoken");
+    const headers: Record<string, string> = { ...getLangHeader() };
+    if (csrfToken) headers["X-CSRFToken"] = csrfToken;
+    return fetch(url, { method: "POST", body: form, credentials: "include", headers });
+  };
+
+  let response = await send();
+  if (response.status === 401) {
+    try {
+      await refreshAccessToken();
+      response = await send();
+    } catch {
+      // refreshAccessToken handles logout + redirect on failure.
+    }
+  }
+
+  if (!response.ok) {
+    // Terminal 401 after refresh-and-retry → session is dead, force logout.
+    // 403 is a permission/CSRF denial under our JWT cookie auth, not an expired
+    // session, so it must not log the user out.
+    if (response.status === 401) forceLogout();
+    const errorData = await response.json().catch(() => ({}));
+    throw new APIError(response.status, response.statusText, errorData);
+  }
+  if (response.status === 204) return null as T;
   return response.json() as Promise<T>;
 };
 

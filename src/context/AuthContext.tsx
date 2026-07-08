@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
-import { userAPI } from "@/lib/api";
+import { userAPI, publicFetch, API_BASE_URL } from "@/lib/api";
 
 interface User {
   id: string;
@@ -35,69 +35,111 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+const USER_CACHE_KEY = "user";
 
-  // Initialize auth state on mount
+/**
+ * Synchronously read the cached user so the UI can hydrate to the correct
+ * logged-in state on first paint (no logged-out flash). The real auth gate is
+ * still the HttpOnly cookie session — this cache is only a display hint and is
+ * revalidated against the server on mount.
+ */
+const readCachedUser = (): User | null => {
+  try {
+    const raw = localStorage.getItem(USER_CACHE_KEY);
+    return raw ? (JSON.parse(raw) as User) : null;
+  } catch {
+    return null;
+  }
+};
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Hydrate from cache up-front. `user` and thus `isLoggedIn` are correct on the
+  // very first render for returning users, eliminating the logged-out flash.
+  const [user, setUser] = useState<User | null>(readCachedUser);
+  // Only "loading" (i.e. revalidating) when we actually have a session to check.
+  const [isLoading, setIsLoading] = useState<boolean>(() => readCachedUser() !== null);
+
+  // Single source of truth for writing/clearing the login-status cache. Writing
+  // to localStorage also notifies OTHER tabs via the `storage` event.
+  const applyUser = (u: User | null) => {
+    setUser(u);
+    try {
+      if (u) localStorage.setItem(USER_CACHE_KEY, JSON.stringify(u));
+      else localStorage.removeItem(USER_CACHE_KEY);
+    } catch {
+      /* storage unavailable (private mode / quota) — in-memory state still holds */
+    }
+  };
+
+  // Revalidate the cached session against the server on mount, and keep login
+  // status in sync across tabs.
   useEffect(() => {
+    let cancelled = false;
+
     const initAuth = async () => {
-      const cachedUser = localStorage.getItem("user");
+      // No cached session → treat as anonymous. Skip the profile probe entirely
+      // so guests don't trigger a wasteful getProfile→refresh→401 round-trip on
+      // every page load. (If cookies exist but the cache was cleared, the next
+      // authenticated action will 401 and prompt a fresh login — an acceptable
+      // edge case.)
+      if (readCachedUser() === null) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
-        // Try to get fresh user data using HttpOnly cookies
         const userData = await userAPI.getProfile();
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
+        if (!cancelled) applyUser(userData);
       } catch (error: any) {
         const status = error?.status || error?.response?.status;
-        
-        if (status === 401) {
-          localStorage.removeItem("user");
-          setUser(null);
-        } else if (cachedUser) {
-          setUser(JSON.parse(cachedUser));
-        }
+        // 401 is the only definitive "logged out" signal. Everything else
+        // (network offline, 5xx, CORS) is transient — keep the cached user so a
+        // flaky connection doesn't spuriously log the user out. Authenticated
+        // requests remain gated by the cookie regardless of this display state.
+        if (status === 401 && !cancelled) applyUser(null);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     initAuth();
 
-    const handleUnauthorized = () => {
-      localStorage.removeItem("user");
-      setUser(null);
+    // authFetch dispatches this when a token refresh definitively fails.
+    const handleUnauthorized = () => applyUser(null);
+
+    // Cross-tab sync: mirror login/logout that happened in another tab.
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key !== USER_CACHE_KEY) return;
+      setUser(e.newValue ? (JSON.parse(e.newValue) as User) : null);
     };
 
     window.addEventListener("auth:unauthorized", handleUnauthorized);
+    window.addEventListener("storage", handleStorage);
 
     return () => {
+      cancelled = true;
       window.removeEventListener("auth:unauthorized", handleUnauthorized);
+      window.removeEventListener("storage", handleStorage);
     };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const data = await userAPI.login(email, password);
+      // A non-2xx response throws APIError, so reaching here means the login
+      // succeeded and the HttpOnly cookies are set. We don't depend on the
+      // response body carrying `access` — the cookie is the source of truth.
+      await userAPI.login(email, password);
 
-      if (data.access) {
-        // Get user profile
-        try {
-          const userData = await userAPI.getProfile();
-          setUser(userData);
-          localStorage.setItem("user", JSON.stringify(userData));
-          toast.success("Login successful!");
-          return true;
-        } catch (profileError) {
-          console.error("Failed to fetch profile:", profileError);
-          // Even if profile fetch fails, login was successful
-          toast.success("Login successful!");
-          return true;
-        }
+      try {
+        const userData = await userAPI.getProfile();
+        applyUser(userData);
+      } catch (profileError) {
+        console.error("Failed to fetch profile:", profileError);
+        // Login succeeded even if the follow-up profile fetch hiccuped; the
+        // mount-time revalidation will populate the user on next load.
       }
-      
-      toast.error("Invalid credentials");
-      return false;
+      toast.success("Login successful!");
+      return true;
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error("Login failed. Please check your credentials.");
@@ -120,15 +162,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const googleLogin = async (accessToken: string): Promise<boolean> => {
     try {
-      const data = await userAPI.googleLogin(accessToken);
-      if (data.access) {
-        const userData = await userAPI.getProfile();
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-        toast.success("Login with Google successful!");
-        return true;
-      }
-      return false;
+      await userAPI.googleLogin(accessToken);
+      const userData = await userAPI.getProfile();
+      applyUser(userData);
+      toast.success("Login with Google successful!");
+      return true;
     } catch (error: any) {
       console.error("Google login error:", error);
       const errorMessage = error.data?.detail || error.data?.message || "Google login failed";
@@ -138,16 +176,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = async () => {
-    setUser(null);
-    localStorage.removeItem("user");
+    applyUser(null);
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8000/api"}/auth/logout/`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      // publicFetch attaches the X-CSRFToken header. A bare fetch here 403s
+      // (CookieJWTAuthentication enforces CSRF while the access_token cookie is
+      // still present), which would leave the HttpOnly cookies uncleared
+      // server-side. Best-effort: swallow errors so logout always feels instant.
+      await publicFetch(`${API_BASE_URL}/auth/logout/`, { method: "POST" });
     } catch (e) {
       console.error(e);
     }
@@ -157,8 +192,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const refreshUser = async () => {
     try {
       const userData = await userAPI.getProfile();
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+      applyUser(userData);
     } catch (error) {
       console.error("Failed to refresh user:", error);
     }

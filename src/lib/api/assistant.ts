@@ -1,4 +1,4 @@
-import { API_BASE_URL, authFetch } from "./config";
+import { API_BASE_URL, authFetch, authFetchForm } from "./config";
 
 export interface ProposedAction {
   type: "add_to_cart" | "checkout" | "navigate" | "escalate_to_human";
@@ -26,6 +26,11 @@ export interface ConversationSummary {
   user_email: string | null;
   updated_at: string;
   created_at: string;
+}
+
+export interface TranscriptResult {
+  transcript: string;
+  language: string;
 }
 
 export interface ChatMessage {
@@ -77,5 +82,13 @@ export const assistantAPI = {
 
   getMessages: async (conversationId: string): Promise<ChatMessage[]> => {
     return authFetch(`${API_BASE_URL}/assistant/conversations/${conversationId}/messages/`);
+  },
+
+  // Upload recorded audio (16 kHz mono WAV) for self-hosted transcription.
+  transcribe: async (audio: Blob, language?: string): Promise<TranscriptResult> => {
+    const form = new FormData();
+    form.append("audio", audio, "voice.wav");
+    if (language && language !== "auto") form.append("language", language);
+    return authFetchForm(`${API_BASE_URL}/assistant/transcribe/`, form);
   },
 };

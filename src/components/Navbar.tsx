@@ -210,6 +210,15 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="icon"
+              className="rounded-full text-xl leading-none"
+              onClick={handleProfileClick}
+              title={t('nav.account')}
+            >
+              <span aria-hidden>👤</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               className="relative rounded-full text-xl leading-none"
               onClick={() => navigate('/cart')}
             >

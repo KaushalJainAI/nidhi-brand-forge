@@ -217,6 +217,11 @@ backend runs the agent loop and returns a `reply` plus an optional `proposed_act
 logged-in users also get cart/order tools. The selected language is forwarded so
 the assistant replies in the right language.
 
+**Voice input:** `hooks/useVoiceInput` records with `MediaRecorder`, converts the
+audio to 16 kHz mono WAV (`lib/audio.ts`), and POSTs it to `POST /api/assistant/transcribe/`
+(self-hosted whisper.cpp). The returned transcript is sent through `/chat/` like typed
+text. This replaced the old browser Web Speech API (`useSpeechRecognition`, removed).
+
 ---
 
 ## Multilingual Support (i18next)

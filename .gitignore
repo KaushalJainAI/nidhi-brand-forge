@@ -31,3 +31,6 @@ dist-ssr
 *.csv
 *.key
 
+
+# Vite transient config-load artifacts
+vite.config.ts.timestamp-*

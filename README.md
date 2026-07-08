@@ -13,7 +13,7 @@ React + TypeScript e-commerce storefront for Nidhi Masala spices.
 - **Favorites** — save products for later
 - **AI Shopping Assistant** — conversational product Q&A widget
 - **Personalized Recommendations** — based on browsing/purchase history
-- **Voice Order** — voice-input product search
+- **Voice Order** — voice-input via MediaRecorder + self-hosted whisper.cpp transcription
 - **AI Chat Support** — unified AI + human-admin chat widget (via `AssistantWidget`)
 - **Multilingual** — English, Hindi, Hinglish, Gujarati, Marathi, Punjabi
 - **Responsive** — mobile-first design
@@ -83,7 +83,7 @@ VITE_GOOGLE_CLIENT_ID=your_google_client_id
 For production builds (baked in at build time):
 
 ```env
-VITE_API_URL=https://nidhimasala.kaushaljain.com/api
+VITE_API_URL=https://nidhimasala.com/api
 VITE_GOOGLE_CLIENT_ID=860732387709-osb9oeant94oa302egqqqvqdj4jmkiuh.apps.googleusercontent.com
 ```
 

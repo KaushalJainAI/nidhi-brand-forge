@@ -206,7 +206,7 @@ const Cart = () => {
   if (isLoading && cart.length === 0) {
     return (
       <>
-        <div className="container py-8">
+        <div className="container py-4 sm:py-8 px-3 sm:px-4 pb-24 md:pb-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <p className="text-lg text-muted-foreground">{t('cart.loading')}</p>
           </div>
@@ -217,7 +217,7 @@ const Cart = () => {
 
   return (
     <>
-      <div className="container py-8 pb-24 md:pb-8">
+      <div className="container py-4 sm:py-8 px-3 sm:px-4 pb-24 md:pb-8">
         <h1 className="text-4xl font-bold mb-8">{t('cart.title')}</h1>
         {cart.length === 0 ? (
           <Card>

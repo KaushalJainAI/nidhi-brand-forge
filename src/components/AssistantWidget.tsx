@@ -16,7 +16,7 @@ import {
 } from "@/lib/api/assistant";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useVoiceInput } from "@/hooks/useVoiceInput";
 import ChatMarkdown from "@/components/ChatMarkdown";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -77,10 +77,21 @@ const AssistantWidget = () => {
   );
 
   const endRef = useRef<HTMLDivElement>(null);
-  const wasListening = useRef(false);
   const didLoadOnOpen = useRef(false);
-  const { supported: voiceSupported, listening, transcript, start, stop } =
-    useSpeechRecognition("en-IN");
+
+  // Refs let the voice hook's onTranscript reach the latest `send`/`voiceMode`
+  // without re-creating the hook (which would churn the external-open effect).
+  const voiceModeRef = useRef(voiceMode);
+  voiceModeRef.current = voiceMode;
+  const sendRef = useRef<(text: string) => void>(() => {});
+
+  const { supported: voiceSupported, recording, transcribing, start, stop } = useVoiceInput(
+    (text) => {
+      setInput(text);
+      if (voiceModeRef.current) sendRef.current(text);
+    },
+    () => language
+  );
 
   // ── Thread list (only when logged in) ─────────────────────────────────────
   const { data: threads = [] } = useQuery<ConversationSummary[]>({
@@ -93,6 +104,12 @@ const AssistantWidget = () => {
   // ── Open widget from outside (MobileFooter, WhatsApp, etc.) ───────────────
   useEffect(() => {
     const handler = (e: Event) => {
+      // The assistant is login-only (the backend rejects anonymous chat), so an
+      // external trigger from a logged-out user must route to login, not open.
+      if (!user) {
+        navigate("/login");
+        return;
+      }
       setOpen(true);
       const detail = (e as CustomEvent).detail;
       if (detail?.voice && voiceSupported) {
@@ -107,16 +124,11 @@ const AssistantWidget = () => {
     };
     window.addEventListener("assistant:open", handler);
     return () => window.removeEventListener("assistant:open", handler);
-  }, [voiceSupported, start]);
+  }, [voiceSupported, start, user, navigate]);
 
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [turns, open, view]);
-
-  // Mirror live transcript into input while listening.
-  useEffect(() => {
-    if (listening && transcript) setInput(transcript);
-  }, [listening, transcript]);
 
   // ── Load a thread's history from the server ────────────────────────────────
   const loadThread = useCallback(async (convId: string) => {
@@ -211,14 +223,8 @@ const AssistantWidget = () => {
     [mutation]
   );
 
-  // Auto-send on voice stop.
-  useEffect(() => {
-    if (wasListening.current && !listening) {
-      const text = transcript.trim();
-      if (text && voiceMode) send(text);
-    }
-    wasListening.current = listening;
-  }, [listening, transcript, voiceMode, send]);
+  // Expose the latest `send` to the voice hook's onTranscript callback.
+  sendRef.current = send;
 
   const handleAction = async (action: ProposedAction) => {
     switch (action.type) {
@@ -247,7 +253,7 @@ const AssistantWidget = () => {
       toast.error("Voice input isn't supported in this browser.");
       return;
     }
-    if (listening) { stop(); } else { setVoiceMode(true); start(); }
+    if (recording) { stop(); } else { setVoiceMode(true); start(); }
   };
 
   // ── Launcher button ───────────────────────────────────────────────────────
@@ -455,18 +461,25 @@ const AssistantWidget = () => {
               <Button
                 type="button"
                 size="icon"
-                variant={listening ? "default" : "outline"}
+                variant={recording ? "default" : "outline"}
                 onClick={toggleMic}
-                aria-label={listening ? "Stop listening" : "Speak"}
-                className={listening ? "animate-pulse" : ""}
+                disabled={transcribing}
+                aria-label={recording ? "Stop listening" : "Speak"}
+                className={recording ? "animate-pulse" : ""}
               >
-                {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                {transcribing
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : recording
+                    ? <MicOff className="h-4 w-4" />
+                    : <Mic className="h-4 w-4" />}
               </Button>
             )}
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={listening ? "Listening…" : "Ask about spices, orders…"}
+              placeholder={
+                recording ? "Listening…" : transcribing ? "Transcribing…" : "Ask about spices, orders…"
+              }
               className="flex-1"
             />
             <Button type="submit" size="icon" disabled={!input.trim() || mutation.isPending}>

@@ -1,4 +1,4 @@
-import { API_BASE_URL, APIError, authFetch } from "./config";
+import { API_BASE_URL, authFetch, publicFetch } from "./config";
 
 export interface UserProfile {
   id: string;
@@ -32,32 +32,20 @@ export interface RegisterPayload {
 }
 
 export const authAPI = {
-  register: async (userData: RegisterPayload) => {
-    const response = await fetch(`${API_BASE_URL}/auth/register/`, {
+  // Uses publicFetch so the CSRF header (X-CSRFToken) is sent. CookieJWTAuthentication
+  // enforces CSRF whenever a (possibly stale) access_token cookie rides along, and a
+  // bare fetch without the header 403s with "CSRF Failed: CSRF token missing."
+  register: async (userData: RegisterPayload) =>
+    publicFetch(`${API_BASE_URL}/auth/register/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new APIError(response.status, response.statusText, errorData);
-    }
-    return response.json();
-  },
+    }),
 
-  login: async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+  login: async (email: string, password: string) =>
+    publicFetch(`${API_BASE_URL}/auth/login/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new APIError(response.status, response.statusText, errorData);
-    }
-    const data = await response.json();
-    return data;
-  },
+    }),
 
   getProfile: () => authFetch<UserProfile>(`${API_BASE_URL}/auth/profile/`),
 
@@ -74,16 +62,10 @@ export const authAPI = {
     }),
 
   googleLogin: async (accessToken: string) => {
-    const response = await fetch(`${API_BASE_URL}/auth/google/`, {
+    const data = await publicFetch(`${API_BASE_URL}/auth/google/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ access_token: accessToken }),
     });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new APIError(response.status, response.statusText, errorData);
-    }
-    const data = await response.json();
     return data;
   },
 };
