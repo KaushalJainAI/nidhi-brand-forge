@@ -17,6 +17,8 @@ import MyOrders from "./pages/MyOrders";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import FAQ from "./pages/FAQ";
 import OrderSuccess from "./pages/OrderSuccess";
 import OfferZone from "./pages/OfferZone";
 import Profile from "./pages/Profile";
@@ -41,6 +43,7 @@ import MobileFooter from "./components/MobileFooter";
 import FloatingCartBar from "./components/FloatingCartBar";
 import AssistantWidget from "./components/AssistantWidget";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
+import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +75,8 @@ const AnimatedRoutes = () => {
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
         <Route path="/return-policy" element={<ReturnPolicy />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/faq" element={<FAQ />} />
         <Route path="/order-success" element={<OrderSuccess />} />
         <Route path="/interest-success" element={<InterestSuccess />} />
         <Route path="/offer-zone" element={<OfferZone />} />
@@ -106,6 +111,7 @@ const App = () => (
                   <FloatingCartBar />
                   <FloatingWhatsApp />
                   <AssistantWidget />
+                  <CookieConsent />
                 </BrowserRouter>
               </CartProvider>
             </FavoritesProvider>

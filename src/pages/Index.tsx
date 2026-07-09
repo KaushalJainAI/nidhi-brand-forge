@@ -405,7 +405,6 @@ const Index = () => {
                 {/* Trust chips */}
                 <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-6 sm:mt-8 text-xs sm:text-sm text-primary-foreground/90">
                   <span className="flex items-center gap-1.5">{t('trust.freeShipping')}</span>
-                  <span className="flex items-center gap-1.5">{t('trust.cod')}</span>
                   <span className="flex items-center gap-1.5">{t('trust.happyKitchens')}</span>
                 </div>
               </div>

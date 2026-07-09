@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cartAPI, searchAPI } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/api/config";
+import { FREE_SHIPPING_THRESHOLD } from "@/config/limits";
 
 // Helper to resolve image URLs from backend (may be relative paths)
 const getImageUrl = (imagePath: string | null | undefined): string => {
@@ -233,13 +234,12 @@ const Cart = () => {
             <div className="lg:col-span-2 space-y-4">
               {/* Free-shipping progress nudge */}
               {(() => {
-                const FREE_SHIP = 299;
-                const remaining = Math.max(0, FREE_SHIP - subtotal);
-                const pct = Math.min(100, Math.round((subtotal / FREE_SHIP) * 100));
+                const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+                const pct = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
                 return (
                   <Card className={`border-secondary/30 transition-colors ${remaining === 0 ? "bg-secondary/5 border-secondary/50" : ""}`}>
                     <CardContent className="p-3 sm:p-4">
-                      <p className="text-sm font-medium mb-2 flex items-center gap-1.5">
+                      <p className="text-sm font-medium mb-2">
                         {remaining > 0 ? (
                           <>🚚 You're <span className="text-primary font-bold">₹{remaining.toFixed(0)} away</span> from FREE shipping!</>
                         ) : (

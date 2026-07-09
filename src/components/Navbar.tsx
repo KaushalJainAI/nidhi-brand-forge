@@ -151,9 +151,6 @@ const Navbar = () => {
                 <DropdownMenuItem onClick={() => navigate('/contact')}>
                   {t('nav.contact')}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/track-order')}>
-                  {t('nav.trackOrder')}
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/my-orders')}>
                   {t('nav.myOrders')}
                 </DropdownMenuItem>

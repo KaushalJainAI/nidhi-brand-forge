@@ -2,8 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useTranslation } from "react-i18next";
-
-const FREE_SHIPPING_THRESHOLD = 299;
+import { FREE_SHIPPING_THRESHOLD } from "@/config/limits";
 
 /**
  * Swiggy-style floating action bar that slides up whenever the cart has items.

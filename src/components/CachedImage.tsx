@@ -5,10 +5,42 @@ interface CachedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
   lazy?: boolean;        // Enable lazy loading
   rootMargin?: string;   // How far ahead to load
+  /**
+   * Target display width in CSS px. When set (and the src is a Cloudinary
+   * image), the delivered image is capped at ~2x this width so we never ship a
+   * 1500px, 2 MB original to fill a 176px tile. Omit for full-resolution
+   * contexts (e.g. product detail hero).
+   */
+  cldWidth?: number;
 }
 
 const MAX_CACHE_SIZE = 50; // Max images to cache in memory
-const CACHE_NAME = 'ngu-image-cache-v1';
+const CACHE_NAME = 'ngu-image-cache-v2'; // bumped: entries now format/size-optimized
+
+// Ask Cloudinary's f_auto for a modern format even though we load via fetch()
+// (fetch's default Accept is */*, which would defeat format auto-negotiation).
+const IMG_ACCEPT = 'image/avif,image/webp,image/png,image/*,*/*;q=0.8';
+
+/**
+ * Insert Cloudinary delivery transforms (auto format + auto quality, and an
+ * optional width cap) into a res.cloudinary.com /image/upload/ URL. Non-Cloudinary
+ * URLs and already-transformed URLs are returned unchanged.
+ */
+const optimizeCloudinary = (url: string, width?: number): string => {
+  if (!url || !url.includes('res.cloudinary.com')) return url;
+  const marker = '/image/upload/';
+  const i = url.indexOf(marker);
+  if (i === -1) return url;
+  const after = url.slice(i + marker.length);
+  // Already has a transform segment (e.g. "f_auto,..." or "w_400,...")
+  if (/^[a-z]{1,3}_[a-z0-9]/i.test(after)) return url;
+  const params = ['f_auto', 'q_auto:good'];
+  if (width) {
+    // c_limit never upscales; request ~2x for crisp rendering on HiDPI screens.
+    params.push('c_limit', `w_${Math.round(width * 2)}`);
+  }
+  return url.slice(0, i + marker.length) + params.join(',') + '/' + after;
+};
 
 const getProxiedUrl = (url: string) => {
   if (!url) return url;
@@ -74,15 +106,16 @@ const CachedImage: React.FC<CachedImageProps> = ({
   alt, 
   lazy = true,
   rootMargin = '200px',
+  cldWidth,
   className,
-  ...props 
+  ...props
 }) => {
   const [isVisible, setIsVisible] = useState(!lazy);
   const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const proxiedSrc = getProxiedUrl(src);
+  const proxiedSrc = optimizeCloudinary(getProxiedUrl(src), cldWidth);
   const proxiedFallback = fallbackSrc ? getProxiedUrl(fallbackSrc) : undefined;
 
   // Intersection Observer for lazy loading
@@ -147,7 +180,7 @@ const CachedImage: React.FC<CachedImageProps> = ({
 
       // 3. Network fetch
       try {
-        const response = await fetch(proxiedSrc, { mode: 'cors' });
+        const response = await fetch(proxiedSrc, { mode: 'cors', headers: { Accept: IMG_ACCEPT } });
         if (response.ok) {
           const blob = await response.blob();
           const blobUrl = URL.createObjectURL(blob);

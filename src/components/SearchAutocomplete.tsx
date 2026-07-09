@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { Command, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { searchAPI, Suggestion } from "@/lib/api/search";
+import { matchPages } from "@/lib/searchablePages";
 import { LANG_STORAGE_KEY } from "@/i18n/index";
 
 interface SearchAutocompleteProps {
@@ -39,6 +40,11 @@ const SearchAutocomplete = ({
 
   const suggestions: Suggestion[] =
     debouncedQuery.length >= 2 ? data?.suggestions ?? [] : [];
+
+  // Client-side matches for navigable pages (cart, policies, orders, …) so the
+  // search box also acts as a "go to page" jump list, not just product search.
+  const pageMatches =
+    debouncedQuery.length >= 2 ? matchPages(debouncedQuery) : [];
 
   // Close and reset whenever the route changes (after navigating to a result)
   useEffect(() => {
@@ -108,6 +114,36 @@ const SearchAutocomplete = ({
         {showDropdown && (
           <div className="absolute top-full left-0 right-0 mt-2 z-50 rounded-2xl border border-border bg-popover text-popover-foreground shadow-xl overflow-hidden">
             <CommandList>
+              {pageMatches.length > 0 && (
+                <>
+                  <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Pages
+                  </div>
+                  {pageMatches.map((p) => (
+                    <CommandItem
+                      key={`page-${p.path}`}
+                      value={`page-${p.path}`}
+                      onSelect={() => navigate(p.path)}
+                      className="cursor-pointer gap-3 px-3 py-2"
+                    >
+                      <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                        <p.icon className="h-4 w-4" />
+                      </span>
+                      <span className="flex flex-1 flex-col truncate">
+                        <span className="truncate">{p.title}</span>
+                        <span className="truncate text-xs text-muted-foreground">
+                          {p.description}
+                        </span>
+                      </span>
+                    </CommandItem>
+                  ))}
+                  {suggestions.length > 0 && (
+                    <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground border-t border-border">
+                      Products
+                    </div>
+                  )}
+                </>
+              )}
               {suggestions.map((s) => (
                 <CommandItem
                   key={`${s.type}-${s.id}`}

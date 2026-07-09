@@ -13,6 +13,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { MapPin, Loader2 } from "lucide-react";
 import QRCode from "qrcode";
 import { track } from "@/lib/api/analytics";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE } from "@/config/limits";
 
 const Billing = () => {
   const navigate = useNavigate();
@@ -104,7 +105,7 @@ const Billing = () => {
           0
         );
         
-        const shipping = subtotal >= 500 ? 0 : 50;
+        const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_CHARGE;
         // Per-product GST from each line's tax_rate (papad/papad katran are 0).
         // Falls back to 0 when absent — the backend column is authoritative.
         const tax = items.reduce(
@@ -217,7 +218,7 @@ const Billing = () => {
       // Recalculate without coupon (per-product GST from the cart lines;
       // falls back to 0 when a line has no tax_rate).
       const subtotal = cartSummary.subtotal;
-      const shipping = subtotal >= 500 ? 0 : 50;
+      const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_CHARGE;
       const tax = cartItems.reduce(
         (acc: number, item: any) =>
           acc + item.price * item.quantity * ((item.tax_rate ?? 0) / 100),

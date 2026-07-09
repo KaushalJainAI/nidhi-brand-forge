@@ -17,10 +17,10 @@ const Footer = () => {
               {t('footer.tagline')}
             </p>
             <div className="flex space-x-3">
-              <a href="#" aria-label="Facebook" className="h-9 w-9 rounded-full spice-backdrop grid place-items-center text-muted-foreground hover:text-primary hover:scale-110 transition-all">
+              <a href="https://facebook.nidhimasala.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="h-9 w-9 rounded-full spice-backdrop grid place-items-center text-muted-foreground hover:text-primary hover:scale-110 transition-all">
                 <Facebook className="h-4 w-4 sm:h-5 sm:w-5" />
               </a>
-              <a href="#" aria-label="Instagram" className="h-9 w-9 rounded-full spice-backdrop grid place-items-center text-muted-foreground hover:text-primary hover:scale-110 transition-all">
+              <a href="https://instagram.nidhimasala.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="h-9 w-9 rounded-full spice-backdrop grid place-items-center text-muted-foreground hover:text-primary hover:scale-110 transition-all">
                 <Instagram className="h-4 w-4 sm:h-5 sm:w-5" />
               </a>
             </div>
@@ -78,9 +78,14 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">
+                  {t('footer.terms')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors">
                   {t('footer.faqs')}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -96,18 +101,38 @@ const Footer = () => {
               </li>
               <li className="notranslate flex items-center space-x-2 sm:space-x-3 text-muted-foreground">
                 <Phone className="h-3 w-3 sm:h-5 sm:w-5 flex-shrink-0" />
-                <span>+91 93029 22251</span>
+                <span>+91 93000 05040</span>
               </li>
               <li className="notranslate flex items-center space-x-2 sm:space-x-3 text-muted-foreground">
                 <Mail className="h-3 w-3 sm:h-5 sm:w-5 flex-shrink-0" />
-                <span>www.nidhigrahudyog.com</span>
+                <a href="mailto:nidhigrahudyog@rediffmail.com" className="hover:text-primary transition-colors break-all">nidhigrahudyog@rediffmail.com</a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-border mt-4 sm:mt-8 pt-4 sm:pt-8 text-center text-muted-foreground text-xs sm:text-base">
-          <p>&copy; 2025 <span className="notranslate">Nidhi Grah Udyog</span>. {t('footer.rights')}</p>
+        <div className="border-t border-border mt-4 sm:mt-8 pt-4 sm:pt-8 text-center text-muted-foreground text-xs sm:text-base space-y-1">
+          <p className="notranslate">
+            Nidhi Grah Udyog (Proprietor: Lalit Kumar Jain) &bull;{" "}
+            <a
+              href="/gst-registration-certificate.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-dotted hover:text-primary transition-colors"
+            >
+              GSTIN: 23ABUPJ8925C1ZI
+            </a>{" "}
+            &bull;{" "}
+            <a
+              href="/fssai-license.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-dotted hover:text-primary transition-colors"
+            >
+              FSSAI Lic. No: 11414730000288
+            </a>
+          </p>
+          <p>&copy; {new Date().getFullYear()} <span className="notranslate">Nidhi Grah Udyog</span>. {t('footer.rights')}</p>
         </div>
       </div>
     </footer>

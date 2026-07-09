@@ -65,6 +65,17 @@ const isLoggedIn = (): boolean => {
   }
 };
 
+// DPDP Act, 2023 — behavioral analytics is non-essential processing, so it only
+// runs after the visitor accepts via the cookie/consent notice. "Essential only"
+// or no decision yet means we do not track.
+const hasAnalyticsConsent = (): boolean => {
+  try {
+    return localStorage.getItem("cookie_consent") === "accepted";
+  } catch {
+    return false;
+  }
+};
+
 const flush = (useKeepalive = false): void => {
   if (buffer.length === 0) return;
   if (!isLoggedIn()) {
@@ -93,7 +104,7 @@ const ensureStarted = (): void => {
 };
 
 export const trackEvent = (event: TrackEventInput): void => {
-  if (!isLoggedIn()) return;
+  if (!isLoggedIn() || !hasAnalyticsConsent()) return;
   ensureStarted();
   buffer.push(event);
   if (buffer.length >= MAX_BUFFER) flush(false);
@@ -116,7 +127,7 @@ export interface TrackAnonInput {
  * when available so it survives page unloads, falling back to keepalive fetch.
  */
 export const trackAnon = (input: TrackAnonInput): void => {
-  if (isLoggedIn() || typeof window === "undefined") return;
+  if (isLoggedIn() || typeof window === "undefined" || !hasAnalyticsConsent()) return;
   const url = `${API_BASE_URL}/anon-events/`;
   const body = JSON.stringify(input);
   try {

@@ -200,6 +200,11 @@ const ComboCard = ({ combo }: ComboCardProps) => {
                     ₹{mrp}
                   </span>
                 )}
+                {discountPercent > 0 && (
+                  <span className="text-[10px] font-bold text-secondary sm:text-xs">
+                    {discountPercent}{t('product.off')}
+                  </span>
+                )}
               </div>
               {saveAmount > 0 && (
                 <p className="text-[11px] font-semibold text-secondary sm:text-xs">

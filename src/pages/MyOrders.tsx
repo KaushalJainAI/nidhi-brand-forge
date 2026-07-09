@@ -484,7 +484,7 @@ const MyOrders = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 hidden sm:flex"
+                          className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
                           onClick={() => handleDownloadBill(order)}
                         >
                           <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />

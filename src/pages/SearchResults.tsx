@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { matchPages } from "@/lib/searchablePages";
 import { searchAPI } from "@/lib/api/search";
 import { API_BASE_URL } from "@/lib/api/config";
 import { trackEvent, track } from "@/lib/api/analytics";
@@ -101,6 +102,8 @@ const SearchResults = () => {
 
   const sortedProducts = getSortedProducts();
   const totalResults = searchData?.total_results || 0;
+  // Pages (cart, policies, orders, …) that match the query, shown alongside products.
+  const pageMatches = matchPages(searchQuery, 6);
 
   if (loading) {
     return (
@@ -119,6 +122,32 @@ const SearchResults = () => {
       {/* Results & Products */}
       <section className="py-6 sm:py-12">
         <div className="container mx-auto px-3 sm:px-4">
+          {/* Pages that match — quick links to cart, policies, orders, etc. */}
+          {pageMatches.length > 0 && (
+            <div className="mb-6 sm:mb-8">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {t('search.pages', 'Pages')}
+              </h2>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {pageMatches.map((p) => (
+                  <Link
+                    key={p.path}
+                    to={p.path}
+                    className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-sm transition-colors hover:border-primary/40 hover:bg-accent/5"
+                  >
+                    <span className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                      <p.icon className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium text-foreground">{p.title}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{p.description}</span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Sort */}
           {sortedProducts.length > 0 && (
             <div className="flex justify-end items-center mb-4 sm:mb-8">
@@ -153,12 +182,12 @@ const SearchResults = () => {
                 />
               ))}
             </div>
-          ) : (
+          ) : pageMatches.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-xl text-muted-foreground mb-4">{t('search.noResults')}</p>
               <p className="text-muted-foreground">{t('search.tryDifferent')}</p>
             </div>
-          )}
+          ) : null}
         </div>
       </section>
 

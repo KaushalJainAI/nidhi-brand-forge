@@ -65,7 +65,7 @@ const InterestSuccess = () => {
 
         <div className="mt-12 pt-6 border-t border-border flex flex-col items-center gap-2 text-muted-foreground">
           <p className="text-sm font-medium">
-            Contact Support: +91 93029 22251
+            Contact Support: +91 93000 05040
           </p>
           <p className="text-sm italic">
             Nidhi Grah Udyog - Quality You Can Trust

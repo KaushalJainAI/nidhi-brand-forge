@@ -23,10 +23,9 @@
     "currency": "₹"
   },
   "ribbon": {
-    "freeShipping": "FREE shipping on orders above ₹299",
+    "freeShipping": "FREE shipping on orders above ₹500",
     "pure": "100% pure & natural — no fillers",
-    "cod": "Cash on Delivery available",
-    "handPacked": "Hand-packed in Indore",
+    "handPacked": "Hand-packed in Barnagar",
     "trusted": "Trusted by 1.1M+ kitchens"
   },
   "hero": {
@@ -40,12 +39,12 @@
     "statsPure": "Pure & Natural",
     "statsCustomers": "Happy Customers",
     "handPackedFresh": "Hand-packed fresh",
-    "since": "Since 1998"
+    "since": "Since 1995"
   },
   "home": {
     "features": {
       "freeShippingTitle": "Free Shipping",
-      "freeShippingDesc": "On orders above ₹299",
+      "freeShippingDesc": "On orders above ₹500",
       "authenticTitle": "100% Authentic",
       "authenticDesc": "Pure & natural ingredients",
       "deliveryTitle": "Quick Delivery",
@@ -180,8 +179,7 @@
     "saleEndsIn": "Sale ends in"
   },
   "trust": {
-    "freeShipping": "🚚 Free shipping ₹299+",
-    "cod": "💰 Cash on Delivery",
+    "freeShipping": "🚚 Free shipping ₹500+",
     "happyKitchens": "⭐ 1.1M+ happy kitchens"
   },
   "trustBand": {
@@ -223,8 +221,6 @@
     "ordersMin": "Orders ₹500+",
     "secure": "Secure",
     "payment": "Payment",
-    "sevenDays": "7 Days",
-    "return": "Return",
     "greatValue": "Great Value!",
     "saveSeparately": "Save ₹{{amount}} compared to buying separately",
     "aboutCombo": "About This Combo",
@@ -246,6 +242,7 @@
     "shippingPolicy": "Shipping Policy",
     "returnPolicy": "Return Policy",
     "privacyPolicy": "Privacy Policy",
+    "terms": "Terms & Conditions",
     "faqs": "FAQs",
     "contactDetail": "Contact Detail",
     "rights": "All rights reserved.",
@@ -268,7 +265,7 @@
     "emptyToast": "Your cart is empty",
     "noStock": "No in-stock items to checkout",
     "subtotal": "Subtotal",
-    "tax": "Tax (5%)",
+    "tax": "Tax (GST)",
     "processing": "Processing...",
     "noItems": "No Items",
     "item": "item",
@@ -341,7 +338,7 @@
     "registerHere": "Register here"
   },
   "about": {
-    "badge": "Est. 1990s · Ujjain, India",
+    "badge": "Est. 1995 · Ujjain, India",
     "heroPre": "Every pinch tells a ",
     "heroHighlight": "story",
     "heroPost": "",
@@ -356,7 +353,7 @@
     "journeyTitle": "Three decades of flavour",
     "timeline": [
       {
-        "year": "1990s",
+        "year": "1995",
         "title": "A humble beginning",
         "text": "Nidhi Grah Udyog began in a small family kitchen in Barnagar, hand-grinding spices the way grandmothers always had."
       },
@@ -433,5 +430,296 @@
     "ctaTitle": "Add your kitchen to our story",
     "ctaSubtitle": "Discover handcrafted masalas made the way they were always meant to be.",
     "ctaButton": "Shop Spices"
+  },
+  "pages": {
+    "shipping": {
+      "areas": {
+        "title": "Shipping Areas",
+        "body": "We currently ship to all locations within India. Unfortunately, we do not ship internationally at this time."
+      },
+      "timeline": {
+        "title": "Delivery Timeline",
+        "metro": "<b>Metro Cities:</b> 3-5 business days",
+        "cities": "<b>Other Cities:</b> 5-7 business days",
+        "remote": "<b>Remote Areas:</b> 7-10 business days"
+      },
+      "charges": {
+        "title": "Shipping Charges",
+        "intro": "Shipping charges are calculated based on the weight of your order and delivery location:",
+        "free": "Orders above ₹500: <b>Free Shipping</b>",
+        "upto": "Orders up to ₹500: ₹50 shipping charge applies"
+      },
+      "tracking": {
+        "title": "Order Tracking",
+        "body": "Once your order is shipped, you will receive a tracking number via email and SMS. You can track your order using this number on the courier partner's website, or check its status on the My Orders page."
+      },
+      "processing": {
+        "title": "Order Processing",
+        "body": "Orders are processed within 24-48 hours of receiving payment confirmation. Orders placed on weekends or holidays will be processed on the next business day."
+      },
+      "attempts": {
+        "title": "Delivery Attempts",
+        "body": "Our courier partner will make 3 delivery attempts. If all attempts fail, the order will be returned to us. Please ensure someone is available to receive the order at the provided address."
+      },
+      "address": {
+        "title": "Shipping Address",
+        "body1": "The customer is responsible for providing a complete and correct shipping address at the time of placing the order. We are not liable for orders lost, delayed or returned due to a wrong or incomplete address, and no refund will be issued in such cases.",
+        "body2": "If you need to change your address, contact us on WhatsApp at <a>+91 93000 05040</a> within <b>1 hour</b> of placing the order. Address changes requested after this window cannot be guaranteed, as the order may already be processed for dispatch."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "body": "For any shipping-related queries, please contact our customer support at +91 93000 05040 or email us through our contact page."
+      }
+    },
+    "returns": {
+      "eligibility": {
+        "title": "Return & Replacement Eligibility",
+        "intro": "We accept return or replacement requests within 7 days of delivery for the following reasons only:",
+        "items": [
+          "Product received is damaged or defective",
+          "Wrong product delivered",
+          "Product packaging is tampered or broken",
+          "Missing items from your order"
+        ]
+      },
+      "video": {
+        "title": "Unboxing Video Required",
+        "intro": "An unboxing video is mandatory for every return or replacement request. Without it, we will not be able to accept your claim.",
+        "items": [
+          "Record a single, continuous video starting before the sealed package is opened",
+          "The shipping label and packaging condition must be clearly visible",
+          "Show all items as they are taken out, including the damaged, wrong or missing item issue",
+          "Videos that are cut, edited or start after the package is already open will not be accepted"
+        ]
+      },
+      "nonReturnable": {
+        "title": "Non-Returnable Items",
+        "intro": "Due to hygiene and quality reasons, the following cannot be returned:",
+        "items": [
+          "Products with broken seals or opened packaging (unless damaged on arrival)",
+          "Products that have been used or consumed",
+          "Change of mind — food products cannot be returned once delivered"
+        ]
+      },
+      "process": {
+        "title": "Return Process",
+        "items": [
+          "Contact our customer support within 7 days of delivery",
+          "Provide your order number, the reason for return and your unboxing video",
+          "Our team will verify your request within 24-48 hours",
+          "Once approved, we'll arrange a pickup from your address",
+          "Product must be returned in original packaging"
+        ]
+      },
+      "refund": {
+        "title": "Refund Process",
+        "intro": "Once we receive and inspect the returned product:",
+        "items": [
+          "Refunds are processed within 5-7 business days",
+          "Amount will be credited to the original payment method",
+          "You will receive a confirmation once the refund is processed"
+        ]
+      },
+      "replacement": {
+        "title": "Replacement Policy",
+        "body": "We offer replacements for damaged or defective items, subject to the unboxing video requirement above. The replacement product will be shipped at no additional cost once we receive the returned item."
+      },
+      "cancellation": {
+        "title": "Cancellation",
+        "body": "Orders cannot be cancelled once placed. Please review your items, quantities and address carefully before completing your purchase."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "body": "For any return or refund queries, please contact our customer support at +91 93000 05040 or email us through our contact page. Our team is available Monday to Saturday, 9 AM to 6 PM IST."
+      }
+    },
+    "terms": {
+      "title": "Terms & Conditions",
+      "lastUpdated": "Last updated: {{date}}",
+      "intro": "These Terms & Conditions (\"Terms\") govern your access to and use of this website and the purchase of products from <brand>Nidhi Grah Udyog</brand> (\"we\", \"us\", \"our\"). By browsing the website, creating an account, or placing an order, you agree to be bound by these Terms. If you do not agree, please do not use the website.",
+      "s1": {
+        "title": "1. Eligibility",
+        "body": "You must be at least 18 years of age, or accessing the website under the supervision of a parent or legal guardian, and legally capable of entering into a binding contract under applicable Indian law to place an order with us."
+      },
+      "s2": {
+        "title": "2. Account & Registration",
+        "items": [
+          "You are responsible for providing accurate, current and complete information during registration and checkout.",
+          "You are responsible for maintaining the confidentiality of your login credentials and for all activity under your account.",
+          "We may suspend or terminate accounts that we reasonably believe are being used fraudulently or in breach of these Terms."
+        ]
+      },
+      "s3": {
+        "title": "3. Products & Food Information",
+        "items": [
+          "We sell packaged food products such as spices, masala blends and papad. Product images are for representation; actual colour, texture and packaging may vary slightly.",
+          "Please read the label, ingredients, allergen information and \"best before\" date on the physical packaging before consumption.",
+          "If you have food allergies or dietary restrictions, consume our products at your discretion. We are not liable for reactions where label instructions were not followed."
+        ]
+      },
+      "s4": {
+        "title": "4. Pricing & Payment",
+        "items": [
+          "All prices are listed in Indian Rupees (₹) and are inclusive of applicable taxes unless stated otherwise. GST is charged as per applicable rates.",
+          "Shipping charges, where applicable, are shown at checkout before you confirm your order.",
+          "In the rare event of a pricing error, we reserve the right to cancel the order and refund any amount already paid.",
+          "Payments are accepted via the methods displayed at checkout. Your order is confirmed only after we verify successful receipt of payment."
+        ]
+      },
+      "s5": {
+        "title": "5. Orders & Acceptance",
+        "body": "Your order is an offer to purchase. We reserve the right to accept or decline any order at our discretion, including where the product is out of stock, the delivery address is outside our serviceable area, or we suspect fraud. Where an order is declined after payment, the amount will be refunded."
+      },
+      "s6": {
+        "title": "6. Shipping, Returns & Cancellations",
+        "body": "Delivery timelines, shipping charges, returns, refunds and cancellations are governed by our <shipping>Shipping Policy</shipping> and <returns>Return & Refund Policy</returns>, which form part of these Terms."
+      },
+      "s7": {
+        "title": "7. Intellectual Property",
+        "body": "All content on this website — including logos, brand names, text, graphics, images and design — is the property of <brand>Nidhi Grah Udyog</brand> or its licensors and is protected by applicable intellectual property laws. You may not copy, reproduce or use it without our prior written permission."
+      },
+      "s8": {
+        "title": "8. Acceptable Use",
+        "body": "You agree not to use the website for any unlawful purpose, attempt to gain unauthorised access to our systems, upload malicious code, scrape data at scale, or interfere with the normal operation of the website."
+      },
+      "s9": {
+        "title": "9. Limitation of Liability",
+        "body": "To the maximum extent permitted by law, our total liability for any claim arising out of an order shall not exceed the amount paid by you for that order. We are not liable for indirect or consequential losses. Nothing in these Terms limits any rights you have under the Consumer Protection Act, 2019."
+      },
+      "s10": {
+        "title": "10. Governing Law & Jurisdiction",
+        "body": "These Terms are governed by the laws of India. Any dispute shall be subject to the exclusive jurisdiction of the courts at Ujjain, Madhya Pradesh."
+      },
+      "s11": {
+        "title": "11. Changes to These Terms",
+        "body": "We may update these Terms from time to time. The revised version will be posted on this page with an updated \"Last updated\" date. Continued use of the website after changes constitutes acceptance of the revised Terms."
+      },
+      "s12": {
+        "title": "12. Contact Us",
+        "body": "For any questions about these Terms, contact us at <phone>+91 93000 05040</phone> or through our <contact>Contact page</contact>."
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: {{date}}",
+      "intro": "This Privacy Policy explains how <brand>Nidhi Grah Udyog</brand> (Proprietor: Lalit Kumar Jain) (\"we\", \"us\", \"our\") collects, uses, shares and protects your personal data when you use this website. We are committed to handling your data in accordance with the Digital Personal Data Protection Act, 2023 (DPDP Act) and applicable Indian law. By using the website, you agree to this Policy.",
+      "s1": {
+        "title": "1. Data We Collect",
+        "item1": "<b>Account & order details:</b> name, email, phone number, shipping address and order history.",
+        "item2": "<b>Payment information:</b> we do not store your full payment credentials; UPI/payments are handled by the payment provider.",
+        "item3": "<b>Usage & device data:</b> pages viewed, products browsed and approximate (coarse) location, used to improve the site and recommendations."
+      },
+      "s2": {
+        "title": "2. Purpose & Legal Basis",
+        "body": "We process your personal data for specified, lawful purposes: to process and deliver your orders, provide customer support, personalise recommendations, run anonymous aggregate analytics, send order updates, and (with your consent) promotional communication. We rely on your consent and on the necessity of processing to fulfil the services you request."
+      },
+      "s3": {
+        "title": "3. Consent",
+        "body": "You may withdraw your consent at any time by contacting us. Withdrawing consent will not affect the lawfulness of processing carried out before withdrawal, and may limit our ability to provide certain services."
+      },
+      "s4": {
+        "title": "4. Sharing of Data",
+        "body": "We share your data only with trusted service providers (courier/logistics partners, payment processors, hosting/analytics providers) to the extent necessary to operate the service. We do not sell your personal data. We may disclose data where required by law."
+      },
+      "s5": {
+        "title": "5. Cookies & Analytics",
+        "body": "We use cookies and similar technologies to keep you logged in, remember your cart, and understand how the website is used through anonymous, aggregate analytics. You can control cookies through your browser settings and the on-site cookie notice."
+      },
+      "s6": {
+        "title": "6. Data Security & Retention",
+        "body": "We use reasonable technical and organisational safeguards to protect your data. We retain personal data only as long as necessary to provide our services and to meet legal, accounting and tax obligations."
+      },
+      "s7": {
+        "title": "7. Your Rights (DPDP Act, 2023)",
+        "body": "You have the right to access, correct, update and erase your personal data, to nominate, and to grievance redressal. To exercise any right, contact us using the details below."
+      },
+      "s8": {
+        "title": "8. Grievance Officer",
+        "body": "<name>Ankur Jain</name> &bull; <phone>+91 93000 05040</phone><br />We acknowledge grievances within 48 hours and aim to resolve them within 30 days."
+      },
+      "s9": {
+        "title": "9. Contact Us",
+        "body": "<brand>Nidhi Grah Udyog</brand>, 7, Industrial Area, Runija Road, Barnagar, Ujjain, Madhya Pradesh 456771. Email <email>nidhigrahudyog@rediffmail.com</email> or call <phone>+91 93000 05040</phone>, or use our <contact>Contact page</contact>."
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Everything you need to know about ordering, delivery and returns.",
+      "still": "Still have a question? <a>Contact our team</a>.",
+      "items": [
+        {
+          "q": "Which areas do you deliver to?",
+          "a": "We currently ship to all locations across India. We do not offer international shipping at this time."
+        },
+        {
+          "q": "How long does delivery take?",
+          "a": "Orders are processed within 24–48 hours of payment confirmation. Delivery usually takes 3–5 business days in metro cities, 5–7 days in other cities, and 7–10 days for remote areas."
+        },
+        {
+          "q": "What are the shipping charges?",
+          "a": "Shipping is free on orders above ₹500. For orders below ₹500, a nominal shipping charge is applied and shown at checkout before you pay."
+        },
+        {
+          "q": "How do I track my order?",
+          "a": "Once your order ships, you will receive a tracking number by email/SMS. You can also view order status any time under 'My Orders'."
+        },
+        {
+          "q": "How do I download my bill / invoice?",
+          "a": "Go to 'My Orders', open the relevant order and click 'Bill' to download a GST tax invoice as a PDF."
+        },
+        {
+          "q": "What payment methods do you accept?",
+          "a": "We accept UPI payments. The accepted methods are shown at checkout. Your order is confirmed once we verify successful receipt of payment."
+        },
+        {
+          "q": "Can I cancel my order?",
+          "a": "Yes. Orders can be cancelled free of charge within 24 hours of placing them, provided they have not yet been shipped. See our Return & Refund Policy for details."
+        },
+        {
+          "q": "What is your return and refund policy?",
+          "a": "We accept returns within 7 days of delivery for damaged, defective, wrong or missing items. Approved refunds are processed to your original payment method within 5–7 business days. For hygiene reasons, opened or consumed food products cannot be returned unless they arrived damaged."
+        },
+        {
+          "q": "Are your products fresh and how should I store them?",
+          "a": "Yes — our spices and papad are packed fresh. Please check the 'best before' date on the packaging and store in a cool, dry place away from direct sunlight and moisture."
+        },
+        {
+          "q": "How can I contact customer support?",
+          "a": "You can reach us at +91 93000 05040 (Monday–Saturday, 9 AM–6 PM IST) or through our Contact page. You can also chat with us via the assistant on the website."
+        }
+      ]
+    },
+    "contact": {
+      "toastSuccess": "Thank you! We'll get back to you soon.",
+      "toastError": "Failed to send message. Please try again.",
+      "defaultSubject": "General Inquiry",
+      "badge": "We'd love to hear from you",
+      "heroTitleLead": "Get in",
+      "heroTitleAccent": "Touch",
+      "heroSubtitle": "Questions, bulk orders or feedback — our team is here to help.",
+      "formTitle": "Send us a Message",
+      "labelName": "Your Name",
+      "phName": "Enter your name",
+      "labelEmail": "Email Address",
+      "phEmail": "Enter your email",
+      "labelPhone": "Phone Number (Optional)",
+      "phPhone": "Enter your phone number",
+      "labelSubject": "Subject",
+      "phSubject": "What's this about?",
+      "labelMessage": "Message",
+      "phMessage": "How can we help you?",
+      "sending": "Sending...",
+      "send": "Send Message",
+      "addressTitle": "Address",
+      "addressLine1": "7, Industrial Area, Runija Road, Barnagar.",
+      "addressLine2": "PIN-456771 · Ujjain, MP, India",
+      "phoneTitle": "Phone",
+      "emailTitle": "Email",
+      "hoursTitle": "Business Hours",
+      "hoursLine1": "Monday – Saturday: 9:00 AM – 6:00 PM",
+      "hoursLine2": "Sunday: Closed",
+      "grievanceTitle": "Grievance Officer",
+      "grievanceBody": "We acknowledge grievances within 48 hours and aim to resolve them within 30 days."
+    }
   }
 }

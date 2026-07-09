@@ -3,13 +3,15 @@ import Reveal from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Phone, MapPin, Clock, MessageSquare, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, MessageSquare, Send, ShieldCheck } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { contactAPI } from "@/lib/api/support";
 import DOMPurify from "dompurify";
 
 const Contact = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,14 +30,14 @@ const Contact = () => {
         name: DOMPurify.sanitize(formData.name),
         email: DOMPurify.sanitize(formData.email),
         phone: DOMPurify.sanitize(formData.phone),
-        subject: DOMPurify.sanitize(formData.subject) || "General Inquiry",
+        subject: DOMPurify.sanitize(formData.subject) || t('pages.contact.defaultSubject'),
         message: DOMPurify.sanitize(formData.message),
       });
-      toast.success("Thank you! We'll get back to you soon.");
+      toast.success(t('pages.contact.toastSuccess'));
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
     } catch (error: any) {
       console.error("Failed to submit contact form:", error);
-      toast.error(error?.message || "Failed to send message. Please try again.");
+      toast.error(error?.message || t('pages.contact.toastError'));
     } finally {
       setLoading(false);
     }
@@ -44,18 +46,21 @@ const Contact = () => {
   const channels = [
     {
       icon: <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />,
-      title: "Address",
-      lines: ["7, Industrial Area, Runija Road, Barnagar.", "PIN-456771 · Ujjain, MP, India"],
+      title: t('pages.contact.addressTitle'),
+      lines: [t('pages.contact.addressLine1'), t('pages.contact.addressLine2')],
+      notranslate: false,
     },
     {
       icon: <Phone className="h-5 w-5 sm:h-6 sm:w-6" />,
-      title: "Phone",
-      lines: ["+91 93029 22251"],
+      title: t('pages.contact.phoneTitle'),
+      lines: ["+91 93000 05040"],
+      notranslate: true,
     },
     {
       icon: <Mail className="h-5 w-5 sm:h-6 sm:w-6" />,
-      title: "Email",
-      lines: ["nidhigrahudyog@reddifmail.com"],
+      title: t('pages.contact.emailTitle'),
+      lines: ["nidhigrahudyog@rediffmail.com"],
+      notranslate: true,
     },
   ];
 
@@ -69,20 +74,20 @@ const Contact = () => {
         <div className="relative container mx-auto px-4 py-12 sm:py-20 text-center">
           <Reveal>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-card/70 px-4 py-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-primary backdrop-blur-sm">
-              <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> We'd love to hear from you
+              <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('pages.contact.badge')}
             </span>
           </Reveal>
           <Reveal delay={120}>
             <h1 className="mt-4 text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground">
-              Get in{" "}
+              {t('pages.contact.heroTitleLead')}{" "}
               <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-                Touch
+                {t('pages.contact.heroTitleAccent')}
               </span>
             </h1>
           </Reveal>
           <Reveal delay={240}>
             <p className="mx-auto mt-3 max-w-xl text-sm sm:text-lg text-muted-foreground">
-              Questions, bulk orders or feedback — our team is here to help.
+              {t('pages.contact.heroSubtitle')}
             </p>
           </Reveal>
         </div>
@@ -94,13 +99,13 @@ const Contact = () => {
             {/* Contact Form */}
             <div className="lg:col-span-3 bg-card rounded-2xl border border-border shadow-card p-5 sm:p-8 animate-fade-in-up">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">
-                Send us a Message
+                {t('pages.contact.formTitle')}
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
                     <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-foreground mb-1.5">
-                      Your Name
+                      {t('pages.contact.labelName')}
                     </label>
                     <Input
                       id="name"
@@ -109,12 +114,12 @@ const Contact = () => {
                       className="h-10 rounded-xl text-sm"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Enter your name"
+                      placeholder={t('pages.contact.phName')}
                     />
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-foreground mb-1.5">
-                      Email Address
+                      {t('pages.contact.labelEmail')}
                     </label>
                     <Input
                       id="email"
@@ -123,7 +128,7 @@ const Contact = () => {
                       className="h-10 rounded-xl text-sm"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="Enter your email"
+                      placeholder={t('pages.contact.phEmail')}
                     />
                   </div>
                 </div>
@@ -131,7 +136,7 @@ const Contact = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
                     <label htmlFor="phone" className="block text-xs sm:text-sm font-medium text-foreground mb-1.5">
-                      Phone Number (Optional)
+                      {t('pages.contact.labelPhone')}
                     </label>
                     <Input
                       id="phone"
@@ -139,12 +144,12 @@ const Contact = () => {
                       className="h-10 rounded-xl text-sm"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="Enter your phone number"
+                      placeholder={t('pages.contact.phPhone')}
                     />
                   </div>
                   <div>
                     <label htmlFor="subject" className="block text-xs sm:text-sm font-medium text-foreground mb-1.5">
-                      Subject
+                      {t('pages.contact.labelSubject')}
                     </label>
                     <Input
                       id="subject"
@@ -153,14 +158,14 @@ const Contact = () => {
                       className="h-10 rounded-xl text-sm"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      placeholder="What's this about?"
+                      placeholder={t('pages.contact.phSubject')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="message" className="block text-xs sm:text-sm font-medium text-foreground mb-1.5">
-                    Message
+                    {t('pages.contact.labelMessage')}
                   </label>
                   <Textarea
                     id="message"
@@ -168,7 +173,7 @@ const Contact = () => {
                     className="text-sm rounded-xl"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="How can we help you?"
+                    placeholder={t('pages.contact.phMessage')}
                     rows={4}
                   />
                 </div>
@@ -180,10 +185,10 @@ const Contact = () => {
                   disabled={loading}
                 >
                   {loading ? (
-                    "Sending..."
+                    t('pages.contact.sending')
                   ) : (
                     <>
-                      <Send className="mr-1.5 h-4 w-4" /> Send Message
+                      <Send className="mr-1.5 h-4 w-4" /> {t('pages.contact.send')}
                     </>
                   )}
                 </Button>
@@ -203,7 +208,7 @@ const Contact = () => {
                         {c.title}
                       </h3>
                       {c.lines.map((line, j) => (
-                        <p key={j} className="text-muted-foreground text-xs sm:text-sm">
+                        <p key={j} className={`text-muted-foreground text-xs sm:text-sm${c.notranslate ? " notranslate" : ""}`}>
                           {line}
                         </p>
                       ))}
@@ -218,12 +223,34 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground text-sm sm:text-base mb-0.5">
-                    Business Hours
+                    {t('pages.contact.hoursTitle')}
                   </h3>
                   <p className="text-muted-foreground text-xs sm:text-sm">
-                    Monday – Saturday: 9:00 AM – 6:00 PM
+                    {t('pages.contact.hoursLine1')}
                     <br />
-                    Sunday: Closed
+                    {t('pages.contact.hoursLine2')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Grievance Officer — required disclosure under the Consumer
+                  Protection (E-Commerce) Rules, 2020. */}
+              <div className="flex items-start gap-3 sm:gap-4 bg-card rounded-2xl border border-border shadow-card p-4 sm:p-5">
+                <div className="grid h-10 w-10 sm:h-12 sm:w-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-accent text-white">
+                  <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base mb-0.5">
+                    {t('pages.contact.grievanceTitle')}
+                  </h3>
+                  <p className="notranslate text-muted-foreground text-xs sm:text-sm">
+                    Ankur Jain
+                  </p>
+                  <p className="notranslate text-muted-foreground text-xs sm:text-sm">
+                    +91 93000 05040
+                  </p>
+                  <p className="text-muted-foreground text-xs sm:text-sm mt-1">
+                    {t('pages.contact.grievanceBody')}
                   </p>
                 </div>
               </div>

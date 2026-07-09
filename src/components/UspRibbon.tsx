@@ -11,7 +11,6 @@ const UspRibbon = () => {
   const items = [
     `🚚 ${t("ribbon.freeShipping")}`,
     `🌿 ${t("ribbon.pure")}`,
-    `💰 ${t("ribbon.cod")}`,
     `🏠 ${t("ribbon.handPacked")}`,
     `⭐ ${t("ribbon.trusted")}`,
   ];

@@ -6,6 +6,7 @@ import ComboStoryCard from "@/components/ComboStoryCard";
 import { Button } from "@/components/ui/button";
 import { Package, BadgePercent, Truck, ArrowRight } from "lucide-react";
 import { combosAPI, type Combo } from "@/lib/api";
+import { FREE_SHIPPING_THRESHOLD } from "@/config/limits";
 
 const Combos = () => {
   const [combos, setCombos] = useState<Combo[]>([]);
@@ -58,7 +59,7 @@ const Combos = () => {
   const benefits = [
     { icon: <Package className="h-4 w-4" />, label: "Hand-curated bundles" },
     { icon: <BadgePercent className="h-4 w-4" />, label: "Better value than buying separately" },
-    { icon: <Truck className="h-4 w-4" />, label: "Free shipping over ₹299" },
+    { icon: <Truck className="h-4 w-4" />, label: `Free shipping over Rs. ${FREE_SHIPPING_THRESHOLD}` },
   ];
 
   return (

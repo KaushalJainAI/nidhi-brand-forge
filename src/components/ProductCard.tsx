@@ -86,6 +86,9 @@ const ProductCard = ({
     originalPrice && originalPrice > price
       ? Math.round((1 - price / originalPrice) * 100)
       : 0;
+  // Absolute rupee value saved — shown explicitly on the card.
+  const saveAmount =
+    originalPrice && originalPrice > price ? Math.round(originalPrice - price) : 0;
 
   return (
     <Card className="group flex h-full flex-col overflow-hidden rounded-lg border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/25 hover:shadow-[0_18px_38px_-22px_hsl(var(--primary)/0.55)]">
@@ -104,6 +107,7 @@ const ProductCard = ({
             <CachedImage
               src={image}
               alt={name}
+              cldWidth={220}
               className="relative z-[1] h-32 w-full object-contain transition-transform duration-500 group-hover:scale-[1.08] sm:h-44"
             />
             {/* Discount badge takes priority; otherwise show the text badge */}
@@ -145,7 +149,7 @@ const ProductCard = ({
                   <span className="text-[10px] sm:text-xs text-muted-foreground">{t('product.from')}</span>
                 )}
                 <span className="text-sm sm:text-lg font-bold text-primary">₹{price}</span>
-                {originalPrice && (
+                {originalPrice && originalPrice > price && (
                   <span className="text-xs sm:text-sm text-muted-foreground line-through">
                     ₹{originalPrice}
                   </span>
@@ -154,6 +158,11 @@ const ProductCard = ({
                   <span className="text-[10px] sm:text-xs font-bold text-secondary">{discountPercent}{t('product.off')}</span>
                 )}
               </div>
+              {saveAmount > 0 && (
+                <p className="mb-1 text-[11px] sm:text-xs font-semibold text-secondary">
+                  {t('product.youSave', { amount: saveAmount })}
+                </p>
+              )}
               <p className="text-[11px] sm:text-xs text-muted-foreground">{weight}</p>
             </div>
           </div>

@@ -1,6 +1,21 @@
 import Footer from "@/components/Footer";
+import { useTranslation } from "react-i18next";
+
+const Bullets = ({ items }: { items: string[] }) => (
+  <ul className="space-y-2 text-muted-foreground">
+    {items.map((text, i) => (
+      <li key={i} className="flex items-start">
+        <span className="text-primary mr-2">•</span>
+        <span>{text}</span>
+      </li>
+    ))}
+  </ul>
+);
 
 const ReturnPolicy = () => {
+  const { t } = useTranslation();
+  const arr = (key: string) => t(key, { returnObjects: true }) as string[];
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <section className="py-16">
@@ -8,110 +23,64 @@ const ReturnPolicy = () => {
           <div className="prose prose-lg max-w-none">
             <div className="space-y-8">
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Return Eligibility</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.returns.eligibility.title')}</h2>
                 <p className="text-muted-foreground mb-4">
-                  We accept returns within 7 days of delivery for the following reasons:
+                  {t('pages.returns.eligibility.intro')}
                 </p>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Product received is damaged or defective</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Wrong product delivered</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Product packaging is tampered or broken</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Missing items from your order</span>
-                  </li>
-                </ul>
+                <Bullets items={arr('pages.returns.eligibility.items')} />
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Non-Returnable Items</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.returns.video.title')}</h2>
                 <p className="text-muted-foreground mb-4">
-                  Due to hygiene and quality reasons, the following items cannot be returned:
+                  {t('pages.returns.video.intro')}
                 </p>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Products with broken seals or opened packaging (unless damaged on arrival)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Products that have been used or consumed</span>
-                  </li>
-                </ul>
+                <Bullets items={arr('pages.returns.video.items')} />
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Return Process</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.returns.nonReturnable.title')}</h2>
+                <p className="text-muted-foreground mb-4">
+                  {t('pages.returns.nonReturnable.intro')}
+                </p>
+                <Bullets items={arr('pages.returns.nonReturnable.items')} />
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.returns.process.title')}</h2>
                 <ol className="space-y-3 text-muted-foreground list-decimal list-inside">
-                  <li>Contact our customer support within 7 days of delivery</li>
-                  <li>Provide order number and reason for return with photos</li>
-                  <li>Our team will verify your request within 24-48 hours</li>
-                  <li>Once approved, we'll arrange a pickup from your address</li>
-                  <li>Product must be returned in original packaging</li>
+                  {arr('pages.returns.process.items').map((text, i) => (
+                    <li key={i}>{text}</li>
+                  ))}
                 </ol>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Refund Process</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.returns.refund.title')}</h2>
                 <p className="text-muted-foreground mb-4">
-                  Once we receive and inspect the returned product:
+                  {t('pages.returns.refund.intro')}
                 </p>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Refunds are processed within 5-7 business days</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Amount will be credited to the original payment method</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>You will receive an email confirmation once refund is processed</span>
-                  </li>
-                </ul>
+                <Bullets items={arr('pages.returns.refund.items')} />
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Exchange Policy</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.returns.replacement.title')}</h2>
                 <p className="text-muted-foreground">
-                  We offer product exchanges for damaged or defective items. The exchange product will be shipped at no additional cost once we receive the returned item.
+                  {t('pages.returns.replacement.body')}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Cancellation Policy</h2>
-                <p className="text-muted-foreground mb-4">
-                  Orders can be cancelled free of charge if:
-                </p>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Cancellation request is made within 24 hours of placing the order</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span>Order has not been shipped yet</span>
-                  </li>
-                </ul>
-                <p className="text-muted-foreground mt-4">
-                  Once the order is shipped, cancellation is not possible. You may return the product as per our return policy.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Contact Us</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.returns.cancellation.title')}</h2>
                 <p className="text-muted-foreground">
-                  For any return or refund queries, please contact our customer support at +91 93029 22251 or email us through our contact page. Our team is available Monday to Saturday, 9 AM to 6 PM IST.
+                  {t('pages.returns.cancellation.body')}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.returns.contact.title')}</h2>
+                <p className="text-muted-foreground">
+                  {t('pages.returns.contact.body')}
                 </p>
               </div>
             </div>

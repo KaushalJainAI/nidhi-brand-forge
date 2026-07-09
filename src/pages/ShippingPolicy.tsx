@@ -1,6 +1,8 @@
 import Footer from "@/components/Footer";
+import { useTranslation, Trans } from "react-i18next";
 
 const ShippingPolicy = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <section className="py-16">
@@ -8,72 +10,89 @@ const ShippingPolicy = () => {
           <div className="prose prose-lg max-w-none">
             <div className="space-y-8">
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Shipping Areas</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.shipping.areas.title')}</h2>
                 <p className="text-muted-foreground">
-                  We currently ship to all locations within India. Unfortunately, we do not ship internationally at this time.
+                  {t('pages.shipping.areas.body')}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Delivery Timeline</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.shipping.timeline.title')}</h2>
                 <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span><strong>Metro Cities:</strong> 3-5 business days</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span><strong>Other Cities:</strong> 5-7 business days</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span><strong>Remote Areas:</strong> 7-10 business days</span>
-                  </li>
+                  {(["metro", "cities", "remote"] as const).map((k) => (
+                    <li key={k} className="flex items-start">
+                      <span className="text-primary mr-2">•</span>
+                      <span><Trans i18nKey={`pages.shipping.timeline.${k}`} components={{ b: <strong /> }} /></span>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Shipping Charges</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.shipping.charges.title')}</h2>
                 <p className="text-muted-foreground mb-4">
-                  Shipping charges are calculated based on the weight of your order and delivery location:
+                  {t('pages.shipping.charges.intro')}
                 </p>
                 <ul className="space-y-2 text-muted-foreground">
                   <li className="flex items-start">
                     <span className="text-primary mr-2">•</span>
-                    <span>Orders above ₹500: <strong>Free Shipping</strong></span>
+                    <span><Trans i18nKey="pages.shipping.charges.free" components={{ b: <strong /> }} /></span>
                   </li>
                   <li className="flex items-start">
                     <span className="text-primary mr-2">•</span>
-                    <span>Orders below ₹500: ₹40 shipping charges apply</span>
+                    <span>{t('pages.shipping.charges.upto')}</span>
                   </li>
                 </ul>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Order Tracking</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.shipping.tracking.title')}</h2>
                 <p className="text-muted-foreground">
-                  Once your order is shipped, you will receive a tracking number via email and SMS. You can track your order using this number on our Track Order page or the courier partner's website.
+                  {t('pages.shipping.tracking.body')}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Order Processing</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.shipping.processing.title')}</h2>
                 <p className="text-muted-foreground">
-                  Orders are processed within 24-48 hours of receiving payment confirmation. Orders placed on weekends or holidays will be processed on the next business day.
+                  {t('pages.shipping.processing.body')}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Delivery Attempts</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.shipping.attempts.title')}</h2>
                 <p className="text-muted-foreground">
-                  Our courier partner will make 3 delivery attempts. If all attempts fail, the order will be returned to us. Please ensure someone is available to receive the order at the provided address.
+                  {t('pages.shipping.attempts.body')}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Contact Us</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.shipping.address.title')}</h2>
+                <p className="text-muted-foreground mb-4">
+                  {t('pages.shipping.address.body1')}
+                </p>
                 <p className="text-muted-foreground">
-                  For any shipping-related queries, please contact our customer support at +91 93029 22251 or email us through our contact page.
+                  <Trans
+                    i18nKey="pages.shipping.address.body2"
+                    components={{
+                      a: (
+                        <a
+                          href="https://wa.me/919300005040"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline notranslate"
+                        />
+                      ),
+                      b: <strong />,
+                    }}
+                  />
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('pages.shipping.contact.title')}</h2>
+                <p className="text-muted-foreground">
+                  {t('pages.shipping.contact.body')}
                 </p>
               </div>
             </div>

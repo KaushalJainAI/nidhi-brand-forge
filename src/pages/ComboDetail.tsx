@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Heart, Share2, Package, Loader2, Minus, Plus, Check, Truck, Shield, RotateCcw, ChevronRight, Gift, MessageCircle } from "lucide-react";
+import { ShoppingCart, Heart, Share2, Package, Loader2, Minus, Plus, Check, Truck, Shield, ChevronRight, Gift, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -479,7 +479,7 @@ const ComboDetail = () => {
             </div>
 
             {/* Trust Indicators */}
-            <div className="grid grid-cols-3 gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 pt-2">
               <div className="flex flex-col items-center text-center p-3 bg-muted/50 rounded-lg">
                 <Truck className="h-5 w-5 text-primary mb-1" />
                 <span className="text-xs font-medium">{t('combo.freeDelivery')}</span>
@@ -489,11 +489,6 @@ const ComboDetail = () => {
                 <Shield className="h-5 w-5 text-primary mb-1" />
                 <span className="text-xs font-medium">{t('combo.secure')}</span>
                 <span className="text-xs text-muted-foreground">{t('combo.payment')}</span>
-              </div>
-              <div className="flex flex-col items-center text-center p-3 bg-muted/50 rounded-lg">
-                <RotateCcw className="h-5 w-5 text-primary mb-1" />
-                <span className="text-xs font-medium">{t('combo.sevenDays')}</span>
-                <span className="text-xs text-muted-foreground">{t('combo.return')}</span>
               </div>
             </div>
 
