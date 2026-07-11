@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { searchAPI, Suggestion } from "@/lib/api/search";
 import { matchPages } from "@/lib/searchablePages";
 import { LANG_STORAGE_KEY } from "@/i18n/index";
+import { useTranslation } from "react-i18next";
 
 interface SearchAutocompleteProps {
   inputClassName?: string;
@@ -16,8 +17,9 @@ interface SearchAutocompleteProps {
 
 const SearchAutocomplete = ({
   inputClassName = "",
-  placeholder = "Search...",
+  placeholder,
 }: SearchAutocompleteProps) => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -104,7 +106,7 @@ const SearchAutocomplete = ({
                 goToSearchPage();
               }
             }}
-            placeholder={placeholder}
+            placeholder={placeholder ?? t('nav.search')}
             className={cn(
               "flex h-10 w-full rounded-full border border-border bg-card pl-10 pr-4 py-1 text-sm shadow-sm transition-all placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary hover:border-primary/50",
               inputClassName,
@@ -117,7 +119,7 @@ const SearchAutocomplete = ({
               {pageMatches.length > 0 && (
                 <>
                   <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    Pages
+                    {t('search.pages')}
                   </div>
                   {pageMatches.map((p) => (
                     <CommandItem
@@ -139,7 +141,7 @@ const SearchAutocomplete = ({
                   ))}
                   {suggestions.length > 0 && (
                     <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground border-t border-border">
-                      Products
+                      {t('search.products')}
                     </div>
                   )}
                 </>
@@ -173,7 +175,7 @@ const SearchAutocomplete = ({
                 className="cursor-pointer gap-2 px-3 py-2 border-t border-border text-muted-foreground"
               >
                 <Search className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Search for "{query.trim()}"</span>
+                <span className="truncate">{t('search.searchFor', { query: query.trim() })}</span>
               </CommandItem>
             </CommandList>
           </div>

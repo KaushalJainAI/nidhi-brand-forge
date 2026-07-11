@@ -22,6 +22,10 @@ export const MAX_CART_ITEMS = intEnv("VITE_MAX_CART_ITEMS", 50);
 export const MAX_REVIEW_COMMENT = intEnv("VITE_MAX_REVIEW_COMMENT", 2000);
 export const SHIPPING_CHARGE = numberEnv("VITE_SHIPPING_CHARGE", 69);
 export const FREE_SHIPPING_THRESHOLD = numberEnv("VITE_FREE_SHIPPING_THRESHOLD", 500);
+// Fallback GST rate mirroring backend DEFAULT_TAX_RATE. Only used as a safety net
+// when a line lacks tax_rate — defaulting to the backend rate (not 0) avoids
+// quoting a total below what the customer is actually charged.
+export const DEFAULT_TAX_RATE = numberEnv("VITE_DEFAULT_TAX_RATE", 5);
 
 /** Clamp a quantity into [1, MAX_ITEM_QUANTITY]; non-finite -> 1. */
 export function clampQuantity(q: number): number {

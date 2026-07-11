@@ -1,4 +1,11 @@
-// Billing.tsx - CORRECTED VERSION
+// Billing.tsx — checkout with Razorpay online payment.
+//
+// Flow (PAYMENT_INTEGRATION_PLAN.md §6):
+//   1. Place the order (payment_method='ONLINE'). A full-coupon ZERO-TOTAL order
+//      comes back already paid → straight to success, no gateway.
+//   2. Otherwise ask the backend to create a Razorpay order, open Checkout.
+//   3. On success → verify (L1) → poll status → success. If the customer closes
+//      the modal, the order stays pending and can be retried from "My Orders".
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,15 +15,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { authAPI, cartAPI, ordersAPI, geoAPI } from "@/lib/api.ts";
-import { receivableAccountsAPI } from "@/lib/api/recievableAccounts.ts";
+import { razorpayAPI } from "@/lib/api/payments";
+import { openRazorpayCheckout } from "@/lib/razorpay";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { MapPin, Loader2 } from "lucide-react";
-import QRCode from "qrcode";
+import { MapPin, Loader2, ShieldCheck } from "lucide-react";
 import { track } from "@/lib/api/analytics";
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE } from "@/config/limits";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE, DEFAULT_TAX_RATE } from "@/config/limits";
+import { useTranslation } from "react-i18next";
+
+// Normalise the backend cart summary into the shape the UI renders. The backend
+// is authoritative for tax/shipping/total (per-line GST). We only fall back to a
+// browser estimate if the summary is somehow absent, and even then we default an
+// unknown tax_rate to the backend default (5%) rather than 0, so we never quote
+// a total the customer would be charged more than.
+const summaryFromBackend = (summary: any, items: any[]) => {
+  if (summary && typeof summary.total === "number") {
+    return {
+      subtotal: summary.subtotal ?? 0,
+      discount: summary.discount ?? 0,
+      shipping: summary.shipping ?? 0,
+      tax: summary.tax ?? 0,
+      total: summary.total,
+    };
+  }
+  const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_CHARGE;
+  const tax = items.reduce(
+    (acc, item) => acc + item.price * item.quantity * ((item.tax_rate ?? DEFAULT_TAX_RATE) / 100),
+    0,
+  );
+  return { subtotal, discount: 0, shipping, tax, total: subtotal + shipping + tax };
+};
 
 const Billing = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Funnel signal: the visitor reached checkout.
   useEffect(() => {
@@ -38,13 +71,9 @@ const Billing = () => {
     zipCode: "",
   });
 
-  // Payment state
+  // Coupon state
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
-  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
-  const [paymentUrl, setPaymentUrl] = useState<string>("");
-  const [hasPaid, setHasPaid] = useState(false);
-  const [receivableAccount, setReceivableAccount] = useState<any>(null);
 
   // Location detection: offer to auto-fill the address when the user has no
   // saved default address on their profile.
@@ -55,29 +84,13 @@ const Billing = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 1. Load receivable accounts
-        const accountsResponse = await receivableAccountsAPI.getAll();
-        const accounts = Array.isArray(accountsResponse) 
-          ? accountsResponse 
-          : (accountsResponse as any).results || [accountsResponse];
-        
-        if (!accounts || accounts.length === 0) {
-          toast.error("Payment system not configured. Please contact support.");
-          return;
-        }
-        
-        const account = accounts[0];
-        setReceivableAccount(account);
-
-        // 2. Load user profile
+        // 1. Load user profile
         const profile = await authAPI.getProfile();
-        // Whether the user already has a saved default address. If not, we'll
-        // surface the "use my current location" affordance more prominently.
         setHasDefaultAddress(Boolean(profile.address && profile.city));
         setFormData((prev) => ({
           ...prev,
-          fullName: profile.first_name && profile.last_name 
-            ? `${profile.first_name} ${profile.last_name}` 
+          fullName: profile.first_name && profile.last_name
+            ? `${profile.first_name} ${profile.last_name}`
             : profile.username || prev.fullName,
           email: profile.email || prev.email,
           phone: profile.phone || prev.phone,
@@ -87,47 +100,27 @@ const Billing = () => {
           zipCode: profile.pincode || prev.zipCode,
         }));
 
-        // 3. Load cart
+        // 2. Load cart
         const cartResp = await cartAPI.get();
         const items = cartResp.items || [];
-        
+
         if (items.length === 0) {
-          toast.error("Your cart is empty");
+          toast.error(t('billing.cartEmpty'));
           navigate("/cart");
           return;
         }
-        
+
         setCartItems(items);
-        
-        // 4. Calculate initial summary
-        const subtotal = items.reduce(
-          (acc: number, item: any) => acc + (item.price * item.quantity), 
-          0
-        );
-        
-        const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_CHARGE;
-        // Per-product GST from each line's tax_rate (papad/papad katran are 0).
-        // Falls back to 0 when absent — the backend column is authoritative.
-        const tax = items.reduce(
-          (acc: number, item: any) =>
-            acc + item.price * item.quantity * ((item.tax_rate ?? 0) / 100),
-          0
-        );
 
-        setCartSummary({
-          subtotal,
-          discount: 0,
-          shipping,
-          tax,
-          total: subtotal + shipping + tax,
-        });
-
-        // 5. Generate initial payment QR
-        await generatePaymentQRCode(account, subtotal + shipping + tax);
-        
+        // 3. Use the backend's authoritative summary (per-line GST, shipping,
+        //    total). Never recompute tax in the browser: line-level tax_rate can
+        //    be missing here, and a `?? 0` fallback would under-quote tax (the
+        //    backend defaults to 5%), showing the customer a total below what
+        //    they'll actually be charged.
+        setCartSummary(summaryFromBackend(cartResp.summary, items));
       } catch (err: any) {
         console.error('Failed to load billing info:', err);
-        const errorMsg = err.data?.error || err.message || "Failed to load billing data";
+        const errorMsg = err.data?.error || err.message || t('billing.loadError');
         toast.error(errorMsg);
       }
     };
@@ -135,52 +128,24 @@ const Billing = () => {
     loadData();
   }, []);
 
-  const generatePaymentQRCode = async (account: any, amount: number, transactionNote: string = "Cart Payment") => {
-    try {
-      const upi_uri = `upi://pay?pa=${account.upi_id}&pn=${encodeURIComponent(account.account_holder_name)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
-      
-      setPaymentUrl(upi_uri);
-      
-      const qrDataUrl = await QRCode.toDataURL(upi_uri, {
-        width: 200,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        },
-        errorCorrectionLevel: 'M'
-      });
-      
-      setQrCodeDataUrl(qrDataUrl);
-      
-    } catch (error: any) {
-      console.error('Failed to generate payment QR:', error);
-      toast.error('Failed to generate payment QR');
-      throw error;
-    }
-  };
-
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
-      toast.error("Please enter a coupon code");
+      toast.error(t('billing.enterCoupon'));
       return;
     }
-
-    if (!receivableAccount || !cartSummary) {
-      toast.error("Payment system not initialized");
+    if (!cartSummary) {
+      toast.error(t('billing.paymentNotInitialized'));
       return;
     }
 
     try {
-      // Use the validate_coupon endpoint from your OrderViewSet
       const response = await ordersAPI.validateCoupon(couponCode.trim());
-      
+
       if (!response.valid) {
-        toast.error(response.message || response.error || "Invalid coupon code");
+        toast.error(response.message || response.error || t('billing.invalidCoupon'));
         return;
       }
 
-      // Update summary with backend-calculated values
       setCartSummary({
         subtotal: response.subtotal,
         discount: response.discount_amount,
@@ -188,57 +153,36 @@ const Billing = () => {
         tax: response.tax,
         total: response.total_amount,
       });
-      
+
       setAppliedCoupon({
         code: response.coupon_code,
         discount_type: response.discount_type,
-        discount_value: response.discount_value,
+        is_zero_total: response.total_amount === 0,
       });
-      
-      // Generate QR with discounted amount
-      const transactionNote = `Cart Payment (Coupon: ${couponCode.trim()})`;
-      await generatePaymentQRCode(receivableAccount, response.total_amount, transactionNote);
-      
-      toast.success(`Coupon applied! ₹${response.savings.toFixed(2)} saved`);
-      
+
+      toast.success(t('billing.couponApplied', { amount: (response.savings ?? 0).toFixed(2) }));
     } catch (error: any) {
       console.error('Coupon application error:', error);
-      const errorMsg = error.data?.error || error.data?.message || "Could not apply coupon";
+      const errorMsg = error.data?.error || error.data?.message || t('billing.couponFailed');
       toast.error(errorMsg);
     }
   };
 
   const handleRemoveCoupon = async () => {
-    if (!cartSummary || !receivableAccount) return;
-    
+    if (!cartSummary) return;
+    setCouponCode("");
+    setAppliedCoupon(null);
+
+    // Re-fetch the backend's authoritative (no-coupon) summary rather than
+    // recomputing tax in the browser, which could under-quote it.
     try {
-      setCouponCode("");
-      setAppliedCoupon(null);
-      
-      // Recalculate without coupon (per-product GST from the cart lines;
-      // falls back to 0 when a line has no tax_rate).
-      const subtotal = cartSummary.subtotal;
-      const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_CHARGE;
-      const tax = cartItems.reduce(
-        (acc: number, item: any) =>
-          acc + item.price * item.quantity * ((item.tax_rate ?? 0) / 100),
-        0
-      );
-      const total = subtotal + shipping + tax;
-      
-      setCartSummary({
-        subtotal,
-        discount: 0,
-        shipping,
-        tax,
-        total,
-      });
-      
-      await generatePaymentQRCode(receivableAccount, total);
-      toast.success("Coupon removed");
-    } catch (error) {
-      console.error('Failed to remove coupon:', error);
+      const cartResp = await cartAPI.get();
+      setCartSummary(summaryFromBackend(cartResp.summary, cartResp.items || cartItems));
+    } catch {
+      // Network hiccup: fall back to a safe local estimate (5% default rate).
+      setCartSummary(summaryFromBackend(undefined, cartItems));
     }
+    toast.success(t('billing.couponRemoved'));
   };
 
   const handleDetectLocation = async () => {
@@ -246,7 +190,7 @@ const Billing = () => {
     try {
       const coords = await geo.request();
       if (!coords) {
-        toast.error(geo.error || "Couldn't access your location.");
+        toast.error(geo.error || t('billing.locationDenied'));
         return;
       }
 
@@ -259,23 +203,13 @@ const Billing = () => {
         zipCode: addr.pincode || prev.zipCode,
       }));
 
-      // Persist a coarse copy for personalized recommendations. Best-effort —
-      // the precise coordinates are rounded server-side before storage.
       geoAPI
-        .update({
-          lat: coords.lat,
-          lng: coords.lng,
-          city: addr.city,
-          state: addr.state,
-          pincode: addr.pincode,
-        })
-        .catch(() => {
-          /* recommendation signal is non-critical */
-        });
+        .update({ lat: coords.lat, lng: coords.lng, city: addr.city, state: addr.state, pincode: addr.pincode })
+        .catch(() => { /* recommendation signal is non-critical */ });
 
-      toast.success("Address filled from your location. Please review it.");
+      toast.success(t('billing.addressFilled'));
     } catch (err) {
-      toast.error("Couldn't determine your address. Please enter it manually.");
+      toast.error(t('billing.addressFailed'));
     } finally {
       setDetectingLocation(false);
     }
@@ -283,336 +217,339 @@ const Billing = () => {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Name is required";
-    }
-    
+    if (!formData.fullName.trim()) newErrors.fullName = t('billing.errNameRequired');
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = t('billing.errEmailRequired');
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = t('billing.errEmailInvalid');
     }
-    
     if (!formData.phone.trim()) {
-      newErrors.phone = "Phone is required";
+      newErrors.phone = t('billing.errPhoneRequired');
     } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = "Invalid phone number";
+      newErrors.phone = t('billing.errPhoneInvalid');
     }
-    
-    if (!formData.address.trim()) {
-      newErrors.address = "Address is required";
-    }
-    
-    if (!formData.city.trim()) {
-      newErrors.city = "City is required";
-    }
-    
-    if (!formData.state.trim()) {
-      newErrors.state = "State is required";
-    }
-    
-    if (!formData.zipCode.trim()) {
-      newErrors.zipCode = "Zip code is required";
-    }
-    
-    if (!hasPaid) {
-      newErrors.paid = "Please confirm payment via UPI QR before placing order";
-    }
-    
+    if (!formData.address.trim()) newErrors.address = t('billing.errAddressRequired');
+    if (!formData.city.trim()) newErrors.city = t('billing.errCityRequired');
+    if (!formData.state.trim()) newErrors.state = t('billing.errStateRequired');
+    if (!formData.zipCode.trim()) newErrors.zipCode = t('billing.errZipRequired');
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // Poll the honest payment status until it settles (or a bounded number of
+  // tries), so a "paid but /verify/ lagging" order still lands on success.
+  const waitForPaid = async (orderId: number, tries = 6): Promise<boolean> => {
+    for (let i = 0; i < tries; i++) {
+      try {
+        const s = await razorpayAPI.getStatus(orderId);
+        if (s.payment_status === "paid") return true;
+        if (s.payment_status === "failed") return false;
+      } catch { /* transient — keep polling */ }
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+    return false;
+  };
+
+  // Land the customer on a REAL order confirmation — with the order number and a
+  // link to download the invoice — not the old "thanks for your interest" page.
+  const finishSuccess = (orderId: number, orderNumber: string) => {
+    toast.success(t('billing.orderPlaced'));
+    navigate("/order-success", { state: { orderId, orderNumber } });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) {
-      toast.error("Please fill all required fields correctly");
+      toast.error(t('billing.fillAllFields'));
       return;
     }
-    
+
     setIsLoading(true);
-    
     try {
-      // Build the shipping address string as expected by backend
       const fullAddress = `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode}`;
-      
-      // Send data matching OrderCreateSerializer fields
-      await ordersAPI.create({
-        shipping_address: fullAddress,  // Changed from individual fields
-        phone_number: formData.phone,   // Changed from 'phone'
-        payment_method: 'ONLINE',       // Changed from undefined
+
+      // 1. Place the order (this clears the cart inside the transaction).
+      const placed = await ordersAPI.create({
+        shipping_address: fullAddress,
+        phone_number: formData.phone,
+        payment_method: 'ONLINE',
         coupon_code: appliedCoupon?.code || undefined,
       });
-      
-      toast.success("Order placed! We will verify your payment soon.");
-      // navigate("/order-success");
-      navigate("/interest-success");
-      
+
+      const orderId = placed.order_id;
+
+      // 2. Zero-total (full-coupon) order → already paid, no gateway needed.
+      if (Number(placed.total_amount) <= 0) {
+        finishSuccess(orderId, placed.order_number);
+        return;
+      }
+
+      // 3. Create the Razorpay order and open Checkout.
+      const rzp = await razorpayAPI.createOrder(orderId);
+
+      await openRazorpayCheckout({
+        key: rzp.razorpay_key_id,
+        amount: rzp.amount,
+        currency: rzp.currency,
+        orderId: rzp.razorpay_order_id,
+        name: "Nidhi Masala",
+        description: `Order ${placed.order_number}`,
+        prefill: { name: formData.fullName, email: formData.email, contact: formData.phone },
+        onSuccess: async (r) => {
+          try {
+            const res = await razorpayAPI.verify({
+              razorpay_order_id: r.razorpay_order_id,
+              razorpay_payment_id: r.razorpay_payment_id,
+              razorpay_signature: r.razorpay_signature,
+            });
+            // Order was cancelled before the capture landed — don't show a false
+            // success; the charge is refunded automatically.
+            if (res && res.success === false) {
+              toast.message(res.message
+                || "This order was cancelled. If you were charged, it will be refunded automatically.");
+              navigate("/my-orders");
+              setIsLoading(false);
+              return;
+            }
+            finishSuccess(orderId, placed.order_number);
+          } catch {
+            // Signature/verify hiccup: the webhook (L2) will reconcile. Show a
+            // non-alarming "confirming" message and let the poll settle it.
+            const paid = await waitForPaid(orderId);
+            if (paid) finishSuccess(orderId, placed.order_number);
+            else {
+              toast.message(t('billing.confirmingPayment'));
+              navigate("/my-orders");
+            }
+            setIsLoading(false);
+          }
+        },
+        onDismiss: () => {
+          // Modal closed / payment abandoned: the order is pending and can be
+          // retried from My Orders. Never re-add to cart (it's already gone).
+          toast.message(t('billing.paymentIncomplete'));
+          navigate("/my-orders");
+          setIsLoading(false);
+        },
+      });
+      // Do NOT clear isLoading here — the modal is open; the callbacks own it.
     } catch (err: any) {
-      console.error('Order creation error:', err);
-      const errorMsg = err.data?.error || err.data?.message || "Failed to place order";
+      console.error('Checkout error:', err);
+      const errorMsg = err.data?.error || err.data?.message || err.message || t('billing.orderFailed');
       toast.error(errorMsg);
-    } finally {
       setIsLoading(false);
     }
   };
 
   if (!cartSummary) {
     return (
-      <>
-        <div className="container py-8 max-w-6xl flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading checkout...</p>
-          </div>
+      <div className="container py-8 max-w-6xl flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-muted-foreground">{t('billing.loadingCheckout')}</p>
         </div>
-      </>
+      </div>
     );
   }
 
+  const isZeroTotal = cartSummary.total <= 0;
+
   return (
-    <>
-      <div className="container py-4 sm:py-8 px-3 sm:px-4 max-w-6xl pb-24 md:pb-8">
-        <h1 className="text-2xl sm:text-4xl font-bold mb-4 sm:mb-8">Checkout</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="grid lg:grid-cols-3 gap-4 sm:gap-10">
-            {/* SHIPPING */}
-            <div className="lg:col-span-2 space-y-4 sm:space-y-8">
-              <Card>
-                <CardHeader className="p-3 sm:p-6">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <CardTitle className="text-base sm:text-lg">Shipping Information</CardTitle>
-                    {geo.supported && (
+    <div className="container py-4 sm:py-8 px-3 sm:px-4 max-w-6xl pb-24 md:pb-8">
+      <h1 className="text-2xl sm:text-4xl font-bold mb-4 sm:mb-8">{t('billing.checkout')}</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-10">
+          {/* SHIPPING */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-8">
+            <Card>
+              <CardHeader className="p-3 sm:p-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <CardTitle className="text-base sm:text-lg">{t('billing.shippingInfo')}</CardTitle>
+                  {geo.supported && (
+                    <Button
+                      type="button"
+                      variant={hasDefaultAddress ? "outline" : "default"}
+                      size="sm"
+                      onClick={handleDetectLocation}
+                      disabled={detectingLocation}
+                      className="h-8 text-xs sm:text-sm"
+                    >
+                      {detectingLocation ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <MapPin className="h-3.5 w-3.5" />
+                      )}
+                      <span className="ml-1.5">{t('billing.useLocation')}</span>
+                    </Button>
+                  )}
+                </div>
+                {!hasDefaultAddress && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t('billing.noSavedAddress')}
+                  </p>
+                )}
+              </CardHeader>
+              <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
+                  {Object.entries({
+                    fullName: t('billing.fullName'),
+                    email: t('billing.email'),
+                    phone: t('billing.phone'),
+                    address: t('billing.address'),
+                    city: t('billing.city'),
+                    state: t('billing.state'),
+                    zipCode: t('billing.zipCode')
+                  }).map(([key, label]) => (
+                    <div key={key} className={key === 'address' ? 'sm:col-span-2' : ''}>
+                      <Label htmlFor={key} className="text-xs sm:text-sm font-medium">
+                        {label} <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id={key}
+                        value={(formData as any)[key]}
+                        onChange={e =>
+                          setFormData(prev => ({ ...prev, [key]: e.target.value }))
+                        }
+                        required
+                        className={`mt-1 h-9 sm:h-10 text-sm ${errors[key] ? "border-red-500" : ""}`}
+                      />
+                      {errors[key] && (
+                        <p className="text-xs text-red-500 mt-1">{errors[key]}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* SUMMARY + PAY */}
+          <div>
+            <Card>
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">{t('billing.orderSummary')}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                {/* Cart Items */}
+                <div className="divide-y divide-muted space-y-2 sm:space-y-3 text-sm sm:text-base">
+                  {cartItems.map((item: any) => (
+                    <div className="py-2 sm:py-3 flex flex-col" key={`${item.item_type || 'product'}-${item.product_id || item.id}`}>
+                      <div className="flex justify-between items-baseline">
+                        <span className="font-medium text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">{item.name}</span>
+                        <span className="font-semibold text-sm sm:text-base">
+                          ₹{(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground mt-0.5 sm:mt-1">
+                        <span>{t('billing.qty', { count: item.quantity })}</span>
+                        <span>{t('billing.perUnit', { price: item.price.toFixed(2) })}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Coupon UI */}
+                <Separator className="my-3 sm:my-4" />
+                <div className="space-y-2">
+                  <Label htmlFor="coupon" className="text-xs sm:text-sm font-medium">
+                    {t('billing.haveCoupon')}
+                  </Label>
+                  {!appliedCoupon ? (
+                    <div className="flex gap-2">
+                      <Input
+                        id="coupon"
+                        placeholder={t('billing.enterCode')}
+                        className="flex-1 h-9 sm:h-10 text-sm"
+                        value={couponCode}
+                        onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                      />
                       <Button
                         type="button"
-                        variant={hasDefaultAddress ? "outline" : "default"}
-                        size="sm"
-                        onClick={handleDetectLocation}
-                        disabled={detectingLocation}
-                        className="h-8 text-xs sm:text-sm"
+                        variant="outline"
+                        className="h-9 sm:h-10 text-xs sm:text-sm px-2 sm:px-3"
+                        onClick={handleApplyCoupon}
+                        disabled={!couponCode.trim()}
                       >
-                        {detectingLocation ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <MapPin className="h-3.5 w-3.5" />
-                        )}
-                        <span className="ml-1.5">Use my location</span>
+                        {t('billing.apply')}
                       </Button>
-                    )}
-                  </div>
-                  {!hasDefaultAddress && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      No saved address yet — detect it automatically, then review the fields below.
-                    </p>
-                  )}
-                </CardHeader>
-                <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
-                    {Object.entries({
-                      fullName: "Full Name", 
-                      email: "Email", 
-                      phone: "Phone",
-                      address: "Address", 
-                      city: "City", 
-                      state: "State", 
-                      zipCode: "Zip Code"
-                    }).map(([key, label]) => (
-                      <div key={key} className={key === 'address' ? 'sm:col-span-2' : ''}>
-                        <Label htmlFor={key} className="text-xs sm:text-sm font-medium">
-                          {label} <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                          id={key}
-                          value={(formData as any)[key]}
-                          onChange={e =>
-                            setFormData(prev => ({ ...prev, [key]: e.target.value }))
-                          }
-                          required
-                          className={`mt-1 h-9 sm:h-10 text-sm ${errors[key] ? "border-red-500" : ""}`}
-                        />
-                        {errors[key] && (
-                          <p className="text-xs text-red-500 mt-1">{errors[key]}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            {/* SUMMARY + QR + PLACE ORDER */}
-            <div>
-              <Card>
-                <CardHeader className="p-3 sm:p-6">
-                  <CardTitle className="text-base sm:text-lg">Order Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
-                  {/* Cart Items */}
-                  <div className="divide-y divide-muted space-y-2 sm:space-y-3 text-sm sm:text-base">
-                    {cartItems.map((item: any) => (
-                      <div className="py-2 sm:py-3 flex flex-col" key={`${item.item_type || 'product'}-${item.product_id || item.id}`}>
-                        <div className="flex justify-between items-baseline">
-                          <span className="font-medium text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">{item.name}</span>
-                          <span className="font-semibold text-sm sm:text-base">
-                            ₹{(item.price * item.quantity).toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-xs text-muted-foreground mt-0.5 sm:mt-1">
-                          <span>Qty: {item.quantity}</span>
-                          <span>₹{item.price.toFixed(2)}/unit</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Coupon UI */}
-                  <Separator className="my-3 sm:my-4" />
-                  <div className="space-y-2">
-                    <Label htmlFor="coupon" className="text-xs sm:text-sm font-medium">
-                      Have a coupon?
-                    </Label>
-                    {!appliedCoupon ? (
-                      <div className="flex gap-2">
-                        <Input
-                          id="coupon"
-                          placeholder="Enter code"
-                          className="flex-1 h-9 sm:h-10 text-sm"
-                          value={couponCode}
-                          onChange={e => setCouponCode(e.target.value.toUpperCase())}
-                        />
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          className="h-9 sm:h-10 text-xs sm:text-sm px-2 sm:px-3"
-                          onClick={handleApplyCoupon}
-                          disabled={!couponCode.trim()}
-                        >
-                          Apply
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-between bg-green-50 p-2 sm:p-3 rounded-md border border-green-200">
-                        <span className="text-xs sm:text-sm text-green-700 font-medium">
-                          {appliedCoupon.code} applied ✓
-                        </span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 sm:h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={handleRemoveCoupon}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Summary */}
-                  <Separator className="my-3 sm:my-4" />
-                  <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-semibold">₹{cartSummary.subtotal.toFixed(2)}</span>
                     </div>
-                    {cartSummary.discount > 0 && (
-                      <div className="flex justify-between text-green-600">
-                        <span>Discount</span>
-                        <span className="font-semibold">-₹{cartSummary.discount.toFixed(2)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Shipping</span>
-                      <span className="font-semibold">
-                        {cartSummary.shipping === 0 ? 'FREE' : `₹${cartSummary.shipping.toFixed(2)}`}
+                  ) : (
+                    <div className="flex items-center justify-between bg-green-50 p-2 sm:p-3 rounded-md border border-green-200">
+                      <span className="text-xs sm:text-sm text-green-700 font-medium">
+                        {t('billing.couponAppliedTag', { code: appliedCoupon.code })}
                       </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tax (GST)</span>
-                      <span className="font-semibold">₹{cartSummary.tax.toFixed(2)}</span>
-                    </div>
-                    <Separator className="my-2" />
-                    <div className="flex justify-between text-base sm:text-lg font-bold">
-                      <span>Total</span>
-                      <span className="text-primary">₹{cartSummary.total.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  
-                  {/* QR Code */}
-                  <Separator className="my-3 sm:my-4"/>
-                  <div className="w-full flex flex-col items-center">
-                    <p className="text-xs sm:text-sm font-medium mb-2 sm:mb-3">
-                      Scan to Pay ₹{cartSummary.total.toFixed(2)}
-                    </p>
-                    {qrCodeDataUrl ? (
-                      <img 
-                        src={qrCodeDataUrl}
-                        alt="UPI Payment QR Code"
-                        className="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] rounded-lg border-2 border-gray-300 p-1 sm:p-2 bg-white"
-                      />
-                    ) : (
-                      <div className="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] flex items-center justify-center bg-gray-100 rounded-lg border-2 border-gray-300">
-                        <div className="text-center">
-                          <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
-                          <span className="text-muted-foreground text-xs">Loading QR...</span>
-                        </div>
-                      </div>
-                    )}
-                    {paymentUrl && (
-                      <a
-                        href={paymentUrl}
-                        className="mt-2 sm:mt-3 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 sm:h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={handleRemoveCoupon}
                       >
-                        Pay via UPI App
-                      </a>
-                    )}
-                  </div>
-                  
-                  <div className="text-xs text-muted-foreground text-center my-2 sm:my-3">
-                    Scan QR or click button above, then confirm payment below
-                  </div>
-                  
-                  {/* Payment Confirmation */}
-                  <div className="flex items-center justify-center p-2 sm:p-3 bg-gray-50 rounded-md border">
-                    <input
-                      type="checkbox"
-                      id="hasPaid"
-                      className="h-4 w-4 mr-2 cursor-pointer accent-blue-600"
-                      checked={hasPaid}
-                      onChange={() => setHasPaid(v => !v)}
-                    />
-                    <Label htmlFor="hasPaid" className="cursor-pointer font-medium text-xs sm:text-sm">
-                      I have completed the payment
-                    </Label>
-                  </div>
-                  
-                  {errors["paid"] && (
-                    <p className="text-xs text-red-500 text-center mt-2">{errors["paid"]}</p>
+                        {t('billing.remove')}
+                      </Button>
+                    </div>
                   )}
-                  
-                  <Button
-                    type="submit"
-                    className="w-full mt-3 sm:mt-4 h-10 sm:h-12 text-sm sm:text-base font-semibold"
-                    disabled={isLoading || !hasPaid}
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Processing...
-                      </span>
-                    ) : (
-                      "Place Order"
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+
+                {/* Summary */}
+                <Separator className="my-3 sm:my-4" />
+                <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">{t('billing.subtotal')}</span>
+                    <span className="font-semibold">₹{cartSummary.subtotal.toFixed(2)}</span>
+                  </div>
+                  {cartSummary.discount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>{t('billing.discount')}</span>
+                      <span className="font-semibold">-₹{cartSummary.discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">{t('billing.shipping')}</span>
+                    <span className="font-semibold">
+                      {cartSummary.shipping === 0 ? t('billing.free') : `₹${cartSummary.shipping.toFixed(2)}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">{t('billing.tax')}</span>
+                    <span className="font-semibold">₹{cartSummary.tax.toFixed(2)}</span>
+                  </div>
+                  <Separator className="my-2" />
+                  <div className="flex justify-between text-base sm:text-lg font-bold">
+                    <span>{t('billing.total')}</span>
+                    <span className="text-primary">₹{cartSummary.total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Secure-pay note */}
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-4 mb-2">
+                  <ShieldCheck className="h-4 w-4 text-green-600" />
+                  <span>{t('billing.securePay', 'Secure payment via Razorpay — UPI, cards, netbanking & wallets')}</span>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full mt-2 h-10 sm:h-12 text-sm sm:text-base font-semibold"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      {t('billing.processing')}
+                    </span>
+                  ) : isZeroTotal ? (
+                    t('billing.placeFreeOrder', 'Place order')
+                  ) : (
+                    t('billing.payAmount', { amount: cartSummary.total.toFixed(2), defaultValue: `Pay ₹${cartSummary.total.toFixed(2)}` })
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
           </div>
-        </form>
-      </div>
-    </>
+        </div>
+      </form>
+    </div>
   );
 };
 

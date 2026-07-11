@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { authAPI } from "@/lib/api/auth";
+import { useTranslation, Trans } from "react-i18next";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -37,19 +39,19 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords don't match");
+      toast.error(t('register.passwordMismatch'));
       return;
     }
     if (formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters long");
+      toast.error(t('register.passwordTooShort'));
       return;
     }
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      toast.error("Password must contain at least one uppercase letter, one lowercase letter, and one number");
+      toast.error(t('register.passwordComplexity'));
       return;
     }
     if (!agreedToPrivacy) {
-      toast.error("Please agree to the Privacy Policy to continue");
+      toast.error(t('register.agreePrivacyError'));
       return;
     }
     setIsLoading(true);
@@ -69,11 +71,11 @@ const Register = () => {
         pincode: formData.pincode,
         profile_picture: formData.profile_picture
       });
-      toast.success("Registration successful!");
+      toast.success(t('register.success'));
       navigate("/login");
     } catch (error: any) {
       console.error("Registration error:", error);
-      toast.error(error.message || "Registration failed. Please try again.");
+      toast.error(error.message || t('register.failed'));
     } finally {
       setIsLoading(false);
     }
@@ -86,16 +88,16 @@ const Register = () => {
           <div className="mx-auto mb-2 h-16 w-16 rounded-full spice-backdrop grid place-items-center shadow-sm">
             <img src="/logo.png" alt="Nidhi" className="h-10 w-10 object-contain" />
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">{t('register.title')}</CardTitle>
           <CardDescription className="text-center">
-            Enter your information to create your account
+            {t('register.description')}
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {/* Full Name field */}
             <div>
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">{t('register.fullName')}</Label>
               <Input
                 id="name"
                 name="name"
@@ -109,7 +111,7 @@ const Register = () => {
             {/* Name Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName">{t('register.firstName')}</Label>
                 <Input
                   id="firstName"
                   name="firstName"
@@ -121,7 +123,7 @@ const Register = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName">{t('register.lastName')}</Label>
                 <Input
                   id="lastName"
                   name="lastName"
@@ -137,7 +139,7 @@ const Register = () => {
             {/* Username & Email Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">{t('register.username')}</Label>
                 <Input
                   id="username"
                   name="username"
@@ -150,7 +152,7 @@ const Register = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('register.email')}</Label>
                 <Input
                   id="email"
                   name="email"
@@ -166,7 +168,7 @@ const Register = () => {
 
             {/* Phone */}
             <div>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t('register.phone')}</Label>
               <Input
                 id="phone"
                 name="phone"
@@ -182,7 +184,7 @@ const Register = () => {
             {/* Address Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address">{t('register.address')}</Label>
                 <Input
                   id="address"
                   name="address"
@@ -193,7 +195,7 @@ const Register = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="city">City</Label>
+                <Label htmlFor="city">{t('register.city')}</Label>
                 <Input
                   id="city"
                   name="city"
@@ -206,7 +208,7 @@ const Register = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="state">State</Label>
+                <Label htmlFor="state">{t('register.state')}</Label>
                 <Input
                   id="state"
                   name="state"
@@ -217,7 +219,7 @@ const Register = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="pincode">Pincode</Label>
+                <Label htmlFor="pincode">{t('register.pincode')}</Label>
                 <Input
                   id="pincode"
                   name="pincode"
@@ -233,7 +235,7 @@ const Register = () => {
             {/* Passwords Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('register.password')}</Label>
                 <Input
                   id="password"
                   name="password"
@@ -245,7 +247,7 @@ const Register = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">{t('register.confirmPassword')}</Label>
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -268,21 +270,16 @@ const Register = () => {
                 className="mt-1"
               />
               <Label htmlFor="agreePrivacy" className="text-sm font-normal text-muted-foreground">
-                I agree to the{" "}
-                <Link to="/privacy-policy" target="_blank" className="text-primary hover:underline">
-                  Privacy Policy
-                </Link>
-                , including how my activity is used for recommendations and
-                anonymous, aggregate analytics.
+                <Trans i18nKey="register.agreePrivacy" components={{ a: <Link to="/privacy-policy" target="_blank" className="text-primary hover:underline" /> }} />
               </Label>
             </div>
             <Button type="submit" className="w-full h-11 rounded-full font-bold bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30 hover:brightness-110 active-press transition-all" disabled={isLoading || !agreedToPrivacy}>
-              {isLoading ? "Creating account..." : "Create account"}
+              {isLoading ? t('register.creating') : t('register.create')}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              Already have an account?{" "}
+              {t('register.haveAccount')}{" "}
               <Link to="/login" className="text-primary hover:underline">
-                Login
+                {t('register.login')}
               </Link>
             </p>
           </CardFooter>

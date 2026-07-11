@@ -146,6 +146,34 @@ const Products = () => {
             </button>
           </div>
 
+          {/* Mobile/tablet category filter — the sidebar is desktop-only, so on
+              smaller screens categories live in this scrollable chip row. */}
+          <div className="lg:hidden flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2">
+            <button
+              onClick={() => handleCategoryChange("all")}
+              className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors active-press ${
+                selectedCategory === "all"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card border-border hover:border-primary"
+              }`}
+            >
+              {t('category.allSpices')}
+            </button>
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => handleCategoryChange(String(category.id))}
+                className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors active-press ${
+                  selectedCategory === String(category.id)
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border hover:border-primary"
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+
           <div className="grid lg:grid-cols-[220px_1fr] gap-6">
             {/* Desktop category sidebar */}
             <aside className="hidden lg:block">

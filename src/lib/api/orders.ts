@@ -46,8 +46,22 @@ export interface Order {
   discount: number;
   total: number;
   shipping_address: string;
+  tracking_number?: string;
+  payment_method?: string;
+  payment_status?: "pending" | "processing" | "paid" | "failed" | "refunded";
   created_at: string;
   updated_at: string;
+}
+
+// The order-placement response wraps the created order plus the top-level fields
+// the checkout flow needs immediately: order_id + total (a zero-total coupon
+// order comes back already paid, so no gateway call is required).
+export interface CreateOrderResult {
+  message: string;
+  order_id: number;
+  order_number: string;
+  total_amount: number;
+  order: Order;
 }
 
 export const ordersAPI = {
@@ -61,12 +75,14 @@ export const ordersAPI = {
     return unwrap(res);
   },
 
-  create: async (orderData: CreateOrderPayload): Promise<Order> => {
-    const res = await authFetch<ApiEnvelope<Order> | Order>(`${API_BASE_URL}/orders/`, {
+  create: async (orderData: CreateOrderPayload): Promise<CreateOrderResult> => {
+    // The placement endpoint returns a wrapper (order_id + total_amount + the
+    // created order), not a bare Order — the checkout flow needs order_id and
+    // the total to decide whether a Razorpay call is required.
+    return authFetch<CreateOrderResult>(`${API_BASE_URL}/orders/`, {
       method: "POST",
       body: JSON.stringify(orderData),
     });
-    return unwrap(res);
   },
 
   cancel: async (id: number): Promise<Order> => {

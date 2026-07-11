@@ -18,6 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
 import ChatMarkdown from "@/components/ChatMarkdown";
+import { useTranslation } from "react-i18next";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,33 +29,8 @@ interface LocalTurn {
   action?: ProposedAction | null;
 }
 
-const LANGUAGES = [
-  { code: "auto", label: "Auto" },
-  { code: "en",   label: "English" },
-  { code: "hi",   label: "हिन्दी" },
-  { code: "hinglish", label: "Hinglish" },
-  { code: "gu",   label: "ગુજરાતી" },
-  { code: "mr",   label: "मराठी" },
-  { code: "pa",   label: "ਪੰਜਾਬੀ" },
-];
-
 const stripMarkdown = (s: string) =>
   s.replace(/[*_`#]/g, "").replace(/^\s*[-•]\s+/gm, "");
-
-const GREETING: LocalTurn = {
-  role: "assistant",
-  text: "Hi! I'm the Nidhi Assistant. Ask me about our spices, your orders, or just say what you're cooking! 🌶️",
-};
-
-const relativeTime = (iso: string) => {
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -63,6 +39,32 @@ const AssistantWidget = () => {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  const LANGUAGES = [
+    { code: "auto", label: t('assistant.langAuto') },
+    { code: "en",   label: "English" },
+    { code: "hi",   label: "हिन्दी" },
+    { code: "hinglish", label: "Hinglish" },
+    { code: "gu",   label: "ગુજરાતી" },
+    { code: "mr",   label: "मराठी" },
+    { code: "pa",   label: "ਪੰਜਾਬੀ" },
+  ];
+
+  const GREETING: LocalTurn = {
+    role: "assistant",
+    text: t('assistant.greeting'),
+  };
+
+  const relativeTime = (iso: string) => {
+    const diff = Date.now() - new Date(iso).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return t('assistant.justNow');
+    if (m < 60) return t('assistant.minutesAgo', { count: m });
+    const h = Math.floor(m / 60);
+    if (h < 24) return t('assistant.hoursAgo', { count: h });
+    return t('assistant.daysAgo', { count: Math.floor(h / 24) });
+  };
 
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"threads" | "chat">("chat");
@@ -207,7 +209,7 @@ const AssistantWidget = () => {
     onError: () => {
       setTurns((prev) => [
         ...prev,
-        { role: "assistant", text: "Sorry, something went wrong. Please try again." },
+        { role: "assistant", text: t('assistant.error') },
       ]);
     },
   });
@@ -243,14 +245,14 @@ const AssistantWidget = () => {
         if (action.route) { setOpen(false); navigate(action.route); }
         break;
       case "escalate_to_human":
-        toast.info("Our team has been notified and will join shortly.");
+        toast.info(t('assistant.escalated'));
         break;
     }
   };
 
   const toggleMic = () => {
     if (!voiceSupported) {
-      toast.error("Voice input isn't supported in this browser.");
+      toast.error(t('assistant.voiceUnsupported'));
       return;
     }
     if (recording) { stop(); } else { setVoiceMode(true); start(); }
@@ -267,7 +269,7 @@ const AssistantWidget = () => {
         className="hidden md:flex fixed right-6 bottom-6 h-16 w-16 rounded-full shadow-lg hover:shadow-xl
                    transition-all duration-300 z-50 text-3xl leading-none
                    animate-pulse-subtle hover:scale-110 active:scale-95 hover-glow"
-        aria-label="Open Nidhi Assistant"
+        aria-label={t('assistant.openAria')}
       >
         <span aria-hidden>💬</span>
       </Button>
@@ -287,7 +289,7 @@ const AssistantWidget = () => {
         {view === "chat" && user && (
           <button
             onClick={() => setView("threads")}
-            aria-label="Thread list"
+            aria-label={t('assistant.threadListAria')}
             className="opacity-80 hover:opacity-100 mr-1"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -295,7 +297,7 @@ const AssistantWidget = () => {
         )}
         <Bot className="h-5 w-5 shrink-0" />
         <span className="font-semibold text-sm flex-1 truncate">
-          {view === "threads" ? "Your Conversations" : "Nidhi Assistant"}
+          {view === "threads" ? t('assistant.yourConversations') : t('assistant.title')}
         </span>
 
         {view === "chat" && (
@@ -307,7 +309,7 @@ const AssistantWidget = () => {
             }}
           >
             <SelectTrigger
-              aria-label="Reply language"
+              aria-label={t('assistant.replyLanguageAria')}
               className="h-7 w-[104px] text-xs bg-primary-foreground/10 border-primary-foreground/25 text-primary-foreground focus:ring-primary-foreground/40"
             >
               <SelectValue />
@@ -323,15 +325,15 @@ const AssistantWidget = () => {
         {view === "chat" && user && (
           <button
             onClick={() => newThreadMutation.mutate()}
-            aria-label="New conversation"
+            aria-label={t('assistant.newConversation')}
             className="opacity-80 hover:opacity-100"
-            title="New chat"
+            title={t('assistant.newChat')}
           >
             <Plus className="h-5 w-5" />
           </button>
         )}
 
-        <button onClick={() => setOpen(false)} aria-label="Close" className="opacity-80 hover:opacity-100">
+        <button onClick={() => setOpen(false)} aria-label={t('assistant.close')} className="opacity-80 hover:opacity-100">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -344,35 +346,35 @@ const AssistantWidget = () => {
             className="w-full flex items-center gap-3 px-4 py-3 border-b hover:bg-accent transition-colors text-sm font-medium text-primary"
           >
             <Plus className="h-4 w-4" />
-            New conversation
+            {t('assistant.newConversation')}
           </button>
 
           {threads.length === 0 && (
             <p className="text-center text-muted-foreground text-sm mt-8 px-4">
-              No conversations yet. Start one!
+              {t('assistant.noConversations')}
             </p>
           )}
 
-          {threads.map((t) => (
+          {threads.map((thread) => (
             <button
-              key={t.conversation_id}
-              onClick={() => switchThread(t.conversation_id)}
+              key={thread.conversation_id}
+              onClick={() => switchThread(thread.conversation_id)}
               className={`w-full text-left px-4 py-3 border-b hover:bg-accent transition-colors
-                ${activeConvId === t.conversation_id ? "bg-accent" : ""}`}
+                ${activeConvId === thread.conversation_id ? "bg-accent" : ""}`}
             >
               <div className="flex items-start justify-between gap-2">
                 <span className="text-sm font-medium truncate flex-1">
-                  {t.title || "New conversation"}
+                  {thread.title || t('assistant.newConversation')}
                 </span>
                 <div className="flex items-center gap-1 shrink-0">
-                  {t.needs_human && (
-                    <span className="h-2 w-2 rounded-full bg-orange-500" title="Needs attention" />
+                  {thread.needs_human && (
+                    <span className="h-2 w-2 rounded-full bg-orange-500" title={t('assistant.needsAttention')} />
                   )}
-                  <span className="text-xs text-muted-foreground">{relativeTime(t.updated_at)}</span>
+                  <span className="text-xs text-muted-foreground">{relativeTime(thread.updated_at)}</span>
                 </div>
               </div>
-              {t.last_message && (
-                <p className="text-xs text-muted-foreground truncate mt-0.5">{t.last_message}</p>
+              {thread.last_message && (
+                <p className="text-xs text-muted-foreground truncate mt-0.5">{thread.last_message}</p>
               )}
             </button>
           ))}
@@ -409,7 +411,7 @@ const AssistantWidget = () => {
                   <div className="max-w-[80%] space-y-2">
                     {isAdmin && turn.senderName && (
                       <p className="text-xs text-orange-600 font-medium px-1">
-                        {turn.senderName} — Nidhi Team
+                        {t('assistant.teamMember', { name: turn.senderName })}
                       </p>
                     )}
                     <div className={`px-3 py-2 rounded-lg text-sm ${
@@ -464,7 +466,7 @@ const AssistantWidget = () => {
                 variant={recording ? "default" : "outline"}
                 onClick={toggleMic}
                 disabled={transcribing}
-                aria-label={recording ? "Stop listening" : "Speak"}
+                aria-label={recording ? t('assistant.stopListening') : t('assistant.speak')}
                 className={recording ? "animate-pulse" : ""}
               >
                 {transcribing
@@ -478,7 +480,7 @@ const AssistantWidget = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={
-                recording ? "Listening…" : transcribing ? "Transcribing…" : "Ask about spices, orders…"
+                recording ? t('assistant.listening') : transcribing ? t('assistant.transcribing') : t('assistant.inputPlaceholder')
               }
               className="flex-1"
             />

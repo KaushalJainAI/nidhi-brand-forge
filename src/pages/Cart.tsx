@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cartAPI, searchAPI } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/api/config";
-import { FREE_SHIPPING_THRESHOLD } from "@/config/limits";
+import { FREE_SHIPPING_THRESHOLD, DEFAULT_TAX_RATE } from "@/config/limits";
 
 // Helper to resolve image URLs from backend (may be relative paths)
 const getImageUrl = (imagePath: string | null | undefined): string => {
@@ -85,10 +85,12 @@ const Cart = () => {
   const outOfStockItems = cart.filter(item => item.inStock === false);
   
   const subtotal = inStockItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  // Per-product GST from each line's tax_rate (papad/papad katran are 0).
-  // Falls back to 0 when a rate is absent — the backend column is authoritative.
+  // Per-product GST from each line's tax_rate (papad/papad katran are 0, which
+  // is an explicit 0 — preserved). When a rate is ABSENT we fall back to the
+  // backend DEFAULT_TAX_RATE (not 0) so the cart never quotes a total below what
+  // checkout will actually charge.
   const tax = inStockItems.reduce(
-    (sum, item) => sum + item.price * item.quantity * ((item.taxRate ?? 0) / 100),
+    (sum, item) => sum + item.price * item.quantity * ((item.taxRate ?? DEFAULT_TAX_RATE) / 100),
     0
   );
   const total = subtotal + tax;

@@ -41,7 +41,7 @@ export const SEARCHABLE_PAGES: SearchablePage[] = [
   { path: "/cart", title: "Cart", description: "Items in your cart", keywords: ["cart", "basket", "bag", "checkout", "my cart"], icon: ShoppingCart },
   { path: "/favorites", title: "Favorites", description: "Your saved items", keywords: ["favorites", "wishlist", "saved", "likes", "favourite"], icon: Heart },
   { path: "/my-orders", title: "My Orders", description: "Order history & bills", keywords: ["orders", "my orders", "purchases", "order history", "bill", "invoice"], icon: ClipboardList },
-  { path: "/track-order", title: "Track Order", description: "Track your shipment", keywords: ["track", "track order", "tracking", "shipment", "where is my order"], icon: Truck },
+  { path: "/my-orders", title: "Track Order", description: "Track your shipment", keywords: ["track", "track order", "tracking", "shipment", "where is my order"], icon: Truck },
   { path: "/profile", title: "My Profile", description: "Account & addresses", keywords: ["profile", "account", "settings", "my account", "address"], icon: User },
   { path: "/about", title: "About Us", description: "Our story", keywords: ["about", "about us", "story", "company", "who we are"], icon: Info },
   { path: "/contact", title: "Contact Us", description: "Get in touch", keywords: ["contact", "support", "help", "reach us", "customer care", "email"], icon: Mail },

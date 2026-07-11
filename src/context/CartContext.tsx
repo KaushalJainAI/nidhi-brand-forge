@@ -3,7 +3,7 @@ import { cartAPI } from "@/lib/api";
 import { useAuth } from "./AuthContext";
 import { toast } from "sonner";
 import { trackEvent, track } from "@/lib/api/analytics";
-import { MAX_ITEM_QUANTITY, MAX_CART_ITEMS, clampQuantity } from "@/config/limits";
+import { MAX_ITEM_QUANTITY, MAX_CART_ITEMS, clampQuantity, DEFAULT_TAX_RATE } from "@/config/limits";
 
 interface CartItem {
   id: number;
@@ -104,7 +104,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       badge: item.badge,
       stock: item.stock ?? 999,
       inStock: item.in_stock ?? true,
-      taxRate: item.tax_rate ?? 0,
+      // An explicit 0 (papad/papad katran) stays 0; only an ABSENT rate falls
+      // back to the backend default, so we never under-quote GST in the cart.
+      taxRate: item.tax_rate ?? DEFAULT_TAX_RATE,
     }));
   }, []);
 

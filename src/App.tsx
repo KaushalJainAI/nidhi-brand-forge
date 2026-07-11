@@ -10,7 +10,6 @@ import ProductDetail from "./pages/ProductDetail";
 import ComboDetail from "./pages/ComboDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 import SearchResults from "./pages/SearchResults";
 import MyOrders from "./pages/MyOrders";
@@ -65,7 +64,6 @@ const AnimatedRoutes = () => {
         <Route path="/combos/:id" element={<ComboDetail />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/track-order" element={<TrackOrder />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/billing" element={<Billing />} />

@@ -118,6 +118,18 @@ const CachedImage: React.FC<CachedImageProps> = ({
   const proxiedSrc = optimizeCloudinary(getProxiedUrl(src), cldWidth);
   const proxiedFallback = fallbackSrc ? getProxiedUrl(fallbackSrc) : undefined;
 
+  // The passed className styles the container <div>, but object-fit / object-position
+  // only take effect on the <img> itself. Without this split the inner image keeps
+  // CSS's default `object-fit: fill` and stretches to the box (which has a fixed
+  // height but viewport-dependent width), so callers passing `object-contain` /
+  // `object-cover` see distorted images that vary by device width. Move any
+  // `object-*` utility onto the <img>; everything else stays on the container.
+  // Default to `object-contain` so images never stretch even if a caller forgets.
+  const classTokens = (className || '').split(/\s+/).filter(Boolean);
+  const imgObjectClasses = classTokens.filter((c) => /^object-/.test(c));
+  const containerClasses = classTokens.filter((c) => !/^object-/.test(c)).join(' ');
+  const imgFitClasses = imgObjectClasses.length ? imgObjectClasses.join(' ') : 'object-contain';
+
   // Intersection Observer for lazy loading
   useEffect(() => {
     if (!lazy) return;
@@ -222,7 +234,7 @@ const CachedImage: React.FC<CachedImageProps> = ({
   }, [proxiedSrc, proxiedFallback, isVisible]);
 
   return (
-    <div ref={containerRef} className={`relative overflow-hidden ${className || ''}`}>
+    <div ref={containerRef} className={`relative overflow-hidden ${containerClasses}`}>
       {loading && (
         <div className="absolute inset-0 animate-pulse bg-muted flex items-center justify-center">
             {/* Optional: Add a placeholder icon or tiny logo here */}
@@ -232,7 +244,7 @@ const CachedImage: React.FC<CachedImageProps> = ({
         src={imgSrc || proxiedSrc}
         alt={alt}
         {...props}
-        className={`w-full h-full transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
+        className={`w-full h-full ${imgFitClasses} transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
       />
     </div>
   );

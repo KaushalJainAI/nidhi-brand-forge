@@ -1,4 +1,15 @@
+import { toast } from "sonner";
 import { API_BASE_URL, authFetch } from "./config";
+
+// An item the /cart/sync/ endpoint could not add (e.g. out of stock, delisted,
+// invalid quantity). The backend returns these instead of silently dropping
+// them — callers must surface them so the user knows part of their cart didn't
+// carry over.
+export interface SkippedCartItem {
+  id: string;
+  type: "product" | "combo";
+  reason: string;
+}
 
 export interface CartItem {
   id: number;
@@ -24,6 +35,7 @@ export interface CartResponse {
   success?: boolean;
   items?: CartItem[];
   summary?: CartSummary;
+  skipped?: SkippedCartItem[];
   error?: string;
   message?: string;
 }
@@ -129,7 +141,15 @@ export const cartAPI = {
         method: "POST",
         body: JSON.stringify({ items }),
       });
-      
+
+      // Never let items vanish silently: if the backend couldn't add some of
+      // them, tell the user which and why.
+      if (data?.skipped?.length) {
+        const names = data.skipped.map((s) => s.reason).join("; ");
+        toast.warning(
+          `${data.skipped.length} item(s) couldn't be added to your cart: ${names}`,
+        );
+      }
 
       return data;
     } catch (error) {

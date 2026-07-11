@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { useTranslation } from "react-i18next";
 
 const InterestSuccess = () => {
   const navigate = useNavigate();
   const { fetchCartFromBackend, setCart } = useCart();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Clear cart and sync with backend on mount
@@ -36,39 +38,39 @@ const InterestSuccess = () => {
         </div>
         
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-          Thank you for showing interest in our products!
+          {t('interestSuccess.title')}
         </h1>
-        
+
         <div className="space-y-4 mb-8">
           <p className="text-xl font-medium text-primary">
-            We will soon start this service.
+            {t('interestSuccess.soon')}
           </p>
           <p className="text-lg text-muted-foreground">
-            We have noted your requirements and we will try to serve you online as soon as possible.
+            {t('interestSuccess.noted')}
           </p>
           <div className="bg-destructive/10 p-4 rounded-lg border border-destructive/20">
             <p className="text-destructive font-semibold">
-              In case you have paid anything, please contact us to get a full refund.
+              {t('interestSuccess.refund')}
             </p>
           </div>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button 
-            onClick={() => navigate("/products")} 
+          <Button
+            onClick={() => navigate("/products")}
             size="lg"
             className="px-8 shadow-md hover:shadow-lg transition-all"
           >
-            Continue Shopping
+            {t('interestSuccess.continueShopping')}
           </Button>
         </div>
 
         <div className="mt-12 pt-6 border-t border-border flex flex-col items-center gap-2 text-muted-foreground">
           <p className="text-sm font-medium">
-            Contact Support: +91 93000 05040
+            {t('interestSuccess.contactSupport')}
           </p>
           <p className="text-sm italic">
-            Nidhi Grah Udyog - Quality You Can Trust
+            {t('interestSuccess.tagline')}
           </p>
         </div>
       </div>

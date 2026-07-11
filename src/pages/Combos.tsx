@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Package, BadgePercent, Truck, ArrowRight } from "lucide-react";
 import { combosAPI, type Combo } from "@/lib/api";
 import { FREE_SHIPPING_THRESHOLD } from "@/config/limits";
+import { useTranslation } from "react-i18next";
 
 const Combos = () => {
+  const { t } = useTranslation();
   const [combos, setCombos] = useState<Combo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,7 +25,7 @@ const Combos = () => {
         setCombos(data || []);
       } catch (err: any) {
         console.error("Failed to fetch combos:", err);
-        setError(err.message || "Failed to load combos");
+        setError(err.message || t('combosPage.loadError'));
       } finally {
         setLoading(false);
       }
@@ -57,9 +59,9 @@ const Combos = () => {
   }, [combos]);
 
   const benefits = [
-    { icon: <Package className="h-4 w-4" />, label: "Hand-curated bundles" },
-    { icon: <BadgePercent className="h-4 w-4" />, label: "Better value than buying separately" },
-    { icon: <Truck className="h-4 w-4" />, label: `Free shipping over Rs. ${FREE_SHIPPING_THRESHOLD}` },
+    { icon: <Package className="h-4 w-4" />, label: t('combosPage.benefitCurated') },
+    { icon: <BadgePercent className="h-4 w-4" />, label: t('combosPage.benefitValue') },
+    { icon: <Truck className="h-4 w-4" />, label: t('combosPage.benefitShipping', { amount: FREE_SHIPPING_THRESHOLD }) },
   ];
 
   return (
@@ -68,21 +70,21 @@ const Combos = () => {
       <section className="border-b border-border/60 py-8 sm:py-12">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-primary font-semibold mb-1.5">
-            Value Bundles
+            {t('combosPage.eyebrow')}
           </div>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h1 className="text-2xl sm:text-4xl font-extrabold text-foreground leading-tight">
-                Combo Offers
+                {t('combosPage.title')}
               </h1>
               <p className="mt-1.5 text-sm sm:text-base text-muted-foreground max-w-xl">
-                Thoughtfully paired spice bundles — more flavour, less spend.
+                {t('combosPage.subtitle')}
               </p>
             </div>
             {!loading && maxDiscount > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/10 px-3 py-1.5 text-xs sm:text-sm font-bold text-secondary">
                 <BadgePercent className="h-4 w-4" />
-                Save up to {maxDiscount}%
+                {t('combosPage.saveUpTo', { percent: maxDiscount })}
               </span>
             )}
           </div>
@@ -124,13 +126,13 @@ const Combos = () => {
               <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full spice-backdrop text-primary">
                 <Package className="h-8 w-8" />
               </div>
-              <h2 className="text-lg font-bold text-foreground mb-1">No combos available right now</h2>
+              <h2 className="text-lg font-bold text-foreground mb-1">{t('combosPage.emptyTitle')}</h2>
               <p className="text-sm text-muted-foreground mb-6">
-                New bundles drop regularly — meanwhile, explore our full range of spices.
+                {t('combosPage.emptyBody')}
               </p>
               <Button asChild className="rounded-full font-bold active-press">
                 <Link to="/products">
-                  Browse all products
+                  {t('combosPage.browseAll')}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -151,7 +153,7 @@ const Combos = () => {
                 <div>
                   {spotlight.length > 0 && (
                     <h2 className="mb-4 text-lg sm:text-xl font-bold text-foreground">
-                      More bundles
+                      {t('combosPage.moreBundles')}
                     </h2>
                   )}
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8">

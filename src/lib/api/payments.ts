@@ -48,3 +48,60 @@ export const paymentMethodsAPI = {
 
   getStats: () => authFetch(`${API_BASE_URL}/payment-methods/stats/`),
 };
+
+
+// ---------------------------------------------------------------------------
+// Razorpay online-payment gateway (create-order / verify / status)
+// ---------------------------------------------------------------------------
+
+export interface CreatePaymentOrderResponse {
+  razorpay_order_id: string;
+  razorpay_key_id: string;
+  amount: number; // paise
+  currency: string;
+  order_id: number;
+}
+
+export interface VerifyPaymentPayload {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+export interface VerifyPaymentResponse {
+  success: boolean;
+  order_id: number;
+  status?: "cancelled";
+  message?: string;
+}
+
+export interface PaymentStatusResponse {
+  order_id: number;
+  payment_status: "pending" | "processing" | "paid" | "failed" | "refunded";
+  order_status: string;
+  label: string;
+  razorpay_payment_id: string | null;
+}
+
+export const razorpayAPI = {
+  // Create (or fetch the existing) Razorpay order for a placed, payable Order.
+  createOrder: (orderId: number): Promise<CreatePaymentOrderResponse> =>
+    authFetch(`${API_BASE_URL}/payments/create-order/`, {
+      method: "POST",
+      body: JSON.stringify({ order_id: orderId }),
+    }),
+
+  // L1 confirmation from the browser after Razorpay Checkout succeeds.
+  // `success: false` with status 'cancelled' means the order was cancelled before
+  // the capture landed — the charge is routed to an automatic refund.
+  verify: (payload: VerifyPaymentPayload): Promise<VerifyPaymentResponse> =>
+    authFetch(`${API_BASE_URL}/payments/verify/`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  // Honest, non-alarming payment state — poll after Checkout so the "paid but
+  // /verify/ not yet confirmed" window shows "Confirming…", not a false failure.
+  getStatus: (orderId: number): Promise<PaymentStatusResponse> =>
+    authFetch(`${API_BASE_URL}/payments/status/?order_id=${orderId}`),
+};

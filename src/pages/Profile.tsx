@@ -14,6 +14,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { paymentMethodsAPI, userAPI, geoAPI } from "@/lib/api";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useTranslation } from "react-i18next";
 
 // --- Types ---
 interface PaymentMethod {
@@ -45,6 +46,7 @@ const initialPaymentForm = {
 };
 
 const Profile = () => {
+  const { t } = useTranslation();
   // Profile info and states
   const [profile, setProfile] = useState({
     username: "",
@@ -109,7 +111,7 @@ const Profile = () => {
         pincode: data.pincode || "",
       });
     } catch {
-      toast.error("Failed to load profile");
+      toast.error(t('profile.loadFailed'));
     }
   };
 
@@ -127,7 +129,7 @@ const Profile = () => {
       }
     } catch {
       setPaymentMethods([]);
-      toast.error("Failed to load payment methods");
+      toast.error(t('profile.paymentsLoadFailed'));
     } finally {
       setIsLoadingPayments(false);
     }
@@ -139,9 +141,9 @@ const Profile = () => {
     setIsLoading(true);
     try {
       await userAPI.updateProfile(profile);
-      toast.success("Profile updated successfully!");
+      toast.success(t('profile.updateSuccess'));
     } catch {
-      toast.error("Failed to update profile");
+      toast.error(t('profile.updateFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -154,7 +156,7 @@ const Profile = () => {
     try {
       const coords = await geo.request();
       if (!coords) {
-        toast.error(geo.error || "Couldn't access your location.");
+        toast.error(geo.error || t('profile.locationDenied'));
         return;
       }
       const addr = await geoAPI.reverseGeocode(coords.lat, coords.lng);
@@ -175,9 +177,9 @@ const Profile = () => {
           pincode: addr.pincode,
         })
         .catch(() => {});
-      toast.success("Address filled from your location. Review it, then Save.");
+      toast.success(t('profile.addressFilled'));
     } catch {
-      toast.error("Couldn't determine your address. Please enter it manually.");
+      toast.error(t('profile.addressFailed'));
     } finally {
       setDetectingLocation(false);
     }
@@ -189,20 +191,20 @@ const Profile = () => {
     setPwdError("");
     setPwdSuccess("");
     if (!pwdForm.currentPassword || !pwdForm.newPassword || !pwdForm.confirmNewPassword) {
-      setPwdError("All fields required");
+      setPwdError(t('profile.allFieldsRequired'));
       return;
     }
     if (pwdForm.newPassword !== pwdForm.confirmNewPassword) {
-      setPwdError("Passwords do not match");
+      setPwdError(t('profile.passwordMismatch'));
       return;
     }
     setIsChangingPassword(true);
     try {
       await userAPI.changePassword(pwdForm.currentPassword, pwdForm.newPassword);
-      setPwdSuccess("Password changed successfully!");
+      setPwdSuccess(t('profile.passwordChanged'));
       setPwdForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
     } catch (err) {
-      setPwdError(err?.detail || "Failed to change password");
+      setPwdError(err?.detail || t('profile.passwordChangeFailed'));
     } finally {
       setIsChangingPassword(false);
     }
@@ -212,16 +214,16 @@ const Profile = () => {
   const validatePaymentForm = () => {
     const errs: Record<string, string> = {};
     if (newPayment.payment_type === "UPI") {
-      if (!newPayment.upi_id.trim()) errs.upi_id = "UPI ID is required";
+      if (!newPayment.upi_id.trim()) errs.upi_id = t('profile.errUpiRequired');
     } else if (newPayment.payment_type === "CARD") {
-      if (!newPayment.card_brand.trim()) errs.card_brand = "Card brand required";
-      if (!newPayment.card_last_four.trim() || newPayment.card_last_four.length !== 4) errs.card_last_four = "Last 4 digits required";
-      if (!newPayment.card_expiry_month.trim() || isNaN(Number(newPayment.card_expiry_month)) || Number(newPayment.card_expiry_month) < 1 || Number(newPayment.card_expiry_month) > 12) errs.card_expiry_month = "Valid month required";
-      if (!newPayment.card_expiry_year.trim() || newPayment.card_expiry_year.length !== 4) errs.card_expiry_year = "Year required";
+      if (!newPayment.card_brand.trim()) errs.card_brand = t('profile.errCardBrand');
+      if (!newPayment.card_last_four.trim() || newPayment.card_last_four.length !== 4) errs.card_last_four = t('profile.errLastFour');
+      if (!newPayment.card_expiry_month.trim() || isNaN(Number(newPayment.card_expiry_month)) || Number(newPayment.card_expiry_month) < 1 || Number(newPayment.card_expiry_month) > 12) errs.card_expiry_month = t('profile.errMonth');
+      if (!newPayment.card_expiry_year.trim() || newPayment.card_expiry_year.length !== 4) errs.card_expiry_year = t('profile.errYear');
     } else if (newPayment.payment_type === "NETBANKING") {
-      if (!newPayment.bank_name.trim()) errs.bank_name = "Bank name required";
+      if (!newPayment.bank_name.trim()) errs.bank_name = t('profile.errBankName');
     } else if (newPayment.payment_type === "WALLET") {
-      if (!newPayment.wallet_provider.trim()) errs.wallet_provider = "Wallet provider required";
+      if (!newPayment.wallet_provider.trim()) errs.wallet_provider = t('profile.errWalletProvider');
     }
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
@@ -230,7 +232,7 @@ const Profile = () => {
   const handleAddPaymentMethod = async (e) => {
     e.preventDefault();
     if (!validatePaymentForm()) {
-      toast.error("Please fill in all required fields correctly");
+      toast.error(t('profile.fillAllFields'));
       return;
     }
     setIsAddingPayment(true);
@@ -254,12 +256,12 @@ const Profile = () => {
         paymentData.wallet_provider = newPayment.wallet_provider;
       }
       await paymentMethodsAPI.create(paymentData);
-      toast.success("Payment method added!");
+      toast.success(t('profile.paymentAdded'));
       setOpenDialog(false);
       await fetchPaymentMethods();
       setNewPayment(initialPaymentForm);
     } catch (err) {
-      toast.error(err?.data?.detail || err?.message || "Failed to add payment method");
+      toast.error(err?.data?.detail || err?.message || t('profile.paymentAddFailed'));
     } finally {
       setIsAddingPayment(false);
       setFormErrors({});
@@ -271,10 +273,10 @@ const Profile = () => {
   const handleRemovePaymentMethod = async (id) => {
     try {
       await paymentMethodsAPI.delete(id);
-      toast.success("Payment method removed.");
+      toast.success(t('profile.paymentRemoved'));
       await fetchPaymentMethods();
     } catch {
-      toast.error("Failed to remove payment method");
+      toast.error(t('profile.paymentRemoveFailed'));
     }
   };
 
@@ -282,10 +284,10 @@ const Profile = () => {
   const handleSetDefault = async (id) => {
     try {
       await paymentMethodsAPI.setDefault(id);
-      toast.success("Default payment method updated!");
+      toast.success(t('profile.defaultUpdated'));
       await fetchPaymentMethods();
     } catch {
-      toast.error("Failed to set default payment method");
+      toast.error(t('profile.defaultFailed'));
     }
   };
 
@@ -315,7 +317,7 @@ const Profile = () => {
         <div className="container py-4 sm:py-8 px-3 sm:px-4 pb-24 md:pb-8 min-h-[60vh] flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-muted-foreground text-sm">Loading your profile...</p>
+            <p className="text-muted-foreground text-sm">{t('profile.loading')}</p>
           </div>
         </div>
         <Footer />
@@ -328,38 +330,38 @@ const Profile = () => {
       <div className="container py-4 sm:py-8 px-3 sm:px-4 pb-24 md:pb-8">
         <Tabs defaultValue="profile" className="max-w-3xl mx-auto">
           <TabsList className="grid w-full grid-cols-3 h-9 sm:h-10">
-            <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
-            <TabsTrigger value="security" className="text-xs sm:text-sm">Security</TabsTrigger>
-            <TabsTrigger value="payment" className="text-xs sm:text-sm">Payment</TabsTrigger>
+            <TabsTrigger value="profile" className="text-xs sm:text-sm">{t('profile.tabProfile')}</TabsTrigger>
+            <TabsTrigger value="security" className="text-xs sm:text-sm">{t('profile.tabSecurity')}</TabsTrigger>
+            <TabsTrigger value="payment" className="text-xs sm:text-sm">{t('profile.tabPayment')}</TabsTrigger>
           </TabsList>
           {/* --- Profile Section --- */}
           <TabsContent value="profile">
             <Card>
               <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="text-base sm:text-lg">Profile Information</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">Update your account information</CardDescription>
+                <CardTitle className="text-base sm:text-lg">{t('profile.infoTitle')}</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">{t('profile.infoDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
                 <form onSubmit={handleUpdateProfile} className="space-y-3 sm:space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
+                    <Label htmlFor="username">{t('profile.username')}</Label>
                     <Input id="username" value={profile.username} onChange={e => setProfile({ ...profile, username: e.target.value })} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="name">{t('profile.fullName')}</Label>
                     <Input id="name" value={profile.name || ""} onChange={e => setProfile({ ...profile, name: e.target.value })} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('profile.email')}</Label>
                     <Input id="email" type="email" value={profile.email} onChange={e => setProfile({ ...profile, email: e.target.value })} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
+                    <Label htmlFor="phone">{t('profile.phone')}</Label>
                     <Input id="phone" value={profile.phone || ""} onChange={e => setProfile({ ...profile, phone: e.target.value })} />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <Label htmlFor="address">Address</Label>
+                      <Label htmlFor="address">{t('profile.address')}</Label>
                       {geo.supported && (
                         <Button
                           type="button"
@@ -374,7 +376,7 @@ const Profile = () => {
                           ) : (
                             <MapPin className="h-3.5 w-3.5" />
                           )}
-                          <span className="ml-1.5">Use my location</span>
+                          <span className="ml-1.5">{t('profile.useLocation')}</span>
                         </Button>
                       )}
                     </div>
@@ -382,24 +384,24 @@ const Profile = () => {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                     <div className="space-y-1 sm:space-y-2">
-                      <Label htmlFor="city" className="text-xs sm:text-sm">City</Label>
+                      <Label htmlFor="city" className="text-xs sm:text-sm">{t('profile.city')}</Label>
                       <Input id="city" className="h-9 sm:h-10 text-sm" value={profile.city || ""} onChange={e => setProfile({ ...profile, city: e.target.value })} />
                     </div>
                     <div className="space-y-1 sm:space-y-2">
-                      <Label htmlFor="state" className="text-xs sm:text-sm">State</Label>
+                      <Label htmlFor="state" className="text-xs sm:text-sm">{t('profile.state')}</Label>
                       <Input id="state" className="h-9 sm:h-10 text-sm" value={profile.state || ""} onChange={e => setProfile({ ...profile, state: e.target.value })} />
                     </div>
                     <div className="space-y-1 sm:space-y-2">
-                      <Label htmlFor="pincode" className="text-xs sm:text-sm">Pincode</Label>
+                      <Label htmlFor="pincode" className="text-xs sm:text-sm">{t('profile.pincode')}</Label>
                       <Input id="pincode" className="h-9 sm:h-10 text-sm" value={profile.pincode || ""} onChange={e => setProfile({ ...profile, pincode: e.target.value })} />
                     </div>
                   </div>
                   <div className="flex gap-3 sm:gap-4">
                     <Button type="submit" disabled={isLoading} className="w-1/2 h-10 sm:h-12 text-sm">
-                      {isLoading ? "Updating..." : "Update Profile"}
+                      {isLoading ? t('profile.updating') : t('profile.updateButton')}
                     </Button>
                     <Button variant="destructive" type="button" onClick={handleLogout} className="w-1/2 h-10 sm:h-12 text-sm">
-                      Logout
+                      {t('profile.logout')}
                     </Button>
                   </div>
                 </form>
@@ -410,25 +412,25 @@ const Profile = () => {
           <TabsContent value="security">
             <Card>
               <CardHeader>
-                <CardTitle>Security Settings</CardTitle>
-                <CardDescription>Change your password</CardDescription>
+                <CardTitle>{t('profile.securityTitle')}</CardTitle>
+                <CardDescription>{t('profile.securityDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <form onSubmit={handleChangePassword} className="space-y-2">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
+                    <Label htmlFor="currentPassword">{t('profile.currentPassword')}</Label>
                     <Input id="currentPassword" type="password" value={pwdForm.currentPassword} onChange={e => setPwdForm({ ...pwdForm, currentPassword: e.target.value })} autoComplete="current-password" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
+                    <Label htmlFor="newPassword">{t('profile.newPassword')}</Label>
                     <Input id="newPassword" type="password" value={pwdForm.newPassword} onChange={e => setPwdForm({ ...pwdForm, newPassword: e.target.value })} autoComplete="new-password" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
+                    <Label htmlFor="confirmNewPassword">{t('profile.confirmNewPassword')}</Label>
                     <Input id="confirmNewPassword" type="password" value={pwdForm.confirmNewPassword} onChange={e => setPwdForm({ ...pwdForm, confirmNewPassword: e.target.value })} autoComplete="new-password" />
                   </div>
                   <Button type="submit" disabled={isChangingPassword}>
-                    {isChangingPassword ? "Changing..." : "Change Password"}
+                    {isChangingPassword ? t('profile.changing') : t('profile.changePassword')}
                   </Button>
                   {pwdError && <div className="text-xs text-red-500 mt-2">{pwdError}</div>}
                   {pwdSuccess && <div className="text-xs text-green-500 mt-2">{pwdSuccess}</div>}
@@ -440,14 +442,14 @@ const Profile = () => {
           <TabsContent value="payment">
             <Card>
               <CardHeader>
-                <CardTitle>Payment Methods</CardTitle>
-                <CardDescription>Manage your saved payment methods</CardDescription>
+                <CardTitle>{t('profile.paymentTitle')}</CardTitle>
+                <CardDescription>{t('profile.paymentDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {isLoadingPayments ? (
-                  <p className="text-center text-muted-foreground py-8">Loading payment methods...</p>
+                  <p className="text-center text-muted-foreground py-8">{t('profile.loadingPayments')}</p>
                 ) : !Array.isArray(paymentMethods) || paymentMethods.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">No payment methods added yet</p>
+                  <p className="text-center text-muted-foreground py-8">{t('profile.noPayments')}</p>
                 ) : (
                   paymentMethods.map((method) => (
                     <div key={method.id} className="border rounded-lg p-4">
@@ -460,7 +462,7 @@ const Profile = () => {
                               {method.is_default && (
                                 <Badge variant="secondary" className="flex items-center gap-1">
                                   <Star className="h-3 w-3" />
-                                  Default
+                                  {t('profile.default')}
                                 </Badge>
                               )}
                             </div>
@@ -470,7 +472,7 @@ const Profile = () => {
                         <div className="flex gap-2">
                           {!method.is_default && (
                             <Button variant="outline" size="sm" onClick={() => handleSetDefault(method.id)}>
-                              Set Default
+                              {t('profile.setDefault')}
                             </Button>
                           )}
                           <Button variant="ghost" size="sm" onClick={() => handleRemovePaymentMethod(method.id)}>
@@ -479,19 +481,19 @@ const Profile = () => {
                         </div>
                       </div>
                       <div className="ml-7 text-xs text-muted-foreground">
-                        {method.payment_type === "UPI" && <span>UPI ID: {method.upi_id}</span>}
+                        {method.payment_type === "UPI" && <span>{t('profile.upiIdLabel', { id: method.upi_id })}</span>}
                         {method.payment_type === "CARD" && (
                           <>
                             <span>
-                              {method.card_brand} ending in {method.card_last_four}
+                              {t('profile.cardEnding', { brand: method.card_brand, last: method.card_last_four })}
                               {method.card_expiry_month && method.card_expiry_year
-                                ? `, Expires ${method.card_expiry_month}/${method.card_expiry_year}`
+                                ? t('profile.cardExpires', { month: method.card_expiry_month, year: method.card_expiry_year })
                                 : ""}
                             </span>
                           </>
                         )}
-                        {method.payment_type === "NETBANKING" && <span>Bank: {method.bank_name}</span>}
-                        {method.payment_type === "WALLET" && <span>Provider: {method.wallet_provider}</span>}
+                        {method.payment_type === "NETBANKING" && <span>{t('profile.bankLabel', { bank: method.bank_name })}</span>}
+                        {method.payment_type === "WALLET" && <span>{t('profile.providerLabel', { provider: method.wallet_provider })}</span>}
                       </div>
                     </div>
                   ))
@@ -500,18 +502,18 @@ const Profile = () => {
                 <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full">
-                      Add New Payment Method
+                      {t('profile.addPayment')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[500px]">
                     <form onSubmit={handleAddPaymentMethod}>
                       <DialogHeader>
-                        <DialogTitle>Add Payment Method</DialogTitle>
-                        <DialogDescription>Add a new payment method to your account</DialogDescription>
+                        <DialogTitle>{t('profile.addPaymentTitle')}</DialogTitle>
+                        <DialogDescription>{t('profile.addPaymentDesc')}</DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                          <Label htmlFor="payment_type">Payment Type</Label>
+                          <Label htmlFor="payment_type">{t('profile.paymentType')}</Label>
                           <Select
                             value={newPayment.payment_type}
                             onValueChange={value =>
@@ -522,17 +524,17 @@ const Profile = () => {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="UPI">UPI</SelectItem>
-                              <SelectItem value="CARD">Card</SelectItem>
-                              <SelectItem value="NETBANKING">Net Banking</SelectItem>
-                              <SelectItem value="WALLET">Wallet</SelectItem>
+                              <SelectItem value="UPI">{t('profile.typeUpi')}</SelectItem>
+                              <SelectItem value="CARD">{t('profile.typeCard')}</SelectItem>
+                              <SelectItem value="NETBANKING">{t('profile.typeNetbanking')}</SelectItem>
+                              <SelectItem value="WALLET">{t('profile.typeWallet')}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         {/* UPI */}
                         {newPayment.payment_type === "UPI" && (
                           <div className="space-y-2">
-                            <Label htmlFor="upi_id">UPI ID</Label>
+                            <Label htmlFor="upi_id">{t('profile.upiId')}</Label>
                             <Input id="upi_id" placeholder="user@paytm" value={newPayment.upi_id} onChange={e => setNewPayment({ ...newPayment, upi_id: e.target.value })} required className={formErrors.upi_id ? "border-red-500" : ""} />
                             {formErrors.upi_id && <div className="text-xs text-red-500">{formErrors.upi_id}</div>}
                           </div>
@@ -541,10 +543,10 @@ const Profile = () => {
                         {newPayment.payment_type === "CARD" && (
                           <>
                             <div className="space-y-2">
-                              <Label htmlFor="card_brand">Card Brand</Label>
+                              <Label htmlFor="card_brand">{t('profile.cardBrand')}</Label>
                               <Select value={newPayment.card_brand} onValueChange={value => setNewPayment({ ...newPayment, card_brand: value })}>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select card brand" />
+                                  <SelectValue placeholder={t('profile.selectCardBrand')} />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="Visa">Visa</SelectItem>
@@ -556,18 +558,18 @@ const Profile = () => {
                               {formErrors.card_brand && <div className="text-xs text-red-500">{formErrors.card_brand}</div>}
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="card_last_four">Last 4 Digits</Label>
+                              <Label htmlFor="card_last_four">{t('profile.lastFour')}</Label>
                               <Input id="card_last_four" placeholder="1234" maxLength={4} value={newPayment.card_last_four} onChange={e => setNewPayment({ ...newPayment, card_last_four: e.target.value })} required className={formErrors.card_last_four ? "border-red-500" : ""} />
                               {formErrors.card_last_four && <div className="text-xs text-red-500">{formErrors.card_last_four}</div>}
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-2">
-                                <Label htmlFor="expiry_month">Expiry Month</Label>
+                                <Label htmlFor="expiry_month">{t('profile.expiryMonth')}</Label>
                                 <Input id="expiry_month" placeholder="MM" maxLength={2} value={newPayment.card_expiry_month} onChange={e => setNewPayment({ ...newPayment, card_expiry_month: e.target.value })} required className={formErrors.card_expiry_month ? "border-red-500" : ""} />
                                 {formErrors.card_expiry_month && <div className="text-xs text-red-500">{formErrors.card_expiry_month}</div>}
                               </div>
                               <div className="space-y-2">
-                                <Label htmlFor="expiry_year">Expiry Year</Label>
+                                <Label htmlFor="expiry_year">{t('profile.expiryYear')}</Label>
                                 <Input id="expiry_year" placeholder="YYYY" maxLength={4} value={newPayment.card_expiry_year} onChange={e => setNewPayment({ ...newPayment, card_expiry_year: e.target.value })} required className={formErrors.card_expiry_year ? "border-red-500" : ""} />
                                 {formErrors.card_expiry_year && <div className="text-xs text-red-500">{formErrors.card_expiry_year}</div>}
                               </div>
@@ -577,7 +579,7 @@ const Profile = () => {
                         {/* NETBANKING */}
                         {newPayment.payment_type === "NETBANKING" && (
                           <div className="space-y-2">
-                            <Label htmlFor="bank_name">Bank Name</Label>
+                            <Label htmlFor="bank_name">{t('profile.bankName')}</Label>
                             <Input id="bank_name" placeholder="State Bank of India" value={newPayment.bank_name} onChange={e => setNewPayment({ ...newPayment, bank_name: e.target.value })} required className={formErrors.bank_name ? "border-red-500" : ""} />
                             {formErrors.bank_name && <div className="text-xs text-red-500">{formErrors.bank_name}</div>}
                           </div>
@@ -585,10 +587,10 @@ const Profile = () => {
                         {/* WALLET */}
                         {newPayment.payment_type === "WALLET" && (
                           <div className="space-y-2">
-                            <Label htmlFor="wallet_provider">Wallet Provider</Label>
+                            <Label htmlFor="wallet_provider">{t('profile.walletProvider')}</Label>
                             <Select value={newPayment.wallet_provider} onValueChange={value => setNewPayment({ ...newPayment, wallet_provider: value })}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select wallet" />
+                                <SelectValue placeholder={t('profile.selectWallet')} />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="PayTM">PayTM</SelectItem>
@@ -602,12 +604,12 @@ const Profile = () => {
                         )}
                         <div className="flex items-center space-x-2 pt-2">
                           <input type="checkbox" id="is_default" checked={newPayment.is_default} onChange={e => setNewPayment({ ...newPayment, is_default: e.target.checked })} className="h-4 w-4" />
-                          <Label htmlFor="is_default" className="cursor-pointer">Set as default payment method</Label>
+                          <Label htmlFor="is_default" className="cursor-pointer">{t('profile.setAsDefault')}</Label>
                         </div>
                       </div>
                       <DialogFooter>
                         <Button type="submit" disabled={isAddingPayment}>
-                          {isAddingPayment ? "Adding..." : "Add Payment Method"}
+                          {isAddingPayment ? t('profile.adding') : t('profile.addPaymentTitle')}
                         </Button>
                       </DialogFooter>
                     </form>

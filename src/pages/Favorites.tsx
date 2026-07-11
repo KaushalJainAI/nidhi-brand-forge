@@ -4,9 +4,11 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useTranslation } from "react-i18next";
 
 const Favorites = () => {
   const { favorites } = useFavorites();
+  const { t } = useTranslation();
 
 
   return (
@@ -23,10 +25,10 @@ const Favorites = () => {
             <div className="mx-auto mb-4 h-20 w-20 rounded-full spice-backdrop grid place-items-center">
               <Heart className="h-9 w-9 text-primary" />
             </div>
-            <p className="text-foreground font-semibold text-lg mb-1">Your wishlist is empty</p>
-            <p className="text-muted-foreground text-sm mb-6">Tap the heart on any product to save it here.</p>
+            <p className="text-foreground font-semibold text-lg mb-1">{t('favorites.empty')}</p>
+            <p className="text-muted-foreground text-sm mb-6">{t('favorites.emptyHint')}</p>
             <Button asChild className="rounded-full font-bold shadow-lg shadow-primary/30 active-press">
-              <Link to="/products">Browse Products</Link>
+              <Link to="/products">{t('favorites.browse')}</Link>
             </Button>
           </div>
         )}

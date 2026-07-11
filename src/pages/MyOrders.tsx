@@ -27,14 +27,18 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ordersAPI, Order } from "@/lib/api/orders";
+import { razorpayAPI } from "@/lib/api/payments";
+import { openRazorpayCheckout } from "@/lib/razorpay";
 import { reviewsAPI } from "@/lib/api/reviews";
 import { MAX_REVIEW_COMMENT } from "@/config/limits";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation, Trans } from "react-i18next";
 
 import product1 from "@/assets/product-1.jpg";
 
 const MyOrders = () => {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -97,12 +101,18 @@ const MyOrders = () => {
 
   const formatStatus = (status: string) => {
     const map: Record<string, string> = {
-      pending: "Pending",
-      in_transit: "In Transit",
-      delivered: "Delivered",
-      cancelled: "Cancelled",
+      pending: t('myOrders.statusPending'),
+      confirmed: t('myOrders.statusConfirmed', 'Confirmed'),
+      processing: t('myOrders.statusProcessing', 'Processing'),
+      shipped: t('myOrders.statusShipped', 'Shipped'),
+      delivering: t('myOrders.statusDelivering', 'Out for delivery'),
+      in_transit: t('myOrders.statusInTransit'),
+      delivered: t('myOrders.statusDelivered'),
+      cancelled: t('myOrders.statusCancelled'),
     };
-    return map[status.toLowerCase()] ?? status;
+    const key = status.toLowerCase();
+    // Title-case fallback for any status without an explicit label.
+    return map[key] ?? key.charAt(0).toUpperCase() + key.slice(1);
   };
 
   const formatCurrency = (v: number) =>
@@ -127,9 +137,9 @@ const MyOrders = () => {
       // Check if it's an authentication error (401 or 403)
       const status = err?.response?.status || err?.status;
       if (status === 401 || status === 403) {
-        toast.error("Please login to view your orders");
+        toast.error(t('myOrders.loginRequired'));
       } else {
-        toast.error("Failed to load orders.");
+        toast.error(t('myOrders.loadFailed'));
       }
       setOrders([]);
     } finally {
@@ -150,7 +160,7 @@ const MyOrders = () => {
 
   const handleReorder = async (order: Order) => {
     if (!order.items || order.items.length === 0) {
-      toast.error("No items to reorder");
+      toast.error(t('myOrders.noItemsReorder'));
       return;
     }
 
@@ -168,20 +178,20 @@ const MyOrders = () => {
         });
       }
 
-      toast.success("Items from this order added to cart");
+      toast.success(t('myOrders.reorderAdded'));
     } catch (error) {
       console.error("Failed to reorder:", error);
-      toast.error("Failed to reorder items");
+      toast.error(t('myOrders.reorderFailed'));
     }
   };
 
   const handleDownloadBill = async (order: Order) => {
     try {
       await ordersAPI.downloadInvoice(order.id, order.order_number);
-      toast.success(`Downloaded bill for ${order.order_number}`);
+      toast.success(t('myOrders.billDownloaded', { order: order.order_number }));
     } catch (error) {
       console.error("Failed to download bill:", error);
-      toast.error("Failed to download bill. Please try again.");
+      toast.error(t('myOrders.billFailed'));
     }
   };
 
@@ -190,7 +200,7 @@ const MyOrders = () => {
     // (Order-scoped chat now lives in the same thread as the AI assistant.)
     window.dispatchEvent(
       new CustomEvent("assistant:open", {
-        detail: { seed: `I need help with my order ${order.order_number}.` },
+        detail: { seed: t('myOrders.supportSeed', { order: order.order_number }) },
       })
     );
   };
@@ -211,11 +221,11 @@ const MyOrders = () => {
 
   const handleSubmitProductReview = async () => {
     if (currentRating === 0) {
-      toast.error("Please select a rating");
+      toast.error(t('myOrders.selectRating'));
       return;
     }
     if (!productReviewDialog.itemId) {
-      toast.error("No item selected for review");
+      toast.error(t('myOrders.noItemSelected'));
       return;
     }
 
@@ -232,7 +242,7 @@ const MyOrders = () => {
         ),
       };
       await reviewsAPI.create(reviewData);
-      toast.success(`Review submitted for ${productReviewDialog.itemName}!`);
+      toast.success(t('myOrders.reviewSubmitted', { name: productReviewDialog.itemName }));
       setProductReviewDialog({ open: false, itemType: 'product', itemId: null, itemName: "", orderId: null });
       setCurrentRating(0);
       setCurrentReview("");
@@ -240,10 +250,10 @@ const MyOrders = () => {
       console.error("Failed to submit review:", error);
 
       
-      const message = error?.message && error.message !== "Bad Request" 
-        ? error.message 
-        : "Failed to submit review. Please try again.";
-      
+      const message = error?.message && error.message !== "Bad Request"
+        ? error.message
+        : t('myOrders.reviewFailed');
+
       toast.error(message);
     } finally {
       setReviewLoading(false);
@@ -252,10 +262,10 @@ const MyOrders = () => {
 
   const handleSubmitReview = () => {
     if (currentRating === 0) {
-      toast.error("Please select a rating");
+      toast.error(t('myOrders.selectRating'));
       return;
     }
-    toast.success("Thank you for your feedback!");
+    toast.success(t('myOrders.feedbackThanks'));
     setReviewDialog({ open: false, orderId: null });
     setCurrentRating(0);
     setCurrentReview("");
@@ -270,7 +280,7 @@ const MyOrders = () => {
     try {
       setCancelLoading(true);
       await ordersAPI.cancel(cancelDialog.orderId);
-      toast.success("Order cancelled successfully");
+      toast.success(t('myOrders.cancelSuccess'));
 
       // auto-refresh list from backend
       await fetchOrders();
@@ -279,7 +289,7 @@ const MyOrders = () => {
     } catch (err: any) {
       console.error("Failed to cancel order:", err);
       const msg =
-        err?.data?.error || "Failed to cancel order. Please try again.";
+        err?.data?.error || t('myOrders.cancelFailed');
       toast.error(msg);
     } finally {
       setCancelLoading(false);
@@ -287,8 +297,58 @@ const MyOrders = () => {
   };
 
   const isCancellable = (status: string) => {
+    // Mirror the backend: a customer may cancel until the parcel is out for
+    // delivery or already delivered/cancelled.
     const s = status.toLowerCase();
-    return s === "pending" || s === "in_transit";
+    return !["delivering", "delivered", "cancelled"].includes(s);
+  };
+
+  // A payable ONLINE order that hasn't been paid yet can be retried. The cart is
+  // already gone, so retry re-uses the SAME order (never re-adds to cart) —
+  // PAYMENT_INTEGRATION_PLAN.md §6.6.
+  const [retryingId, setRetryingId] = useState<number | null>(null);
+
+  const canRetryPayment = (order: Order) => {
+    const method = (order.payment_method || "").toUpperCase();
+    const ps = (order.payment_status || "").toLowerCase();
+    const s = order.status.toLowerCase();
+    return method === "ONLINE" &&
+      ["pending", "processing", "failed"].includes(ps) &&
+      !["cancelled", "delivered", "delivering"].includes(s);
+  };
+
+  const handleRetryPayment = async (order: Order) => {
+    try {
+      setRetryingId(order.id);
+      const rzp = await razorpayAPI.createOrder(order.id);
+      await openRazorpayCheckout({
+        key: rzp.razorpay_key_id,
+        amount: rzp.amount,
+        currency: rzp.currency,
+        orderId: rzp.razorpay_order_id,
+        name: "Nidhi Masala",
+        description: `Order ${order.order_number}`,
+        onSuccess: async (r) => {
+          try {
+            await razorpayAPI.verify({
+              razorpay_order_id: r.razorpay_order_id,
+              razorpay_payment_id: r.razorpay_payment_id,
+              razorpay_signature: r.razorpay_signature,
+            });
+            toast.success(t('myOrders.paymentSuccess', 'Payment received!'));
+          } catch {
+            toast.message(t('myOrders.paymentConfirming', 'Confirming your payment…'));
+          } finally {
+            setRetryingId(null);
+            fetchOrders();
+          }
+        },
+        onDismiss: () => setRetryingId(null),
+      });
+    } catch (err: any) {
+      toast.error(err?.data?.error || t('myOrders.retryFailed', 'Could not start payment. Please try again.'));
+      setRetryingId(null);
+    }
   };
 
   const isDelivered = (status: string) => {
@@ -308,17 +368,17 @@ const MyOrders = () => {
             </div>
             <div>
               <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                My{" "}
+                {t('myOrders.titleLead')}{" "}
                 <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-                  Orders
+                  {t('myOrders.titleAccent')}
                 </span>
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground mt-0.5">
                 {loading
-                  ? "Fetching your orders…"
+                  ? t('myOrders.fetching')
                   : orders.length > 0
-                  ? `You've placed ${orders.length} order${orders.length > 1 ? "s" : ""} with us`
-                  : "Track and manage everything you order"}
+                  ? t('myOrders.placedCount', { count: orders.length })
+                  : t('myOrders.trackSubtitle')}
               </p>
             </div>
           </div>
@@ -329,7 +389,7 @@ const MyOrders = () => {
         <div className="container mx-auto px-3 sm:px-4 max-w-5xl">
           {loading ? (
             <p className="text-center text-muted-foreground">
-              Loading orders...
+              {t('myOrders.loadingOrders')}
             </p>
           ) : orders.length > 0 ? (
               <div className="space-y-4 sm:space-y-6">
@@ -349,10 +409,10 @@ const MyOrders = () => {
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2 sm:gap-4">
                         <div>
                           <h3 className="font-semibold text-sm sm:text-lg mb-0.5 sm:mb-1">
-                            Order {order.order_number}
+                            {t('myOrders.orderLabel', { number: order.order_number })}
                           </h3>
                           <p className="text-xs sm:text-sm text-muted-foreground">
-                            Placed on {formatDate(order.created_at)}
+                            {t('myOrders.placedOn', { date: formatDate(order.created_at) })}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -373,7 +433,7 @@ const MyOrders = () => {
                             size="icon"
                             className="h-8 w-8 sm:h-10 sm:w-10"
                             onClick={() => toggleExpanded(order.id)}
-                            aria-label={isExpanded ? "Show less" : "Show more"}
+                            aria-label={isExpanded ? t('myOrders.showLess') : t('myOrders.showMore')}
                           >
                             {isExpanded ? (
                               <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -386,7 +446,7 @@ const MyOrders = () => {
 
                       {/* Always-visible total row */}
                       <div className="flex justify-between items-center mb-3 sm:mb-4 pb-3 sm:pb-4 border-b">
-                        <span className="font-semibold text-sm sm:text-base">Total</span>
+                        <span className="font-semibold text-sm sm:text-base">{t('myOrders.total')}</span>
                         <span className="text-lg sm:text-xl font-bold text-primary">
                           {formatCurrency(order.total)}
                         </span>
@@ -419,7 +479,7 @@ const MyOrders = () => {
                                       {item.product_name}
                                     </h4>
                                     <p className="text-xs sm:text-sm text-muted-foreground">
-                                      Qty: {item.quantity} × ₹{item.price}
+                                      {t('myOrders.qtyPrice', { qty: item.quantity, price: item.price })}
                                     </p>
                                     <p className="text-xs sm:text-sm text-muted-foreground">
                                       {formatCurrency(item.total)}
@@ -432,27 +492,39 @@ const MyOrders = () => {
                             {/* Summary */}
                             <div className="mb-4 pb-4 border-b space-y-1">
                               <div className="flex justify-between text-sm text-muted-foreground">
-                                <span>Subtotal</span>
+                                <span>{t('myOrders.subtotal')}</span>
                                 <span>{formatCurrency(order.subtotal)}</span>
                               </div>
                               {order.discount > 0 && (
                                 <div className="flex justify-between text-sm text-green-600">
-                                  <span>Discount</span>
+                                  <span>{t('myOrders.discount')}</span>
                                   <span>
                                     -{formatCurrency(order.discount)}
                                   </span>
                                 </div>
                               )}
                               <div className="flex justify-between text-sm text-muted-foreground">
-                                <span>Tax</span>
+                                <span>{t('myOrders.tax')}</span>
                                 <span>{formatCurrency(order.tax)}</span>
                               </div>
                             </div>
 
                             {/* Address */}
                             <p className="text-sm text-muted-foreground mb-4">
-                              Shipping to: {order.shipping_address}
+                              {t('myOrders.shippingTo', { address: order.shipping_address })}
                             </p>
+
+                            {/* Tracking number (shown once the admin dispatches) */}
+                            {order.tracking_number ? (
+                              <div className="mb-4 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5">
+                                <p className="text-xs font-semibold text-primary">
+                                  {t('myOrders.trackingNumber', 'Tracking number')}
+                                </p>
+                                <p className="text-sm font-mono font-medium break-all">
+                                  {order.tracking_number}
+                                </p>
+                              </div>
+                            ) : null}
                           </>
                         )}
                       </div>
@@ -467,7 +539,7 @@ const MyOrders = () => {
                           disabled={order.status.toLowerCase() === "cancelled"}
                         >
                           <Repeat className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          Reorder
+                          {t('myOrders.reorder')}
                         </Button>
 
                         {/* Chat Support Button */}
@@ -478,7 +550,7 @@ const MyOrders = () => {
                           onClick={() => handleChatSupport(order)}
                         >
                           <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          Support
+                          {t('myOrders.support')}
                         </Button>
 
                         <Button
@@ -488,8 +560,23 @@ const MyOrders = () => {
                           onClick={() => handleDownloadBill(order)}
                         >
                           <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          Bill
+                          {t('myOrders.bill')}
                         </Button>
+
+                        {/* Retry payment for an unpaid ONLINE order (reuses the
+                            same order — the cart is already gone). */}
+                        {canRetryPayment(order) && (
+                          <Button
+                            size="sm"
+                            className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
+                            onClick={() => handleRetryPayment(order)}
+                            disabled={retryingId === order.id}
+                          >
+                            {retryingId === order.id
+                              ? t('myOrders.processing', 'Processing…')
+                              : t('myOrders.retryPayment', 'Complete payment')}
+                          </Button>
+                        )}
 
                         {/* Cancel for pending/in_transit OR Review for delivered */}
                         {cancellable ? (
@@ -514,18 +601,14 @@ const MyOrders = () => {
                                 onClick={() => openCancelDialog(order.id)}
                               >
                                 <XCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                                Cancel
+                                {t('myOrders.cancel')}
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>Cancel this order?</DialogTitle>
+                                <DialogTitle>{t('myOrders.cancelTitle')}</DialogTitle>
                                 <DialogDescription>
-                                  Are you sure you want to cancel order{" "}
-                                  <span className="font-semibold">
-                                    {order.order_number}
-                                  </span>
-                                  ? This action cannot be undone.
+                                  <Trans i18nKey="myOrders.cancelConfirm" values={{ number: order.order_number }} components={{ b: <span className="font-semibold" /> }} />
                                 </DialogDescription>
                               </DialogHeader>
                               <div className="mt-4 flex justify-end gap-2">
@@ -539,14 +622,14 @@ const MyOrders = () => {
                                   }
                                   disabled={cancelLoading}
                                 >
-                                  No, keep order
+                                  {t('myOrders.keepOrder')}
                                 </Button>
                                 <Button
                                   variant="destructive"
                                   onClick={handleConfirmCancel}
                                   disabled={cancelLoading}
                                 >
-                                  {cancelLoading ? "Cancelling..." : "Yes, cancel"}
+                                  {cancelLoading ? t('myOrders.cancelling') : t('myOrders.confirmCancel')}
                                 </Button>
                               </div>
                             </DialogContent>
@@ -580,21 +663,21 @@ const MyOrders = () => {
                                 }}
                               >
                                 <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                                Review
+                                {t('myOrders.review')}
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>Review {productReviewDialog.itemName}</DialogTitle>
+                                <DialogTitle>{t('myOrders.reviewTitle', { name: productReviewDialog.itemName })}</DialogTitle>
                                 <DialogDescription>
-                                  Share your experience with this {productReviewDialog.itemType}
+                                  {t('myOrders.reviewDesc', { itemType: t(productReviewDialog.itemType === 'combo' ? 'myOrders.typeCombo' : 'myOrders.typeProduct') })}
                                 </DialogDescription>
                               </DialogHeader>
-                              
+
                               {/* Product/Combo selector if multiple items */}
                               {order.items.length > 1 && (
                                 <div className="mb-4">
-                                  <p className="text-sm font-medium mb-2">Select Item to Review</p>
+                                  <p className="text-sm font-medium mb-2">{t('myOrders.selectItem')}</p>
                                   <div className="flex flex-wrap gap-2">
                                     {order.items.map((item) => {
                                       const itemId = item.item_type === 'combo' ? item.combo_id : item.product_id;
@@ -625,7 +708,7 @@ const MyOrders = () => {
                               <div className="space-y-4">
                                 {/* Star Rating */}
                                 <div>
-                                  <p className="text-sm font-medium mb-2">Rating</p>
+                                  <p className="text-sm font-medium mb-2">{t('myOrders.rating')}</p>
                                   <div className="flex gap-1">
                                     {[1, 2, 3, 4, 5].map((star) => (
                                       <button
@@ -647,9 +730,9 @@ const MyOrders = () => {
                                 
                                 {/* Review Text */}
                                 <div>
-                                  <p className="text-sm font-medium mb-2">Your Review (optional)</p>
+                                  <p className="text-sm font-medium mb-2">{t('myOrders.yourReview')}</p>
                                   <Textarea
-                                    placeholder="Tell us what you think about this product..."
+                                    placeholder={t('myOrders.reviewPlaceholder')}
                                     value={currentReview}
                                     onChange={(e) => setCurrentReview(e.target.value.slice(0, MAX_REVIEW_COMMENT))}
                                     maxLength={MAX_REVIEW_COMMENT}
@@ -671,10 +754,10 @@ const MyOrders = () => {
                                       setCurrentReview("");
                                     }}
                                   >
-                                    Cancel
+                                    {t('myOrders.cancel')}
                                   </Button>
                                   <Button onClick={handleSubmitProductReview} disabled={reviewLoading}>
-                                    {reviewLoading ? "Submitting..." : "Submit Review"}
+                                    {reviewLoading ? t('myOrders.submitting') : t('myOrders.submitReview')}
                                   </Button>
                                 </div>
                               </div>
@@ -693,13 +776,13 @@ const MyOrders = () => {
                 <div className="grid h-20 w-20 sm:h-24 sm:w-24 place-items-center rounded-full bg-gradient-to-br from-primary/15 to-accent/15 mb-4 sm:mb-5">
                   <Package className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
                 </div>
-                <h3 className="text-lg sm:text-2xl font-bold mb-2">No orders yet</h3>
+                <h3 className="text-lg sm:text-2xl font-bold mb-2">{t('myOrders.emptyTitle')}</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-5 text-center max-w-md">
-                  Looks like you haven't placed any orders yet. Explore our amazing collection and start shopping!
+                  {t('myOrders.emptyBody')}
                 </p>
                 <Link to="/products">
                   <Button size="lg" className="rounded-full text-sm sm:text-base active-press">
-                    Continue Shopping
+                    {t('myOrders.continueShopping')}
                   </Button>
                 </Link>
               </CardContent>

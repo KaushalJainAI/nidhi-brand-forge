@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { API_BASE_URL } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const emailFromState = location.state?.email || "";
 
   const [email, setEmail] = useState(emailFromState);
@@ -32,7 +34,7 @@ const ResetPassword = () => {
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !otpCode || otpCode.length !== 6) {
-      toast.error("Please enter a valid email and 6-digit OTP.");
+      toast.error(t('resetPassword.invalidOtp'));
       return;
     }
 
@@ -47,16 +49,16 @@ const ResetPassword = () => {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("OTP verified!");
+        toast.success(t('resetPassword.otpVerified'));
         if (data.reset_token) {
             setResetToken(data.reset_token);
         }
         setStep("reset");
       } else {
-        toast.error(data.detail || "Invalid or expired OTP.");
+        toast.error(data.detail || t('resetPassword.otpExpired'));
       }
     } catch (error) {
-      toast.error("Network error. Please try again.");
+      toast.error(t('resetPassword.networkError'));
     } finally {
       setIsLoading(false);
     }
@@ -65,11 +67,11 @@ const ResetPassword = () => {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error(t('resetPassword.passwordMismatch'));
       return;
     }
     if (newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters long.");
+      toast.error(t('resetPassword.passwordTooShort'));
       return;
     }
 
@@ -89,18 +91,18 @@ const ResetPassword = () => {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Password reset successfully! You can now login.");
+        toast.success(t('resetPassword.resetSuccess'));
         navigate("/login");
       } else {
         // Django validation errors can be a string or an array of strings
         if (Array.isArray(data.detail)) {
             data.detail.forEach((err: string) => toast.error(err));
         } else {
-            toast.error(data.detail || "Failed to reset password. Please check requirements.");
+            toast.error(data.detail || t('resetPassword.resetFailed'));
         }
       }
     } catch (error) {
-      toast.error("Network error. Please try again.");
+      toast.error(t('resetPassword.networkError'));
     } finally {
       setIsLoading(false);
     }
@@ -113,12 +115,12 @@ const ResetPassword = () => {
           <Card className="border-border shadow-lg mt-8">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold text-center">
-                {step === "verify" ? "Verify OTP" : "Create New Password"}
+                {step === "verify" ? t('resetPassword.verifyTitle') : t('resetPassword.createTitle')}
               </CardTitle>
               <CardDescription className="text-center">
-                {step === "verify" 
-                    ? "Enter the 6-digit code sent to your email." 
-                    : "Enter a strong password to secure your account."}
+                {step === "verify"
+                    ? t('resetPassword.verifyDesc')
+                    : t('resetPassword.createDesc')}
               </CardDescription>
             </CardHeader>
             
@@ -126,7 +128,7 @@ const ResetPassword = () => {
                 <form onSubmit={handleVerifyOTP}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">{t('resetPassword.email')}</Label>
                       <Input
                         id="email"
                         type="email"
@@ -138,7 +140,7 @@ const ResetPassword = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="otp">6-Digit OTP</Label>
+                      <Label htmlFor="otp">{t('resetPassword.otpLabel')}</Label>
                       <Input
                         id="otp"
                         type="text"
@@ -157,10 +159,10 @@ const ResetPassword = () => {
                       className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
                       disabled={isLoading || otpCode.length !== 6}
                     >
-                      {isLoading ? "Verifying..." : "Verify OTP"}
+                      {isLoading ? t('resetPassword.verifying') : t('resetPassword.verifyButton')}
                     </Button>
                     <div className="text-sm text-center text-muted-foreground w-full">
-                      Didn't recieve it? <Link to="/forgot-password" className="text-primary hover:underline">Request again</Link>
+                      {t('resetPassword.notReceived')} <Link to="/forgot-password" className="text-primary hover:underline">{t('resetPassword.requestAgain')}</Link>
                     </div>
                   </CardFooter>
                 </form>
@@ -168,7 +170,7 @@ const ResetPassword = () => {
                 <form onSubmit={handleResetPassword}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="newPassword">New Password</Label>
+                      <Label htmlFor="newPassword">{t('resetPassword.newPassword')}</Label>
                       <Input
                         id="newPassword"
                         type="password"
@@ -179,7 +181,7 @@ const ResetPassword = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm Password</Label>
+                      <Label htmlFor="confirmPassword">{t('resetPassword.confirmPassword')}</Label>
                       <Input
                         id="confirmPassword"
                         type="password"
@@ -196,7 +198,7 @@ const ResetPassword = () => {
                       className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
                       disabled={isLoading}
                     >
-                      {isLoading ? "Resetting..." : "Reset Password"}
+                      {isLoading ? t('resetPassword.resetting') : t('resetPassword.resetButton')}
                     </Button>
                   </CardFooter>
                 </form>

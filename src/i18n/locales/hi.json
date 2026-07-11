@@ -156,7 +156,7 @@
     "months": "{{count}} महीने",
     "months_other": "{{count}} महीने",
     "available": "({{count}} उपलब्ध)",
-    "quantityLabel": "Quantity:",
+    "quantityLabel": "मात्रा:",
     "inCart": "कार्ट में",
     "noRatings": "कोई रेटिंग नहीं",
     "reviewsCount": "{{count}} समीक्षा",
@@ -319,7 +319,10 @@
     "searching": "उत्पाद खोजे जा रहे हैं...",
     "noResults": "आपकी खोज से मेल खाते कोई उत्पाद नहीं मिले",
     "tryDifferent": "अलग कीवर्ड से खोजने का प्रयास करें",
-    "sortRelevance": "प्रासंगिकता"
+    "sortRelevance": "प्रासंगिकता",
+    "pages": "पेज",
+    "products": "उत्पाद",
+    "searchFor": "\"{{query}}\" खोजें"
   },
   "auth": {
     "welcomeBack": "वापसी पर स्वागत है",
@@ -434,292 +437,652 @@
   "pages": {
     "shipping": {
       "areas": {
-        "title": "Shipping Areas",
-        "body": "We currently ship to all locations within India. Unfortunately, we do not ship internationally at this time."
+        "title": "शिपिंग क्षेत्र",
+        "body": "हम वर्तमान में भारत के सभी स्थानों पर शिपिंग करते हैं। फ़िलहाल हम अंतरराष्ट्रीय शिपिंग नहीं करते हैं।"
       },
       "timeline": {
-        "title": "Delivery Timeline",
-        "metro": "<b>Metro Cities:</b> 3-5 business days",
-        "cities": "<b>Other Cities:</b> 5-7 business days",
-        "remote": "<b>Remote Areas:</b> 7-10 business days"
+        "title": "डिलीवरी समय-सीमा",
+        "metro": "<b>मेट्रो शहर:</b> 3-5 कार्य दिवस",
+        "cities": "<b>अन्य शहर:</b> 5-7 कार्य दिवस",
+        "remote": "<b>दूरस्थ क्षेत्र:</b> 7-10 कार्य दिवस"
       },
       "charges": {
-        "title": "Shipping Charges",
-        "intro": "Shipping charges are calculated based on the weight of your order and delivery location:",
-        "free": "Orders above ₹500: <b>Free Shipping</b>",
-        "upto": "Orders up to ₹500: ₹50 shipping charge applies"
+        "title": "शिपिंग शुल्क",
+        "intro": "शिपिंग शुल्क आपके ऑर्डर के वज़न और डिलीवरी स्थान के आधार पर तय किया जाता है:",
+        "free": "₹500 से अधिक के ऑर्डर: <b>मुफ़्त शिपिंग</b>",
+        "upto": "₹500 तक के ऑर्डर: ₹50 शिपिंग शुल्क लागू होगा"
       },
       "tracking": {
-        "title": "Order Tracking",
-        "body": "Once your order is shipped, you will receive a tracking number via email and SMS. You can track your order using this number on the courier partner's website, or check its status on the My Orders page."
+        "title": "ऑर्डर ट्रैकिंग",
+        "body": "आपका ऑर्डर शिप होते ही आपको ईमेल और SMS से ट्रैकिंग नंबर मिलेगा। इस नंबर से आप कूरियर पार्टनर की वेबसाइट पर अपना ऑर्डर ट्रैक कर सकते हैं, या 'मेरे ऑर्डर' पेज पर उसकी स्थिति देख सकते हैं।"
       },
       "processing": {
-        "title": "Order Processing",
-        "body": "Orders are processed within 24-48 hours of receiving payment confirmation. Orders placed on weekends or holidays will be processed on the next business day."
+        "title": "ऑर्डर प्रोसेसिंग",
+        "body": "भुगतान की पुष्टि मिलने के 24-48 घंटों के भीतर ऑर्डर प्रोसेस किए जाते हैं। सप्ताहांत या छुट्टियों पर दिए गए ऑर्डर अगले कार्य दिवस पर प्रोसेस किए जाएँगे।"
       },
       "attempts": {
-        "title": "Delivery Attempts",
-        "body": "Our courier partner will make 3 delivery attempts. If all attempts fail, the order will be returned to us. Please ensure someone is available to receive the order at the provided address."
+        "title": "डिलीवरी प्रयास",
+        "body": "हमारा कूरियर पार्टनर 3 बार डिलीवरी का प्रयास करेगा। यदि सभी प्रयास विफल रहते हैं, तो ऑर्डर हमें वापस भेज दिया जाएगा। कृपया सुनिश्चित करें कि दिए गए पते पर ऑर्डर प्राप्त करने के लिए कोई उपलब्ध हो।"
       },
       "address": {
-        "title": "Shipping Address",
-        "body1": "The customer is responsible for providing a complete and correct shipping address at the time of placing the order. We are not liable for orders lost, delayed or returned due to a wrong or incomplete address, and no refund will be issued in such cases.",
-        "body2": "If you need to change your address, contact us on WhatsApp at <a>+91 93000 05040</a> within <b>1 hour</b> of placing the order. Address changes requested after this window cannot be guaranteed, as the order may already be processed for dispatch."
+        "title": "शिपिंग पता",
+        "body1": "ऑर्डर देते समय पूरा और सही शिपिंग पता देना ग्राहक की ज़िम्मेदारी है। गलत या अधूरे पते के कारण खोए, विलंबित या लौटाए गए ऑर्डर के लिए हम ज़िम्मेदार नहीं हैं, और ऐसे मामलों में कोई रिफ़ंड नहीं दिया जाएगा।",
+        "body2": "यदि आपको अपना पता बदलना है, तो ऑर्डर देने के <b>1 घंटे</b> के भीतर WhatsApp पर <a>+91 93000 05040</a> पर हमसे संपर्क करें। इस अवधि के बाद पता बदलने के अनुरोध की गारंटी नहीं दी जा सकती, क्योंकि ऑर्डर पहले ही डिस्पैच के लिए प्रोसेस हो चुका हो सकता है।"
       },
       "contact": {
-        "title": "Contact Us",
-        "body": "For any shipping-related queries, please contact our customer support at +91 93000 05040 or email us through our contact page."
+        "title": "संपर्क करें",
+        "body": "शिपिंग से जुड़े किसी भी प्रश्न के लिए कृपया हमारे ग्राहक सहायता नंबर +91 93000 05040 पर संपर्क करें या हमारे संपर्क पेज के माध्यम से ईमेल करें।"
       }
     },
     "returns": {
       "eligibility": {
-        "title": "Return & Replacement Eligibility",
-        "intro": "We accept return or replacement requests within 7 days of delivery for the following reasons only:",
+        "title": "वापसी और बदलाव की पात्रता",
+        "intro": "हम केवल निम्नलिखित कारणों से डिलीवरी के 7 दिनों के भीतर वापसी या बदलाव के अनुरोध स्वीकार करते हैं:",
         "items": [
-          "Product received is damaged or defective",
-          "Wrong product delivered",
-          "Product packaging is tampered or broken",
-          "Missing items from your order"
+          "प्राप्त उत्पाद क्षतिग्रस्त या दोषपूर्ण है",
+          "गलत उत्पाद डिलीवर हुआ",
+          "उत्पाद की पैकेजिंग से छेड़छाड़ हुई है या टूटी है",
+          "आपके ऑर्डर से कुछ आइटम गायब हैं"
         ]
       },
       "video": {
-        "title": "Unboxing Video Required",
-        "intro": "An unboxing video is mandatory for every return or replacement request. Without it, we will not be able to accept your claim.",
+        "title": "अनबॉक्सिंग वीडियो अनिवार्य",
+        "intro": "हर वापसी या बदलाव के अनुरोध के लिए अनबॉक्सिंग वीडियो अनिवार्य है। इसके बिना हम आपका दावा स्वीकार नहीं कर पाएँगे।",
         "items": [
-          "Record a single, continuous video starting before the sealed package is opened",
-          "The shipping label and packaging condition must be clearly visible",
-          "Show all items as they are taken out, including the damaged, wrong or missing item issue",
-          "Videos that are cut, edited or start after the package is already open will not be accepted"
+          "सीलबंद पैकेज खोलने से पहले शुरू करते हुए एक ही, बिना रुके वीडियो रिकॉर्ड करें",
+          "शिपिंग लेबल और पैकेजिंग की स्थिति स्पष्ट रूप से दिखनी चाहिए",
+          "सभी आइटम निकालते हुए दिखाएँ, जिसमें क्षतिग्रस्त, गलत या गायब आइटम की समस्या शामिल हो",
+          "काटे गए, संपादित किए गए या पैकेज खुलने के बाद शुरू होने वाले वीडियो स्वीकार नहीं किए जाएँगे"
         ]
       },
       "nonReturnable": {
-        "title": "Non-Returnable Items",
-        "intro": "Due to hygiene and quality reasons, the following cannot be returned:",
+        "title": "वापस न होने वाले आइटम",
+        "intro": "स्वच्छता और गुणवत्ता के कारणों से, निम्नलिखित वापस नहीं किए जा सकते:",
         "items": [
-          "Products with broken seals or opened packaging (unless damaged on arrival)",
-          "Products that have been used or consumed",
-          "Change of mind — food products cannot be returned once delivered"
+          "टूटी सील या खुली पैकेजिंग वाले उत्पाद (जब तक कि वे आने पर ही क्षतिग्रस्त न हों)",
+          "उपयोग किए गए या खाए गए उत्पाद",
+          "मन बदलना — खाद्य उत्पाद डिलीवर होने के बाद वापस नहीं किए जा सकते"
         ]
       },
       "process": {
-        "title": "Return Process",
+        "title": "वापसी प्रक्रिया",
         "items": [
-          "Contact our customer support within 7 days of delivery",
-          "Provide your order number, the reason for return and your unboxing video",
-          "Our team will verify your request within 24-48 hours",
-          "Once approved, we'll arrange a pickup from your address",
-          "Product must be returned in original packaging"
+          "डिलीवरी के 7 दिनों के भीतर हमारी ग्राहक सहायता से संपर्क करें",
+          "अपना ऑर्डर नंबर, वापसी का कारण और अपना अनबॉक्सिंग वीडियो दें",
+          "हमारी टीम 24-48 घंटों के भीतर आपके अनुरोध की जाँच करेगी",
+          "स्वीकृति मिलने पर हम आपके पते से पिकअप की व्यवस्था करेंगे",
+          "उत्पाद को मूल पैकेजिंग में ही लौटाना होगा"
         ]
       },
       "refund": {
-        "title": "Refund Process",
-        "intro": "Once we receive and inspect the returned product:",
+        "title": "रिफ़ंड प्रक्रिया",
+        "intro": "लौटाया गया उत्पाद प्राप्त कर जाँचने के बाद:",
         "items": [
-          "Refunds are processed within 5-7 business days",
-          "Amount will be credited to the original payment method",
-          "You will receive a confirmation once the refund is processed"
+          "रिफ़ंड 5-7 कार्य दिवसों के भीतर प्रोसेस किए जाते हैं",
+          "राशि मूल भुगतान माध्यम में जमा की जाएगी",
+          "रिफ़ंड प्रोसेस होने पर आपको पुष्टि मिलेगी"
         ]
       },
       "replacement": {
-        "title": "Replacement Policy",
-        "body": "We offer replacements for damaged or defective items, subject to the unboxing video requirement above. The replacement product will be shipped at no additional cost once we receive the returned item."
+        "title": "बदलाव नीति",
+        "body": "हम क्षतिग्रस्त या दोषपूर्ण आइटम के लिए बदलाव प्रदान करते हैं, जो ऊपर दी गई अनबॉक्सिंग वीडियो शर्त के अधीन है। लौटाया गया आइटम प्राप्त होने के बाद बदला हुआ उत्पाद बिना किसी अतिरिक्त शुल्क के भेजा जाएगा।"
       },
       "cancellation": {
-        "title": "Cancellation",
-        "body": "Orders cannot be cancelled once placed. Please review your items, quantities and address carefully before completing your purchase."
+        "title": "रद्दीकरण",
+        "body": "ऑर्डर देने के बाद रद्द नहीं किए जा सकते। कृपया खरीदारी पूरी करने से पहले अपने आइटम, मात्रा और पता ध्यान से जाँच लें।"
       },
       "contact": {
-        "title": "Contact Us",
-        "body": "For any return or refund queries, please contact our customer support at +91 93000 05040 or email us through our contact page. Our team is available Monday to Saturday, 9 AM to 6 PM IST."
+        "title": "संपर्क करें",
+        "body": "वापसी या रिफ़ंड से जुड़े किसी भी प्रश्न के लिए कृपया हमारे ग्राहक सहायता नंबर +91 93000 05040 पर संपर्क करें या हमारे संपर्क पेज के माध्यम से ईमेल करें। हमारी टीम सोमवार से शनिवार, सुबह 9 बजे से शाम 6 बजे (IST) तक उपलब्ध है।"
       }
     },
     "terms": {
-      "title": "Terms & Conditions",
-      "lastUpdated": "Last updated: {{date}}",
-      "intro": "These Terms & Conditions (\"Terms\") govern your access to and use of this website and the purchase of products from <brand>Nidhi Grah Udyog</brand> (\"we\", \"us\", \"our\"). By browsing the website, creating an account, or placing an order, you agree to be bound by these Terms. If you do not agree, please do not use the website.",
+      "title": "नियम और शर्तें",
+      "lastUpdated": "अंतिम अपडेट: {{date}}",
+      "intro": "ये नियम और शर्तें (\"नियम\") इस वेबसाइट तक आपकी पहुँच, उसके उपयोग और <brand>निधि गृह उद्योग</brand> (\"हम\", \"हमें\", \"हमारा\") से उत्पादों की खरीद को नियंत्रित करती हैं। वेबसाइट ब्राउज़ करके, खाता बनाकर या ऑर्डर देकर, आप इन नियमों से बाध्य होने के लिए सहमत होते हैं। यदि आप सहमत नहीं हैं, तो कृपया वेबसाइट का उपयोग न करें।",
       "s1": {
-        "title": "1. Eligibility",
-        "body": "You must be at least 18 years of age, or accessing the website under the supervision of a parent or legal guardian, and legally capable of entering into a binding contract under applicable Indian law to place an order with us."
+        "title": "1. पात्रता",
+        "body": "हमारे यहाँ ऑर्डर देने के लिए आपकी आयु कम से कम 18 वर्ष होनी चाहिए, या आप माता-पिता या कानूनी अभिभावक की देखरेख में वेबसाइट का उपयोग कर रहे हों, और लागू भारतीय कानून के तहत बाध्यकारी अनुबंध करने में कानूनी रूप से सक्षम हों।"
       },
       "s2": {
-        "title": "2. Account & Registration",
+        "title": "2. खाता और पंजीकरण",
         "items": [
-          "You are responsible for providing accurate, current and complete information during registration and checkout.",
-          "You are responsible for maintaining the confidentiality of your login credentials and for all activity under your account.",
-          "We may suspend or terminate accounts that we reasonably believe are being used fraudulently or in breach of these Terms."
+          "पंजीकरण और चेकआउट के दौरान सटीक, वर्तमान और पूरी जानकारी देना आपकी ज़िम्मेदारी है।",
+          "अपने लॉगिन विवरण की गोपनीयता बनाए रखना और अपने खाते के तहत होने वाली सभी गतिविधियों की ज़िम्मेदारी आपकी है।",
+          "यदि हमें उचित रूप से लगे कि किसी खाते का उपयोग धोखाधड़ी से या इन नियमों के उल्लंघन में हो रहा है, तो हम उसे निलंबित या समाप्त कर सकते हैं।"
         ]
       },
       "s3": {
-        "title": "3. Products & Food Information",
+        "title": "3. उत्पाद और खाद्य जानकारी",
         "items": [
-          "We sell packaged food products such as spices, masala blends and papad. Product images are for representation; actual colour, texture and packaging may vary slightly.",
-          "Please read the label, ingredients, allergen information and \"best before\" date on the physical packaging before consumption.",
-          "If you have food allergies or dietary restrictions, consume our products at your discretion. We are not liable for reactions where label instructions were not followed."
+          "हम मसाले, मसाला मिश्रण और पापड़ जैसे पैकेज्ड खाद्य उत्पाद बेचते हैं। उत्पाद की तस्वीरें केवल प्रतिनिधित्व के लिए हैं; वास्तविक रंग, बनावट और पैकेजिंग में थोड़ा अंतर हो सकता है।",
+          "कृपया सेवन से पहले असली पैकेजिंग पर लेबल, सामग्री, एलर्जन जानकारी और \"बेस्ट बिफ़ोर\" तारीख़ पढ़ें।",
+          "यदि आपको खाद्य एलर्जी या आहार संबंधी प्रतिबंध हैं, तो अपने विवेक से हमारे उत्पादों का सेवन करें। जहाँ लेबल के निर्देशों का पालन नहीं किया गया, वहाँ होने वाली प्रतिक्रियाओं के लिए हम ज़िम्मेदार नहीं हैं।"
         ]
       },
       "s4": {
-        "title": "4. Pricing & Payment",
+        "title": "4. मूल्य और भुगतान",
         "items": [
-          "All prices are listed in Indian Rupees (₹) and are inclusive of applicable taxes unless stated otherwise. GST is charged as per applicable rates.",
-          "Shipping charges, where applicable, are shown at checkout before you confirm your order.",
-          "In the rare event of a pricing error, we reserve the right to cancel the order and refund any amount already paid.",
-          "Payments are accepted via the methods displayed at checkout. Your order is confirmed only after we verify successful receipt of payment."
+          "सभी कीमतें भारतीय रुपये (₹) में सूचीबद्ध हैं और जब तक अन्यथा न कहा जाए, लागू करों सहित हैं। GST लागू दरों के अनुसार लिया जाता है।",
+          "शिपिंग शुल्क, जहाँ लागू हो, ऑर्डर की पुष्टि से पहले चेकआउट पर दिखाया जाता है।",
+          "मूल्य निर्धारण में त्रुटि की दुर्लभ स्थिति में, हम ऑर्डर रद्द करने और पहले से भुगतान की गई राशि रिफ़ंड करने का अधिकार सुरक्षित रखते हैं।",
+          "भुगतान चेकआउट पर दिखाए गए माध्यमों से स्वीकार किए जाते हैं। भुगतान की सफल प्राप्ति सत्यापित होने के बाद ही आपका ऑर्डर पक्का होता है।"
         ]
       },
       "s5": {
-        "title": "5. Orders & Acceptance",
-        "body": "Your order is an offer to purchase. We reserve the right to accept or decline any order at our discretion, including where the product is out of stock, the delivery address is outside our serviceable area, or we suspect fraud. Where an order is declined after payment, the amount will be refunded."
+        "title": "5. ऑर्डर और स्वीकृति",
+        "body": "आपका ऑर्डर खरीदने का एक प्रस्ताव है। हम अपने विवेक से किसी भी ऑर्डर को स्वीकार या अस्वीकार करने का अधिकार सुरक्षित रखते हैं, जिसमें उत्पाद स्टॉक में न होना, डिलीवरी पता हमारे सेवा क्षेत्र से बाहर होना, या धोखाधड़ी का संदेह शामिल है। भुगतान के बाद ऑर्डर अस्वीकार होने पर राशि रिफ़ंड कर दी जाएगी।"
       },
       "s6": {
-        "title": "6. Shipping, Returns & Cancellations",
-        "body": "Delivery timelines, shipping charges, returns, refunds and cancellations are governed by our <shipping>Shipping Policy</shipping> and <returns>Return & Refund Policy</returns>, which form part of these Terms."
+        "title": "6. शिपिंग, वापसी और रद्दीकरण",
+        "body": "डिलीवरी समय-सीमा, शिपिंग शुल्क, वापसी, रिफ़ंड और रद्दीकरण हमारी <shipping>शिपिंग नीति</shipping> और <returns>वापसी और रिफ़ंड नीति</returns> द्वारा नियंत्रित होते हैं, जो इन नियमों का हिस्सा हैं।"
       },
       "s7": {
-        "title": "7. Intellectual Property",
-        "body": "All content on this website — including logos, brand names, text, graphics, images and design — is the property of <brand>Nidhi Grah Udyog</brand> or its licensors and is protected by applicable intellectual property laws. You may not copy, reproduce or use it without our prior written permission."
+        "title": "7. बौद्धिक संपदा",
+        "body": "इस वेबसाइट की सभी सामग्री — लोगो, ब्रांड नाम, टेक्स्ट, ग्राफ़िक्स, चित्र और डिज़ाइन सहित — <brand>निधि गृह उद्योग</brand> या उसके लाइसेंसधारकों की संपत्ति है और लागू बौद्धिक संपदा कानूनों द्वारा संरक्षित है। हमारी पूर्व लिखित अनुमति के बिना आप इसे कॉपी, पुनरुत्पादित या उपयोग नहीं कर सकते।"
       },
       "s8": {
-        "title": "8. Acceptable Use",
-        "body": "You agree not to use the website for any unlawful purpose, attempt to gain unauthorised access to our systems, upload malicious code, scrape data at scale, or interfere with the normal operation of the website."
+        "title": "8. स्वीकार्य उपयोग",
+        "body": "आप सहमत हैं कि वेबसाइट का उपयोग किसी गैरकानूनी उद्देश्य के लिए नहीं करेंगे, हमारे सिस्टम तक अनधिकृत पहुँच का प्रयास नहीं करेंगे, दुर्भावनापूर्ण कोड अपलोड नहीं करेंगे, बड़े पैमाने पर डेटा स्क्रैप नहीं करेंगे, या वेबसाइट के सामान्य संचालन में हस्तक्षेप नहीं करेंगे।"
       },
       "s9": {
-        "title": "9. Limitation of Liability",
-        "body": "To the maximum extent permitted by law, our total liability for any claim arising out of an order shall not exceed the amount paid by you for that order. We are not liable for indirect or consequential losses. Nothing in these Terms limits any rights you have under the Consumer Protection Act, 2019."
+        "title": "9. दायित्व की सीमा",
+        "body": "कानून द्वारा अनुमत अधिकतम सीमा तक, किसी ऑर्डर से उत्पन्न किसी भी दावे के लिए हमारा कुल दायित्व उस ऑर्डर के लिए आपके द्वारा भुगतान की गई राशि से अधिक नहीं होगा। हम अप्रत्यक्ष या परिणामी नुकसान के लिए ज़िम्मेदार नहीं हैं। इन नियमों में कुछ भी उपभोक्ता संरक्षण अधिनियम, 2019 के तहत आपके अधिकारों को सीमित नहीं करता।"
       },
       "s10": {
-        "title": "10. Governing Law & Jurisdiction",
-        "body": "These Terms are governed by the laws of India. Any dispute shall be subject to the exclusive jurisdiction of the courts at Ujjain, Madhya Pradesh."
+        "title": "10. शासकीय कानून और क्षेत्राधिकार",
+        "body": "ये नियम भारत के कानूनों द्वारा शासित हैं। कोई भी विवाद उज्जैन, मध्य प्रदेश की अदालतों के विशेष क्षेत्राधिकार के अधीन होगा।"
       },
       "s11": {
-        "title": "11. Changes to These Terms",
-        "body": "We may update these Terms from time to time. The revised version will be posted on this page with an updated \"Last updated\" date. Continued use of the website after changes constitutes acceptance of the revised Terms."
+        "title": "11. इन नियमों में बदलाव",
+        "body": "हम समय-समय पर इन नियमों को अपडेट कर सकते हैं। संशोधित संस्करण अपडेटेड \"अंतिम अपडेट\" तारीख़ के साथ इसी पेज पर पोस्ट किया जाएगा। बदलावों के बाद वेबसाइट का निरंतर उपयोग संशोधित नियमों की स्वीकृति माना जाएगा।"
       },
       "s12": {
-        "title": "12. Contact Us",
-        "body": "For any questions about these Terms, contact us at <phone>+91 93000 05040</phone> or through our <contact>Contact page</contact>."
+        "title": "12. संपर्क करें",
+        "body": "इन नियमों के बारे में किसी भी प्रश्न के लिए हमें <phone>+91 93000 05040</phone> पर या हमारे <contact>संपर्क पेज</contact> के माध्यम से संपर्क करें।"
       }
     },
     "privacy": {
-      "title": "Privacy Policy",
-      "lastUpdated": "Last updated: {{date}}",
-      "intro": "This Privacy Policy explains how <brand>Nidhi Grah Udyog</brand> (Proprietor: Lalit Kumar Jain) (\"we\", \"us\", \"our\") collects, uses, shares and protects your personal data when you use this website. We are committed to handling your data in accordance with the Digital Personal Data Protection Act, 2023 (DPDP Act) and applicable Indian law. By using the website, you agree to this Policy.",
+      "title": "गोपनीयता नीति",
+      "lastUpdated": "अंतिम अपडेट: {{date}}",
+      "intro": "यह गोपनीयता नीति बताती है कि <brand>निधि गृह उद्योग</brand> (स्वामी: ललित कुमार जैन) (\"हम\", \"हमें\", \"हमारा\") इस वेबसाइट के उपयोग के दौरान आपके व्यक्तिगत डेटा को कैसे एकत्र, उपयोग, साझा और सुरक्षित करता है। हम डिजिटल व्यक्तिगत डेटा संरक्षण अधिनियम, 2023 (DPDP Act) और लागू भारतीय कानून के अनुसार आपके डेटा को संभालने के लिए प्रतिबद्ध हैं। वेबसाइट का उपयोग करके, आप इस नीति से सहमत होते हैं।",
       "s1": {
-        "title": "1. Data We Collect",
-        "item1": "<b>Account & order details:</b> name, email, phone number, shipping address and order history.",
-        "item2": "<b>Payment information:</b> we do not store your full payment credentials; UPI/payments are handled by the payment provider.",
-        "item3": "<b>Usage & device data:</b> pages viewed, products browsed and approximate (coarse) location, used to improve the site and recommendations."
+        "title": "1. हम कौन-सा डेटा एकत्र करते हैं",
+        "item1": "<b>खाता और ऑर्डर विवरण:</b> नाम, ईमेल, फ़ोन नंबर, शिपिंग पता और ऑर्डर इतिहास।",
+        "item2": "<b>भुगतान जानकारी:</b> हम आपके पूरे भुगतान विवरण संग्रहीत नहीं करते; UPI/भुगतान भुगतान प्रदाता द्वारा संभाले जाते हैं।",
+        "item3": "<b>उपयोग और डिवाइस डेटा:</b> देखे गए पेज, ब्राउज़ किए गए उत्पाद और अनुमानित (मोटा) स्थान, जिनका उपयोग साइट और सिफ़ारिशों को बेहतर बनाने के लिए किया जाता है।"
       },
       "s2": {
-        "title": "2. Purpose & Legal Basis",
-        "body": "We process your personal data for specified, lawful purposes: to process and deliver your orders, provide customer support, personalise recommendations, run anonymous aggregate analytics, send order updates, and (with your consent) promotional communication. We rely on your consent and on the necessity of processing to fulfil the services you request."
+        "title": "2. उद्देश्य और कानूनी आधार",
+        "body": "हम आपके व्यक्तिगत डेटा को निर्दिष्ट, वैध उद्देश्यों के लिए प्रोसेस करते हैं: आपके ऑर्डर प्रोसेस और डिलीवर करने, ग्राहक सहायता देने, सिफ़ारिशें वैयक्तिकृत करने, अनाम समग्र विश्लेषण चलाने, ऑर्डर अपडेट भेजने और (आपकी सहमति से) प्रचार संदेश भेजने के लिए। हम आपकी सहमति और आपके द्वारा अनुरोधित सेवाओं को पूरा करने के लिए आवश्यक प्रोसेसिंग पर निर्भर करते हैं।"
       },
       "s3": {
-        "title": "3. Consent",
-        "body": "You may withdraw your consent at any time by contacting us. Withdrawing consent will not affect the lawfulness of processing carried out before withdrawal, and may limit our ability to provide certain services."
+        "title": "3. सहमति",
+        "body": "आप हमसे संपर्क करके किसी भी समय अपनी सहमति वापस ले सकते हैं। सहमति वापस लेने से उससे पहले की गई प्रोसेसिंग की वैधता प्रभावित नहीं होगी, और इससे कुछ सेवाएँ देने की हमारी क्षमता सीमित हो सकती है।"
       },
       "s4": {
-        "title": "4. Sharing of Data",
-        "body": "We share your data only with trusted service providers (courier/logistics partners, payment processors, hosting/analytics providers) to the extent necessary to operate the service. We do not sell your personal data. We may disclose data where required by law."
+        "title": "4. डेटा साझा करना",
+        "body": "हम आपका डेटा केवल विश्वसनीय सेवा प्रदाताओं (कूरियर/लॉजिस्टिक्स पार्टनर, भुगतान प्रोसेसर, होस्टिंग/एनालिटिक्स प्रदाता) के साथ, सेवा चलाने के लिए आवश्यक सीमा तक ही साझा करते हैं। हम आपका व्यक्तिगत डेटा नहीं बेचते। कानून द्वारा आवश्यक होने पर हम डेटा का खुलासा कर सकते हैं।"
       },
       "s5": {
-        "title": "5. Cookies & Analytics",
-        "body": "We use cookies and similar technologies to keep you logged in, remember your cart, and understand how the website is used through anonymous, aggregate analytics. You can control cookies through your browser settings and the on-site cookie notice."
+        "title": "5. कुकीज़ और एनालिटिक्स",
+        "body": "हम आपको लॉगिन रखने, आपकी कार्ट याद रखने और अनाम, समग्र विश्लेषण के माध्यम से वेबसाइट के उपयोग को समझने के लिए कुकीज़ और समान तकनीकों का उपयोग करते हैं। आप अपनी ब्राउज़र सेटिंग्स और साइट पर दिए कुकी नोटिस के माध्यम से कुकीज़ नियंत्रित कर सकते हैं।"
       },
       "s6": {
-        "title": "6. Data Security & Retention",
-        "body": "We use reasonable technical and organisational safeguards to protect your data. We retain personal data only as long as necessary to provide our services and to meet legal, accounting and tax obligations."
+        "title": "6. डेटा सुरक्षा और प्रतिधारण",
+        "body": "हम आपके डेटा की सुरक्षा के लिए उचित तकनीकी और संगठनात्मक उपाय अपनाते हैं। हम व्यक्तिगत डेटा केवल उतने समय तक रखते हैं जितना हमारी सेवाएँ देने और कानूनी, लेखा और कर दायित्वों को पूरा करने के लिए आवश्यक हो।"
       },
       "s7": {
-        "title": "7. Your Rights (DPDP Act, 2023)",
-        "body": "You have the right to access, correct, update and erase your personal data, to nominate, and to grievance redressal. To exercise any right, contact us using the details below."
+        "title": "7. आपके अधिकार (DPDP Act, 2023)",
+        "body": "आपको अपने व्यक्तिगत डेटा तक पहुँचने, उसे सुधारने, अपडेट करने और मिटाने, नामांकन करने और शिकायत निवारण का अधिकार है। किसी भी अधिकार का प्रयोग करने के लिए नीचे दिए गए विवरण से हमसे संपर्क करें।"
       },
       "s8": {
-        "title": "8. Grievance Officer",
-        "body": "<name>Ankur Jain</name> &bull; <phone>+91 93000 05040</phone><br />We acknowledge grievances within 48 hours and aim to resolve them within 30 days."
+        "title": "8. शिकायत अधिकारी",
+        "body": "<name>अंकुर जैन</name> &bull; <phone>+91 93000 05040</phone><br />हम 48 घंटों के भीतर शिकायतों की पावती देते हैं और 30 दिनों के भीतर उन्हें हल करने का लक्ष्य रखते हैं।"
       },
       "s9": {
-        "title": "9. Contact Us",
-        "body": "<brand>Nidhi Grah Udyog</brand>, 7, Industrial Area, Runija Road, Barnagar, Ujjain, Madhya Pradesh 456771. Email <email>nidhigrahudyog@rediffmail.com</email> or call <phone>+91 93000 05040</phone>, or use our <contact>Contact page</contact>."
+        "title": "9. संपर्क करें",
+        "body": "<brand>निधि गृह उद्योग</brand>, 7, इंडस्ट्रियल एरिया, रुनिजा रोड, बड़नगर, उज्जैन, मध्य प्रदेश 456771। ईमेल <email>nidhigrahudyog@rediffmail.com</email> या कॉल <phone>+91 93000 05040</phone>, या हमारे <contact>संपर्क पेज</contact> का उपयोग करें।"
       }
     },
     "faq": {
-      "title": "Frequently Asked Questions",
-      "subtitle": "Everything you need to know about ordering, delivery and returns.",
-      "still": "Still have a question? <a>Contact our team</a>.",
+      "title": "अक्सर पूछे जाने वाले प्रश्न",
+      "subtitle": "ऑर्डर, डिलीवरी और वापसी के बारे में वह सब कुछ जो आपको जानना चाहिए।",
+      "still": "अब भी कोई प्रश्न है? <a>हमारी टीम से संपर्क करें</a>।",
       "items": [
         {
-          "q": "Which areas do you deliver to?",
-          "a": "We currently ship to all locations across India. We do not offer international shipping at this time."
+          "q": "आप किन क्षेत्रों में डिलीवरी करते हैं?",
+          "a": "हम वर्तमान में पूरे भारत में सभी स्थानों पर शिपिंग करते हैं। फ़िलहाल हम अंतरराष्ट्रीय शिपिंग नहीं करते।"
         },
         {
-          "q": "How long does delivery take?",
-          "a": "Orders are processed within 24–48 hours of payment confirmation. Delivery usually takes 3–5 business days in metro cities, 5–7 days in other cities, and 7–10 days for remote areas."
+          "q": "डिलीवरी में कितना समय लगता है?",
+          "a": "भुगतान की पुष्टि के 24–48 घंटों के भीतर ऑर्डर प्रोसेस किए जाते हैं। डिलीवरी में आमतौर पर मेट्रो शहरों में 3–5 कार्य दिवस, अन्य शहरों में 5–7 दिन और दूरस्थ क्षेत्रों में 7–10 दिन लगते हैं।"
         },
         {
-          "q": "What are the shipping charges?",
-          "a": "Shipping is free on orders above ₹500. For orders below ₹500, a nominal shipping charge is applied and shown at checkout before you pay."
+          "q": "शिपिंग शुल्क क्या हैं?",
+          "a": "₹500 से अधिक के ऑर्डर पर शिपिंग मुफ़्त है। ₹500 से कम के ऑर्डर पर मामूली शिपिंग शुल्क लगता है, जो भुगतान से पहले चेकआउट पर दिखाया जाता है।"
         },
         {
-          "q": "How do I track my order?",
-          "a": "Once your order ships, you will receive a tracking number by email/SMS. You can also view order status any time under 'My Orders'."
+          "q": "मैं अपना ऑर्डर कैसे ट्रैक करूँ?",
+          "a": "आपका ऑर्डर शिप होते ही आपको ईमेल/SMS से ट्रैकिंग नंबर मिलेगा। आप 'मेरे ऑर्डर' में किसी भी समय ऑर्डर की स्थिति भी देख सकते हैं।"
         },
         {
-          "q": "How do I download my bill / invoice?",
-          "a": "Go to 'My Orders', open the relevant order and click 'Bill' to download a GST tax invoice as a PDF."
+          "q": "मैं अपना बिल / इनवॉइस कैसे डाउनलोड करूँ?",
+          "a": "'मेरे ऑर्डर' पर जाएँ, संबंधित ऑर्डर खोलें और GST टैक्स इनवॉइस PDF के रूप में डाउनलोड करने के लिए 'बिल' पर क्लिक करें।"
         },
         {
-          "q": "What payment methods do you accept?",
-          "a": "We accept UPI payments. The accepted methods are shown at checkout. Your order is confirmed once we verify successful receipt of payment."
+          "q": "आप कौन-से भुगतान माध्यम स्वीकार करते हैं?",
+          "a": "हम UPI भुगतान स्वीकार करते हैं। स्वीकृत माध्यम चेकआउट पर दिखाए जाते हैं। भुगतान की सफल प्राप्ति सत्यापित होने पर आपका ऑर्डर पक्का हो जाता है।"
         },
         {
-          "q": "Can I cancel my order?",
-          "a": "Yes. Orders can be cancelled free of charge within 24 hours of placing them, provided they have not yet been shipped. See our Return & Refund Policy for details."
+          "q": "क्या मैं अपना ऑर्डर रद्द कर सकता/सकती हूँ?",
+          "a": "हाँ। ऑर्डर देने के 24 घंटों के भीतर उन्हें निःशुल्क रद्द किया जा सकता है, बशर्ते वे अभी शिप न हुए हों। विवरण के लिए हमारी वापसी और रिफ़ंड नीति देखें।"
         },
         {
-          "q": "What is your return and refund policy?",
-          "a": "We accept returns within 7 days of delivery for damaged, defective, wrong or missing items. Approved refunds are processed to your original payment method within 5–7 business days. For hygiene reasons, opened or consumed food products cannot be returned unless they arrived damaged."
+          "q": "आपकी वापसी और रिफ़ंड नीति क्या है?",
+          "a": "क्षतिग्रस्त, दोषपूर्ण, गलत या गायब आइटम के लिए हम डिलीवरी के 7 दिनों के भीतर वापसी स्वीकार करते हैं। स्वीकृत रिफ़ंड 5–7 कार्य दिवसों के भीतर आपके मूल भुगतान माध्यम में प्रोसेस किए जाते हैं। स्वच्छता कारणों से, खुले या खाए गए खाद्य उत्पाद वापस नहीं किए जा सकते, जब तक कि वे क्षतिग्रस्त अवस्था में न पहुँचे हों।"
         },
         {
-          "q": "Are your products fresh and how should I store them?",
-          "a": "Yes — our spices and papad are packed fresh. Please check the 'best before' date on the packaging and store in a cool, dry place away from direct sunlight and moisture."
+          "q": "क्या आपके उत्पाद ताज़े हैं और मुझे उन्हें कैसे रखना चाहिए?",
+          "a": "हाँ — हमारे मसाले और पापड़ ताज़ा पैक किए जाते हैं। कृपया पैकेजिंग पर 'बेस्ट बिफ़ोर' तारीख़ देखें और सीधी धूप और नमी से दूर, ठंडी व सूखी जगह पर रखें।"
         },
         {
-          "q": "How can I contact customer support?",
-          "a": "You can reach us at +91 93000 05040 (Monday–Saturday, 9 AM–6 PM IST) or through our Contact page. You can also chat with us via the assistant on the website."
+          "q": "मैं ग्राहक सहायता से कैसे संपर्क करूँ?",
+          "a": "आप हमें +91 93000 05040 पर (सोमवार–शनिवार, सुबह 9 बजे–शाम 6 बजे IST) या हमारे संपर्क पेज के माध्यम से संपर्क कर सकते हैं। आप वेबसाइट पर असिस्टेंट के ज़रिए हमसे चैट भी कर सकते हैं।"
         }
       ]
     },
     "contact": {
-      "toastSuccess": "Thank you! We'll get back to you soon.",
-      "toastError": "Failed to send message. Please try again.",
-      "defaultSubject": "General Inquiry",
-      "badge": "We'd love to hear from you",
-      "heroTitleLead": "Get in",
-      "heroTitleAccent": "Touch",
-      "heroSubtitle": "Questions, bulk orders or feedback — our team is here to help.",
-      "formTitle": "Send us a Message",
-      "labelName": "Your Name",
-      "phName": "Enter your name",
-      "labelEmail": "Email Address",
-      "phEmail": "Enter your email",
-      "labelPhone": "Phone Number (Optional)",
-      "phPhone": "Enter your phone number",
-      "labelSubject": "Subject",
-      "phSubject": "What's this about?",
-      "labelMessage": "Message",
-      "phMessage": "How can we help you?",
-      "sending": "Sending...",
-      "send": "Send Message",
-      "addressTitle": "Address",
-      "addressLine1": "7, Industrial Area, Runija Road, Barnagar.",
-      "addressLine2": "PIN-456771 · Ujjain, MP, India",
-      "phoneTitle": "Phone",
-      "emailTitle": "Email",
-      "hoursTitle": "Business Hours",
-      "hoursLine1": "Monday – Saturday: 9:00 AM – 6:00 PM",
-      "hoursLine2": "Sunday: Closed",
-      "grievanceTitle": "Grievance Officer",
-      "grievanceBody": "We acknowledge grievances within 48 hours and aim to resolve them within 30 days."
+      "toastSuccess": "धन्यवाद! हम जल्द ही आपसे संपर्क करेंगे।",
+      "toastError": "संदेश भेजने में विफल। कृपया पुनः प्रयास करें।",
+      "defaultSubject": "सामान्य पूछताछ",
+      "badge": "हमें आपसे सुनना अच्छा लगेगा",
+      "heroTitleLead": "संपर्क",
+      "heroTitleAccent": "करें",
+      "heroSubtitle": "प्रश्न, थोक ऑर्डर या फ़ीडबैक — हमारी टीम आपकी मदद के लिए यहाँ है।",
+      "formTitle": "हमें संदेश भेजें",
+      "labelName": "आपका नाम",
+      "phName": "अपना नाम दर्ज करें",
+      "labelEmail": "ईमेल पता",
+      "phEmail": "अपना ईमेल दर्ज करें",
+      "labelPhone": "फ़ोन नंबर (वैकल्पिक)",
+      "phPhone": "अपना फ़ोन नंबर दर्ज करें",
+      "labelSubject": "विषय",
+      "phSubject": "यह किस बारे में है?",
+      "labelMessage": "संदेश",
+      "phMessage": "हम आपकी कैसे मदद कर सकते हैं?",
+      "sending": "भेजा जा रहा है...",
+      "send": "संदेश भेजें",
+      "addressTitle": "पता",
+      "addressLine1": "7, इंडस्ट्रियल एरिया, रुनिजा रोड, बड़नगर।",
+      "addressLine2": "पिन-456771 · उज्जैन, म.प्र., भारत",
+      "phoneTitle": "फ़ोन",
+      "emailTitle": "ईमेल",
+      "hoursTitle": "कार्य समय",
+      "hoursLine1": "सोमवार – शनिवार: सुबह 9:00 – शाम 6:00",
+      "hoursLine2": "रविवार: बंद",
+      "grievanceTitle": "शिकायत अधिकारी",
+      "grievanceBody": "हम 48 घंटों के भीतर शिकायतों की पावती देते हैं और 30 दिनों के भीतर उन्हें हल करने का लक्ष्य रखते हैं।"
     }
+  },
+  "notFound": {
+    "message": "अरे! पेज नहीं मिला",
+    "returnHome": "होम पर वापस जाएँ"
+  },
+  "favorites": {
+    "empty": "आपकी विशलिस्ट खाली है",
+    "emptyHint": "किसी भी उत्पाद पर दिल के निशान को दबाकर उसे यहाँ सेव करें।",
+    "browse": "उत्पाद देखें"
+  },
+  "orderSuccess": {
+    "title": "ऑर्डर सफलतापूर्वक दिया गया!",
+    "subtitle": "आपके ऑर्डर के लिए धन्यवाद। हम आपको जल्द ही पुष्टिकरण ईमेल भेजेंगे।",
+    "continueShopping": "खरीदारी जारी रखें",
+    "viewOrders": "मेरे ऑर्डर देखें",
+    "redirecting": "5 सेकंड में उत्पाद पेज पर ले जाया जा रहा है..."
+  },
+  "interestSuccess": {
+    "title": "हमारे उत्पादों में रुचि दिखाने के लिए धन्यवाद!",
+    "soon": "हम जल्द ही यह सेवा शुरू करेंगे।",
+    "noted": "हमने आपकी आवश्यकताएँ नोट कर ली हैं और हम जल्द से जल्द आपको ऑनलाइन सेवा देने की कोशिश करेंगे।",
+    "refund": "यदि आपने कुछ भुगतान किया है, तो कृपया पूरा रिफ़ंड पाने के लिए हमसे संपर्क करें।",
+    "continueShopping": "खरीदारी जारी रखें",
+    "contactSupport": "सहायता के लिए संपर्क करें: +91 93000 05040",
+    "tagline": "निधि गृह उद्योग - गुणवत्ता जिस पर आप भरोसा कर सकते हैं"
+  },
+  "forgotPassword": {
+    "enterEmail": "कृपया अपना ईमेल पता दर्ज करें",
+    "otpSent": "OTP भेजा गया! कृपया अपना ईमेल जाँचें।",
+    "otpFailed": "OTP भेजने में विफल। कृपया पुनः प्रयास करें।",
+    "networkError": "नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।",
+    "title": "पासवर्ड रीसेट करें",
+    "description": "अपना ईमेल पता दर्ज करें और हम आपको पासवर्ड रीसेट करने के लिए OTP भेजेंगे।",
+    "email": "ईमेल",
+    "sending": "OTP भेजा जा रहा है...",
+    "sendOtp": "OTP भेजें",
+    "backToLogin": "लॉगिन पर वापस जाएँ"
+  },
+  "resetPassword": {
+    "invalidOtp": "कृपया एक वैध ईमेल और 6-अंकों का OTP दर्ज करें।",
+    "otpVerified": "OTP सत्यापित!",
+    "otpExpired": "अमान्य या समाप्त हो चुका OTP।",
+    "networkError": "नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।",
+    "passwordMismatch": "पासवर्ड मेल नहीं खाते।",
+    "passwordTooShort": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।",
+    "resetSuccess": "पासवर्ड सफलतापूर्वक रीसेट हुआ! अब आप लॉगिन कर सकते हैं।",
+    "resetFailed": "पासवर्ड रीसेट करने में विफल। कृपया आवश्यकताएँ जाँचें।",
+    "verifyTitle": "OTP सत्यापित करें",
+    "createTitle": "नया पासवर्ड बनाएँ",
+    "verifyDesc": "अपने ईमेल पर भेजा गया 6-अंकों का कोड दर्ज करें।",
+    "createDesc": "अपने खाते को सुरक्षित करने के लिए एक मज़बूत पासवर्ड दर्ज करें।",
+    "email": "ईमेल",
+    "otpLabel": "6-अंकों का OTP",
+    "verifying": "सत्यापित किया जा रहा है...",
+    "verifyButton": "OTP सत्यापित करें",
+    "notReceived": "प्राप्त नहीं हुआ?",
+    "requestAgain": "फिर से अनुरोध करें",
+    "newPassword": "नया पासवर्ड",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "resetting": "रीसेट किया जा रहा है...",
+    "resetButton": "पासवर्ड रीसेट करें"
+  },
+  "trackOrder": {
+    "step1": "ऑर्डर दिया गया",
+    "step1Desc": "पुष्ट",
+    "step2": "पैक किया गया",
+    "step2Desc": "हाथ से पैक किया गया",
+    "step3": "रास्ते में",
+    "step3Desc": "रास्ते में है",
+    "step4": "डिलीवर किया गया",
+    "step4Desc": "आपके द्वार पर",
+    "badge": "रियल-टाइम ऑर्डर अपडेट",
+    "titleLead": "अपना ऑर्डर",
+    "titleAccent": "ट्रैक करें",
+    "subtitle": "अपना ऑर्डर ID दर्ज करें और देखें कि आपके मसाले कहाँ हैं।",
+    "orderIdLabel": "ऑर्डर ID",
+    "orderIdPlaceholder": "अपना ऑर्डर ID दर्ज करें",
+    "orderIdHint": "आप अपना ऑर्डर ID पुष्टिकरण ईमेल में पा सकते हैं",
+    "trackButton": "ऑर्डर ट्रैक करें",
+    "needHelp": "मदद चाहिए?",
+    "needHelpBody": "अपना ऑर्डर ट्रैक करने में परेशानी हो रही है? हमारी टीम मदद करने में खुश है।",
+    "contactSupport": "सहायता से संपर्क करें",
+    "journeyTitle": "आपका ऑर्डर आप तक कैसे पहुँचता है"
+  },
+  "register": {
+    "passwordMismatch": "पासवर्ड मेल नहीं खाते",
+    "passwordTooShort": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए",
+    "passwordComplexity": "पासवर्ड में कम से कम एक बड़ा अक्षर, एक छोटा अक्षर और एक अंक होना चाहिए",
+    "agreePrivacyError": "जारी रखने के लिए कृपया गोपनीयता नीति से सहमत हों",
+    "success": "पंजीकरण सफल!",
+    "failed": "पंजीकरण विफल। कृपया पुनः प्रयास करें।",
+    "title": "खाता बनाएँ",
+    "description": "अपना खाता बनाने के लिए अपनी जानकारी दर्ज करें",
+    "fullName": "पूरा नाम",
+    "firstName": "पहला नाम",
+    "lastName": "अंतिम नाम",
+    "username": "यूज़रनेम",
+    "email": "ईमेल",
+    "phone": "फ़ोन",
+    "address": "पता",
+    "city": "शहर",
+    "state": "राज्य",
+    "pincode": "पिनकोड",
+    "password": "पासवर्ड",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "agreePrivacy": "मैं <a>गोपनीयता नीति</a> से सहमत हूँ, जिसमें यह भी शामिल है कि मेरी गतिविधि का उपयोग सिफ़ारिशों और अनाम, समग्र विश्लेषण के लिए कैसे किया जाता है।",
+    "creating": "खाता बनाया जा रहा है...",
+    "create": "खाता बनाएँ",
+    "haveAccount": "पहले से खाता है?",
+    "login": "लॉगिन"
+  },
+  "combosPage": {
+    "loadError": "कॉम्बो लोड करने में विफल",
+    "benefitCurated": "हाथ से चुने गए बंडल",
+    "benefitValue": "अलग-अलग खरीदने से बेहतर मूल्य",
+    "benefitShipping": "Rs. {{amount}} से अधिक पर मुफ़्त शिपिंग",
+    "eyebrow": "वैल्यू बंडल",
+    "title": "कॉम्बो ऑफर",
+    "subtitle": "सोच-समझकर जोड़े गए मसाला बंडल — ज़्यादा स्वाद, कम खर्च।",
+    "saveUpTo": "{{percent}}% तक बचाएँ",
+    "emptyTitle": "अभी कोई कॉम्बो उपलब्ध नहीं है",
+    "emptyBody": "नए बंडल नियमित रूप से आते हैं — इस बीच, हमारे मसालों की पूरी रेंज देखें।",
+    "browseAll": "सभी उत्पाद देखें",
+    "moreBundles": "और बंडल"
+  },
+  "assistant": {
+    "langAuto": "स्वतः",
+    "greeting": "नमस्ते! मैं निधि असिस्टेंट हूँ। हमारे मसालों, अपने ऑर्डर के बारे में पूछें, या बस बताएँ कि आप क्या पका रहे हैं! 🌶️",
+    "justNow": "अभी-अभी",
+    "minutesAgo": "{{count}} मिनट पहले",
+    "hoursAgo": "{{count}} घंटे पहले",
+    "daysAgo": "{{count}} दिन पहले",
+    "error": "क्षमा करें, कुछ गलत हो गया। कृपया पुनः प्रयास करें।",
+    "escalated": "हमारी टीम को सूचित कर दिया गया है और वह जल्द ही शामिल होगी।",
+    "voiceUnsupported": "इस ब्राउज़र में वॉइस इनपुट समर्थित नहीं है।",
+    "openAria": "निधि असिस्टेंट खोलें",
+    "threadListAria": "थ्रेड सूची",
+    "yourConversations": "आपकी बातचीत",
+    "title": "निधि असिस्टेंट",
+    "replyLanguageAria": "जवाब की भाषा",
+    "newConversation": "नई बातचीत",
+    "newChat": "नई चैट",
+    "close": "बंद करें",
+    "noConversations": "अभी तक कोई बातचीत नहीं। एक शुरू करें!",
+    "needsAttention": "ध्यान देने की ज़रूरत",
+    "teamMember": "{{name}} — निधि टीम",
+    "stopListening": "सुनना बंद करें",
+    "speak": "बोलें",
+    "listening": "सुन रहे हैं…",
+    "transcribing": "लिखा जा रहा है…",
+    "inputPlaceholder": "मसालों, ऑर्डर के बारे में पूछें…"
+  },
+  "billing": {
+    "paymentNotConfigured": "भुगतान प्रणाली कॉन्फ़िगर नहीं है। कृपया सहायता से संपर्क करें।",
+    "cartEmpty": "आपकी कार्ट खाली है",
+    "loadError": "बिलिंग डेटा लोड करने में विफल",
+    "qrError": "भुगतान QR बनाने में विफल",
+    "enterCoupon": "कृपया एक कूपन कोड दर्ज करें",
+    "paymentNotInitialized": "भुगतान प्रणाली आरंभ नहीं हुई",
+    "invalidCoupon": "अमान्य कूपन कोड",
+    "couponApplied": "कूपन लागू हुआ! ₹{{amount}} बचाए",
+    "couponFailed": "कूपन लागू नहीं किया जा सका",
+    "couponRemoved": "कूपन हटाया गया",
+    "locationDenied": "आपका स्थान एक्सेस नहीं कर सके।",
+    "addressFilled": "आपके स्थान से पता भर दिया गया। कृपया इसे जाँच लें।",
+    "addressFailed": "आपका पता निर्धारित नहीं कर सके। कृपया इसे मैन्युअल रूप से दर्ज करें।",
+    "errNameRequired": "नाम आवश्यक है",
+    "errEmailRequired": "ईमेल आवश्यक है",
+    "errEmailInvalid": "अमान्य ईमेल प्रारूप",
+    "errPhoneRequired": "फ़ोन आवश्यक है",
+    "errPhoneInvalid": "अमान्य फ़ोन नंबर",
+    "errAddressRequired": "पता आवश्यक है",
+    "errCityRequired": "शहर आवश्यक है",
+    "errStateRequired": "राज्य आवश्यक है",
+    "errZipRequired": "पिन कोड आवश्यक है",
+    "errPaymentRequired": "ऑर्डर देने से पहले कृपया UPI QR के माध्यम से भुगतान की पुष्टि करें",
+    "fillAllFields": "कृपया सभी आवश्यक फ़ील्ड सही ढंग से भरें",
+    "orderPlaced": "ऑर्डर सफलतापूर्वक दे दिया गया!",
+    "orderFailed": "ऑर्डर देने में विफल",
+    "loadingCheckout": "चेकआउट लोड हो रहा है...",
+    "checkout": "चेकआउट",
+    "shippingInfo": "शिपिंग जानकारी",
+    "useLocation": "मेरा स्थान उपयोग करें",
+    "noSavedAddress": "अभी तक कोई सहेजा गया पता नहीं — इसे स्वतः पहचानें, फिर नीचे दिए फ़ील्ड जाँचें।",
+    "fullName": "पूरा नाम",
+    "email": "ईमेल",
+    "phone": "फ़ोन",
+    "address": "पता",
+    "city": "शहर",
+    "state": "राज्य",
+    "zipCode": "पिन कोड",
+    "orderSummary": "ऑर्डर सारांश",
+    "qty": "मात्रा: {{count}}",
+    "perUnit": "₹{{price}}/यूनिट",
+    "haveCoupon": "कूपन है?",
+    "enterCode": "कोड दर्ज करें",
+    "apply": "लागू करें",
+    "couponAppliedTag": "{{code}} लागू ✓",
+    "remove": "हटाएँ",
+    "subtotal": "उप-योग",
+    "discount": "छूट",
+    "shipping": "शिपिंग",
+    "free": "मुफ़्त",
+    "tax": "कर (GST)",
+    "total": "कुल",
+    "scanToPay": "₹{{amount}} भुगतान के लिए स्कैन करें",
+    "qrAlt": "UPI भुगतान QR कोड",
+    "loadingQr": "QR लोड हो रहा है...",
+    "payViaApp": "UPI ऐप से भुगतान करें",
+    "scanHint": "QR स्कैन करें या ऊपर बटन क्लिक करें, फिर नीचे भुगतान की पुष्टि करें",
+    "paymentDone": "मैंने भुगतान पूरा कर लिया है",
+    "processing": "प्रोसेस हो रहा है...",
+    "placeOrder": "ऑर्डर दें"
+  },
+  "profile": {
+    "loadFailed": "प्रोफ़ाइल लोड करने में विफल",
+    "paymentsLoadFailed": "भुगतान विधियाँ लोड करने में विफल",
+    "updateSuccess": "प्रोफ़ाइल सफलतापूर्वक अपडेट हुई!",
+    "updateFailed": "प्रोफ़ाइल अपडेट करने में विफल",
+    "locationDenied": "आपका स्थान एक्सेस नहीं कर सके।",
+    "addressFilled": "आपके स्थान से पता भर दिया गया। इसे जाँचें, फिर सहेजें।",
+    "addressFailed": "आपका पता निर्धारित नहीं कर सके। कृपया इसे मैन्युअल रूप से दर्ज करें।",
+    "allFieldsRequired": "सभी फ़ील्ड आवश्यक हैं",
+    "passwordMismatch": "पासवर्ड मेल नहीं खाते",
+    "passwordChanged": "पासवर्ड सफलतापूर्वक बदला गया!",
+    "passwordChangeFailed": "पासवर्ड बदलने में विफल",
+    "errUpiRequired": "UPI ID आवश्यक है",
+    "errCardBrand": "कार्ड ब्रांड आवश्यक है",
+    "errLastFour": "अंतिम 4 अंक आवश्यक हैं",
+    "errMonth": "वैध महीना आवश्यक है",
+    "errYear": "वर्ष आवश्यक है",
+    "errBankName": "बैंक का नाम आवश्यक है",
+    "errWalletProvider": "वॉलेट प्रदाता आवश्यक है",
+    "fillAllFields": "कृपया सभी आवश्यक फ़ील्ड सही ढंग से भरें",
+    "paymentAdded": "भुगतान विधि जोड़ी गई!",
+    "paymentAddFailed": "भुगतान विधि जोड़ने में विफल",
+    "paymentRemoved": "भुगतान विधि हटाई गई।",
+    "paymentRemoveFailed": "भुगतान विधि हटाने में विफल",
+    "defaultUpdated": "डिफ़ॉल्ट भुगतान विधि अपडेट हुई!",
+    "defaultFailed": "डिफ़ॉल्ट भुगतान विधि सेट करने में विफल",
+    "loading": "आपकी प्रोफ़ाइल लोड हो रही है...",
+    "tabProfile": "प्रोफ़ाइल",
+    "tabSecurity": "सुरक्षा",
+    "tabPayment": "भुगतान",
+    "infoTitle": "प्रोफ़ाइल जानकारी",
+    "infoDesc": "अपने खाते की जानकारी अपडेट करें",
+    "username": "यूज़रनेम",
+    "fullName": "पूरा नाम",
+    "email": "ईमेल",
+    "phone": "फ़ोन",
+    "address": "पता",
+    "useLocation": "मेरा स्थान उपयोग करें",
+    "city": "शहर",
+    "state": "राज्य",
+    "pincode": "पिनकोड",
+    "updating": "अपडेट हो रहा है...",
+    "updateButton": "प्रोफ़ाइल अपडेट करें",
+    "logout": "लॉगआउट",
+    "securityTitle": "सुरक्षा सेटिंग्स",
+    "securityDesc": "अपना पासवर्ड बदलें",
+    "currentPassword": "वर्तमान पासवर्ड",
+    "newPassword": "नया पासवर्ड",
+    "confirmNewPassword": "नए पासवर्ड की पुष्टि करें",
+    "changing": "बदला जा रहा है...",
+    "changePassword": "पासवर्ड बदलें",
+    "paymentTitle": "भुगतान विधियाँ",
+    "paymentDesc": "अपनी सहेजी गई भुगतान विधियाँ प्रबंधित करें",
+    "loadingPayments": "भुगतान विधियाँ लोड हो रही हैं...",
+    "noPayments": "अभी तक कोई भुगतान विधि नहीं जोड़ी गई",
+    "default": "डिफ़ॉल्ट",
+    "setDefault": "डिफ़ॉल्ट सेट करें",
+    "upiIdLabel": "UPI ID: {{id}}",
+    "cardEnding": "{{brand}} जो {{last}} पर समाप्त होता है",
+    "cardExpires": ", समाप्ति {{month}}/{{year}}",
+    "bankLabel": "बैंक: {{bank}}",
+    "providerLabel": "प्रदाता: {{provider}}",
+    "addPayment": "नई भुगतान विधि जोड़ें",
+    "addPaymentTitle": "भुगतान विधि जोड़ें",
+    "addPaymentDesc": "अपने खाते में एक नई भुगतान विधि जोड़ें",
+    "paymentType": "भुगतान प्रकार",
+    "typeUpi": "UPI",
+    "typeCard": "कार्ड",
+    "typeNetbanking": "नेट बैंकिंग",
+    "typeWallet": "वॉलेट",
+    "upiId": "UPI ID",
+    "cardBrand": "कार्ड ब्रांड",
+    "selectCardBrand": "कार्ड ब्रांड चुनें",
+    "lastFour": "अंतिम 4 अंक",
+    "expiryMonth": "समाप्ति माह",
+    "expiryYear": "समाप्ति वर्ष",
+    "bankName": "बैंक का नाम",
+    "walletProvider": "वॉलेट प्रदाता",
+    "selectWallet": "वॉलेट चुनें",
+    "setAsDefault": "डिफ़ॉल्ट भुगतान विधि के रूप में सेट करें",
+    "adding": "जोड़ा जा रहा है..."
+  },
+  "myOrders": {
+    "statusPending": "लंबित",
+    "statusInTransit": "रास्ते में",
+    "statusDelivered": "डिलीवर किया गया",
+    "statusCancelled": "रद्द किया गया",
+    "loginRequired": "अपने ऑर्डर देखने के लिए कृपया लॉगिन करें",
+    "loadFailed": "ऑर्डर लोड करने में विफल।",
+    "noItemsReorder": "फिर से ऑर्डर करने के लिए कोई आइटम नहीं",
+    "reorderAdded": "इस ऑर्डर के आइटम कार्ट में जोड़े गए",
+    "reorderFailed": "आइटम फिर से ऑर्डर करने में विफल",
+    "billDownloaded": "{{order}} के लिए बिल डाउनलोड किया गया",
+    "billFailed": "बिल डाउनलोड करने में विफल। कृपया पुनः प्रयास करें।",
+    "supportSeed": "मुझे अपने ऑर्डर {{order}} में मदद चाहिए।",
+    "selectRating": "कृपया एक रेटिंग चुनें",
+    "noItemSelected": "समीक्षा के लिए कोई आइटम नहीं चुना गया",
+    "reviewSubmitted": "{{name}} के लिए समीक्षा सबमिट की गई!",
+    "reviewFailed": "समीक्षा सबमिट करने में विफल। कृपया पुनः प्रयास करें।",
+    "feedbackThanks": "आपके फ़ीडबैक के लिए धन्यवाद!",
+    "cancelSuccess": "ऑर्डर सफलतापूर्वक रद्द किया गया",
+    "cancelFailed": "ऑर्डर रद्द करने में विफल। कृपया पुनः प्रयास करें।",
+    "titleLead": "मेरे",
+    "titleAccent": "ऑर्डर",
+    "fetching": "आपके ऑर्डर प्राप्त किए जा रहे हैं…",
+    "placedCount": "आपने हमारे साथ {{count}} ऑर्डर दिया है",
+    "placedCount_other": "आपने हमारे साथ {{count}} ऑर्डर दिए हैं",
+    "trackSubtitle": "अपने द्वारा ऑर्डर की गई हर चीज़ को ट्रैक और प्रबंधित करें",
+    "loadingOrders": "ऑर्डर लोड हो रहे हैं...",
+    "orderLabel": "ऑर्डर {{number}}",
+    "placedOn": "{{date}} को दिया गया",
+    "showLess": "कम दिखाएँ",
+    "showMore": "और दिखाएँ",
+    "total": "कुल",
+    "qtyPrice": "मात्रा: {{qty}} × ₹{{price}}",
+    "subtotal": "उप-योग",
+    "discount": "छूट",
+    "tax": "कर",
+    "shippingTo": "शिपिंग यहाँ: {{address}}",
+    "reorder": "फिर से ऑर्डर करें",
+    "support": "सहायता",
+    "bill": "बिल",
+    "cancel": "रद्द करें",
+    "cancelTitle": "यह ऑर्डर रद्द करें?",
+    "cancelConfirm": "क्या आप वाकई ऑर्डर <b>{{number}}</b> रद्द करना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।",
+    "keepOrder": "नहीं, ऑर्डर रखें",
+    "cancelling": "रद्द किया जा रहा है...",
+    "confirmCancel": "हाँ, रद्द करें",
+    "review": "समीक्षा",
+    "reviewTitle": "{{name}} की समीक्षा करें",
+    "reviewDesc": "इस {{itemType}} के साथ अपना अनुभव साझा करें",
+    "typeProduct": "उत्पाद",
+    "typeCombo": "कॉम्बो",
+    "selectItem": "समीक्षा के लिए आइटम चुनें",
+    "rating": "रेटिंग",
+    "yourReview": "आपकी समीक्षा (वैकल्पिक)",
+    "reviewPlaceholder": "हमें बताएँ कि आप इस उत्पाद के बारे में क्या सोचते हैं...",
+    "submitting": "सबमिट किया जा रहा है...",
+    "submitReview": "समीक्षा सबमिट करें",
+    "emptyTitle": "अभी तक कोई ऑर्डर नहीं",
+    "emptyBody": "लगता है आपने अभी तक कोई ऑर्डर नहीं दिया है। हमारे शानदार संग्रह को देखें और खरीदारी शुरू करें!",
+    "continueShopping": "खरीदारी जारी रखें",
+    "statusConfirmed": "पुष्ट",
+    "statusProcessing": "प्रोसेस हो रहा है",
+    "statusShipped": "भेजा गया",
+    "statusDelivering": "डिलीवरी के लिए निकला"
   }
 }
