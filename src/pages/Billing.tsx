@@ -20,7 +20,7 @@ import { openRazorpayCheckout } from "@/lib/razorpay";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { MapPin, Loader2, ShieldCheck } from "lucide-react";
 import { track } from "@/lib/api/analytics";
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE, DEFAULT_TAX_RATE } from "@/config/limits";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE, DEFAULT_TAX_RATE, MAX_ONLINE_ORDER_TOTAL } from "@/config/limits";
 import { useTranslation } from "react-i18next";
 
 // Normalise the backend cart summary into the shape the UI renders. The backend
@@ -264,6 +264,15 @@ const Billing = () => {
       toast.error(t('billing.fillAllFields'));
       return;
     }
+    // Online gateway (incl. UPI) caps a transaction at ₹1,00,000. Guard here too
+    // in case the button was somehow submitted; backend rejects it regardless.
+    if (cartSummary && cartSummary.total > MAX_ONLINE_ORDER_TOTAL) {
+      toast.error(t('billing.onlineCap', {
+        amount: MAX_ONLINE_ORDER_TOTAL.toLocaleString('en-IN'),
+        defaultValue: `Online payment is limited to ₹${MAX_ONLINE_ORDER_TOTAL.toLocaleString('en-IN')} per order. Please reduce your order to continue.`,
+      }));
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -354,6 +363,9 @@ const Billing = () => {
   }
 
   const isZeroTotal = cartSummary.total <= 0;
+  // Online gateway (UPI included) caps a single transaction at ₹1,00,000. Above
+  // that we block online checkout up-front rather than failing at the gateway.
+  const overOnlineCap = cartSummary.total > MAX_ONLINE_ORDER_TOTAL;
 
   return (
     <div className="container py-4 sm:py-8 px-3 sm:px-4 max-w-6xl pb-24 md:pb-8">
@@ -528,10 +540,19 @@ const Billing = () => {
                   <span>{t('billing.securePay', 'Secure payment via Razorpay — UPI, cards, netbanking & wallets')}</span>
                 </div>
 
+                {overOnlineCap && (
+                  <div className="rounded-md bg-destructive/10 text-destructive text-xs sm:text-sm p-3 mb-2 text-center">
+                    {t('billing.onlineCap', {
+                      amount: MAX_ONLINE_ORDER_TOTAL.toLocaleString('en-IN'),
+                      defaultValue: `Online payment is limited to ₹${MAX_ONLINE_ORDER_TOTAL.toLocaleString('en-IN')} per order. Please reduce your order to continue.`,
+                    })}
+                  </div>
+                )}
+
                 <Button
                   type="submit"
                   className="w-full mt-2 h-10 sm:h-12 text-sm sm:text-base font-semibold"
-                  disabled={isLoading}
+                  disabled={isLoading || (overOnlineCap && !isZeroTotal)}
                 >
                   {isLoading ? (
                     <span className="flex items-center gap-2">

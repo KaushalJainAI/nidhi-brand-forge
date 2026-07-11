@@ -26,6 +26,9 @@ export const FREE_SHIPPING_THRESHOLD = numberEnv("VITE_FREE_SHIPPING_THRESHOLD",
 // when a line lacks tax_rate — defaulting to the backend rate (not 0) avoids
 // quoting a total below what the customer is actually charged.
 export const DEFAULT_TAX_RATE = numberEnv("VITE_DEFAULT_TAX_RATE", 5);
+// Max total (₹) payable via the online gateway. Mirrors backend
+// MAX_ONLINE_ORDER_TOTAL — UPI is capped at ₹1,00,000 per transaction.
+export const MAX_ONLINE_ORDER_TOTAL = numberEnv("VITE_MAX_ONLINE_ORDER_TOTAL", 100_000);
 
 /** Clamp a quantity into [1, MAX_ITEM_QUANTITY]; non-finite -> 1. */
 export function clampQuantity(q: number): number {
