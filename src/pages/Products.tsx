@@ -45,8 +45,12 @@ const Products = () => {
           data = await productsAPI.getAll();
         }
         setProducts(data.results || data || []);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch products");
+      } catch (err) {
+        // Never surface raw backend/validation strings to shoppers (e.g. an
+        // invalid ?category= id). Log the detail, show a friendly message.
+        console.error("Failed to fetch products:", err);
+        setError(t('products.loadError'));
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -207,7 +211,7 @@ const Products = () => {
             <div>
               <div className="flex items-center justify-between gap-3 mb-3 sm:mb-4">
                 <h2 className="text-base sm:text-lg font-bold">
-                  {loading ? t('products.loadingProducts') : `${sortedProducts.length} ${sortedProducts.length === 1 ? t('products.productCount', { count: sortedProducts.length }) : t('products.productCount_other', { count: sortedProducts.length })}`}
+                  {loading ? t('products.loadingProducts') : (sortedProducts.length === 1 ? t('products.productCount', { count: sortedProducts.length }) : t('products.productCount_other', { count: sortedProducts.length }))}
                 </h2>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-40 sm:w-48 h-9 text-xs sm:text-sm">

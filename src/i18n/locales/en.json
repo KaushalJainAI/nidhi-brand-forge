@@ -23,7 +23,7 @@
     "currency": "₹"
   },
   "ribbon": {
-    "freeShipping": "FREE shipping on orders above ₹500",
+    "freeShipping": "FREE shipping on orders above ₹499",
     "pure": "100% pure & natural — no fillers",
     "handPacked": "Hand-packed in Barnagar",
     "trusted": "Trusted by 1.1M+ kitchens"
@@ -33,7 +33,7 @@
     "headlineStart": "Taste of ",
     "headlineHighlight": "Tradition",
     "headlineEnd": " in Every Spice",
-    "description": "Experience the authentic flavors of India with our premium quality spices and masalas. Made with love, delivered with care.",
+    "description": "Experience the authentic flavours of India with our premium quality spices and masalas. Made with love, delivered with care.",
     "learnMore": "Learn More",
     "statsProducts": "Products",
     "statsPure": "Pure & Natural",
@@ -44,7 +44,7 @@
   "home": {
     "features": {
       "freeShippingTitle": "Free Shipping",
-      "freeShippingDesc": "On orders above ₹500",
+      "freeShippingDesc": "On orders above ₹499",
       "authenticTitle": "100% Authentic",
       "authenticDesc": "Pure & natural ingredients",
       "deliveryTitle": "Quick Delivery",
@@ -62,7 +62,7 @@
     },
     "specials": {
       "title": "Our Specials",
-      "subtitle": "Discover our handcrafted spice blends that bring authentic flavors to your home."
+      "subtitle": "Discover our handcrafted spice blends that bring authentic flavours to your home."
     },
     "bestsellers": {
       "title": "Best Selling Products",
@@ -83,6 +83,7 @@
     "testimonials": {
       "title": "Customer Testimonials",
       "subtitle": "What our happy customers say",
+      "verified": "Verified Buyer",
       "items": [
         {
           "name": "Priya Sharma",
@@ -91,7 +92,7 @@
         },
         {
           "name": "Rajesh Kumar",
-          "review": "Authentic flavors and great packaging. Highly recommended!",
+          "review": "Authentic flavours and great packaging. Highly recommended!",
           "rating": 5
         },
         {
@@ -161,13 +162,44 @@
     "noRatings": "No ratings",
     "reviewsCount": "{{count}} review",
     "reviewsCount_other": "{{count}} reviews",
-    "buyNow": "Buy Now"
+    "buyNow": "Buy Now",
+    "writeReview": "Write a Review",
+    "yourRating": "Your Rating",
+    "reviewTitle": "Title (optional)",
+    "reviewTitlePlaceholder": "Sum up your experience",
+    "reviewComment": "Your Review",
+    "reviewCommentPlaceholder": "Share what you liked or disliked about this product",
+    "submitReview": "Submit Review",
+    "loginToReview": "Log in to write a review for this product.",
+    "purchaseToReview": "Only customers who have purchased this product can review it.",
+    "alreadyReviewed": "You have already reviewed this product.",
+    "reviewSelectRating": "Please select a star rating",
+    "reviewCommentRequired": "Please write your review",
+    "reviewSubmitted": "Thank you! Your review has been submitted.",
+    "reviewError": "Could not submit your review. Please try again.",
+    "recipeTitle": "Recipe & Usage",
+    "nutritionTitle": "Nutritional Information",
+    "nutritionNote": "Approximate values for the serving size shown.",
+    "fssai": "FSSAI Lic. No.",
+    "nutritionKeys": {
+      "serving_size": "Serving Size",
+      "total_fat": "Total Fat",
+      "saturated_fat": "Saturated Fat",
+      "total_carbohydrates": "Total Carbohydrates",
+      "protein": "Protein",
+      "energy": "Energy",
+      "calcium": "Calcium",
+      "iron": "Iron",
+      "sodium": "Sodium",
+      "sugars": "Sugars",
+      "sugar": "Sugar"
+    }
   },
   "ourStory": {
     "eyebrow": "Nidhi kitchen story",
     "label": "Our Story",
-    "heading": "Authentic Indian Flavors",
-    "body": "Experience the rich heritage of traditional Indian spices, carefully sourced and blended to perfection. Each product tells a story of generations of expertise and passion for authentic flavors.",
+    "heading": "Authentic Indian Flavours",
+    "body": "Experience the rich heritage of traditional Indian spices, carefully sourced and blended to perfection. Each product tells a story of generations of expertise and passion for authentic flavours.",
     "feature1Title": "Pure ingredients",
     "feature1Desc": "No fillers, clean blends",
     "feature2Title": "Fresh batches",
@@ -179,7 +211,7 @@
     "saleEndsIn": "Sale ends in"
   },
   "trust": {
-    "freeShipping": "🚚 Free shipping ₹500+",
+    "freeShipping": "🚚 Free shipping ₹499+",
     "happyKitchens": "⭐ 1.1M+ happy kitchens"
   },
   "trustBand": {
@@ -218,7 +250,7 @@
     "whatsIncluded": "What's Included ({{count}} items)",
     "totalWeight": "Total Weight:",
     "freeDelivery": "Free Delivery",
-    "ordersMin": "Orders ₹500+",
+    "ordersMin": "Orders ₹499+",
     "secure": "Secure",
     "payment": "Payment",
     "greatValue": "Great Value!",
@@ -244,7 +276,7 @@
     "privacyPolicy": "Privacy Policy",
     "terms": "Terms & Conditions",
     "faqs": "FAQs",
-    "contactDetail": "Contact Detail",
+    "contactDetail": "Contact Details",
     "rights": "All rights reserved.",
     "whatsapp": "Chat with us on WhatsApp"
   },
@@ -276,7 +308,7 @@
   },
   "promo": {
     "flat20Title": "Flat 20% off",
-    "flat20Subtitle": "On orders above Rs. 299",
+    "flat20Subtitle": "On orders above ₹299",
     "freeDeliveryTitle": "Free delivery",
     "freeDeliverySubtitle": "Unlock shipping savings",
     "comboSaverTitle": "Combo saver",
@@ -301,7 +333,8 @@
     "productCount": "{{count}} product",
     "productCount_other": "{{count}} products",
     "noProducts": "No products found.",
-    "loadingProducts": "Loading…"
+    "loadingProducts": "Loading…",
+    "loadError": "We couldn't load products right now. Please try again."
   },
   "offerZone": {
     "heroTitle": "Exclusive Offers",
@@ -322,7 +355,10 @@
     "sortRelevance": "Relevance",
     "pages": "Pages",
     "products": "Products",
-    "searchFor": "Search for \"{{query}}\""
+    "searchFor": "Search for \"{{query}}\"",
+    "resultsFor": "Results for \"{{query}}\"",
+    "resultsCount_one": "{{count}} result found",
+    "resultsCount_other": "{{count}} results found"
   },
   "auth": {
     "welcomeBack": "Welcome Back",
@@ -341,7 +377,7 @@
     "registerHere": "Register here"
   },
   "about": {
-    "badge": "Est. 1995 · Ujjain, India",
+    "badge": "Est. 1995 · Barnagar, India",
     "heroPre": "Every pinch tells a ",
     "heroHighlight": "story",
     "heroPost": "",
@@ -449,8 +485,8 @@
       "charges": {
         "title": "Shipping Charges",
         "intro": "Shipping charges are calculated based on the weight of your order and delivery location:",
-        "free": "Orders above ₹500: <b>Free Shipping</b>",
-        "upto": "Orders up to ₹500: ₹50 shipping charge applies"
+        "free": "Orders above ₹499: <b>Free Shipping</b>",
+        "upto": "Orders up to ₹499: ₹69 shipping charge applies"
       },
       "tracking": {
         "title": "Order Tracking",
@@ -519,7 +555,8 @@
         "intro": "Once we receive and inspect the returned product:",
         "items": [
           "Refunds are processed within 5-7 business days",
-          "Amount will be credited to the original payment method",
+          "For prepaid orders, the amount is credited back to the original payment method",
+          "For Cash on Delivery (COD) orders, there is no original payment method to credit — our team will call you to arrange the refund via UPI or bank transfer. All COD refund matters are resolved over the phone.",
           "You will receive a confirmation once the refund is processed"
         ]
       },
@@ -529,7 +566,7 @@
       },
       "cancellation": {
         "title": "Cancellation",
-        "body": "Orders cannot be cancelled once placed. Please review your items, quantities and address carefully before completing your purchase."
+        "body": "You may cancel your order free of charge at any time before it has been shipped — just contact us and we will refund you in full. Once an order has been shipped, it can no longer be cancelled for a refund; you may still refuse delivery or use our returns process, but the shipping charge will not be refunded."
       },
       "contact": {
         "title": "Contact Us",
@@ -660,7 +697,7 @@
         },
         {
           "q": "What are the shipping charges?",
-          "a": "Shipping is free on orders above ₹500. For orders below ₹500, a nominal shipping charge is applied and shown at checkout before you pay."
+          "a": "Shipping is free on orders above ₹499. For orders below ₹499, a nominal shipping charge is applied and shown at checkout before you pay."
         },
         {
           "q": "How do I track my order?",
@@ -722,7 +759,8 @@
       "hoursLine1": "Monday – Saturday: 9:00 AM – 6:00 PM",
       "hoursLine2": "Sunday: Closed",
       "grievanceTitle": "Grievance Officer",
-      "grievanceBody": "We acknowledge grievances within 48 hours and aim to resolve them within 30 days."
+      "grievanceBody": "We acknowledge grievances within 48 hours and aim to resolve them within 30 days.",
+      "mapTitle": "Our store location on the map"
     }
   },
   "notFound": {
@@ -732,7 +770,10 @@
   "favorites": {
     "empty": "Your wishlist is empty",
     "emptyHint": "Tap the heart on any product to save it here.",
-    "browse": "Browse Products"
+    "browse": "Browse Products",
+    "title": "My Favourites",
+    "count": "{{count}} saved item",
+    "count_other": "{{count}} saved items"
   },
   "orderSuccess": {
     "title": "Order Successfully Placed!",
@@ -839,7 +880,7 @@
     "loadError": "Failed to load combos",
     "benefitCurated": "Hand-curated bundles",
     "benefitValue": "Better value than buying separately",
-    "benefitShipping": "Free shipping over Rs. {{amount}}",
+    "benefitShipping": "Free shipping over ₹{{amount}}",
     "eyebrow": "Value Bundles",
     "title": "Combo Offers",
     "subtitle": "Thoughtfully paired spice bundles — more flavour, less spend.",

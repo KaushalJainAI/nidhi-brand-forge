@@ -48,10 +48,17 @@ const SearchAutocomplete = ({
   const pageMatches =
     debouncedQuery.length >= 2 ? matchPages(debouncedQuery) : [];
 
-  // Close and reset whenever the route changes (after navigating to a result)
+  // Close the dropdown on navigation. On the search results page keep the box
+  // populated with the active query (so it's visible / editable); everywhere
+  // else reset it after navigating to a result.
   useEffect(() => {
     setOpen(false);
-    setQuery("");
+    if (location.pathname === "/search") {
+      const params = new URLSearchParams(location.search);
+      setQuery(params.get("q") ?? params.get("search") ?? "");
+    } else {
+      setQuery("");
+    }
   }, [location.pathname, location.search]);
 
   useEffect(() => {
@@ -131,7 +138,7 @@ const SearchAutocomplete = ({
                       <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
                         <p.icon className="h-4 w-4" />
                       </span>
-                      <span className="flex flex-1 flex-col truncate">
+                      <span className="flex flex-1 flex-col truncate notranslate">
                         <span className="truncate">{p.title}</span>
                         <span className="truncate text-xs text-muted-foreground">
                           {p.description}
@@ -162,7 +169,7 @@ const SearchAutocomplete = ({
                   ) : (
                     <div className="h-9 w-9 rounded-full spice-backdrop flex-shrink-0" />
                   )}
-                  <span className="flex-1 truncate">{s.name}</span>
+                  <span className="flex-1 truncate notranslate">{s.name}</span>
                   <span className="text-sm font-semibold text-primary notranslate">
                     ₹{s.price}
                   </span>

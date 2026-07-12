@@ -14,6 +14,16 @@ const Favorites = () => {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
+        {favorites.length > 0 && (
+          <div className="mb-5 sm:mb-8">
+            <h1 className="text-xl sm:text-3xl font-bold text-foreground">{t('favorites.title')}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {favorites.length === 1
+                ? t('favorites.count', { count: favorites.length })
+                : t('favorites.count_other', { count: favorites.length })}
+            </p>
+          </div>
+        )}
         {favorites.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-6">
             {favorites.map((product) => (

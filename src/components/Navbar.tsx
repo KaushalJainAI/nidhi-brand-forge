@@ -95,23 +95,27 @@ const Navbar = () => {
         {/* Main Navbar Row */}
         <div className="flex items-center justify-between gap-4 h-16 md:h-18">
           {/* Logo Section */}
-          <div className="flex items-center min-w-0">
-            <Link to="/" className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center shrink-0">
+            <Link to="/" className="flex items-center gap-2">
               <img
                 src="/logo.png"
                 alt="Logo"
                 className="h-9 w-auto md:h-11 object-contain shrink-0"
               />
-              {/* Stacked brand lock-up matching the redesign concept */}
-              <div className="leading-tight notranslate min-w-0">
-                <div className="font-extrabold text-primary text-base md:text-lg truncate">Nidhi Masala</div>
-                <div className="text-[10px] text-muted-foreground -mt-0.5 truncate">निधि गृह उद्योग</div>
+              {/* Stacked brand lock-up matching the redesign concept. The
+                  lock-up must never shrink: with min-w-0 the flex row collapses
+                  it to "Ni..." once the search pill competes for space. */}
+              <div className="leading-tight notranslate shrink-0">
+                <div className="font-extrabold text-primary text-base md:text-lg whitespace-nowrap">Nidhi Masala</div>
+                <div className="text-[10px] text-muted-foreground -mt-0.5 whitespace-nowrap">निधि गृह उद्योग</div>
               </div>
             </Link>
           </div>
 
-          {/* Centered search pill (concept layout) */}
-          <div className="hidden md:flex flex-1 max-w-md mx-auto">
+          {/* Centered search pill — inline only at lg+. On tablet (md) it moves
+              to a full-width bar below the nav (see bottom of this component) so
+              it isn't squeezed between the logo, nav links and action icons. */}
+          <div className="hidden lg:flex flex-1 max-w-md mx-auto">
             <SearchAutocomplete
               placeholder={t('nav.search')}
               inputClassName="w-full"
@@ -225,8 +229,9 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Search - Compact */}
-        <div className="pb-3 md:hidden">
+        {/* Mobile + tablet search — full-width bar below the nav (hidden once the
+            inline pill appears at lg). */}
+        <div className="pb-3 lg:hidden">
           <SearchAutocomplete
             placeholder={t('nav.searchMobile')}
             inputClassName="w-full"

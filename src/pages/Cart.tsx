@@ -334,14 +334,19 @@ const Cart = () => {
                   </CardContent>
                 </Card>
               ))}
-              <Button 
-                variant="outline" 
-                onClick={handleClearCart} 
-                className="w-full"
-                disabled={isLoading}
-              >
-                {t('cart.clearCart')}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button asChild variant="outline" className="w-full sm:flex-1">
+                  <a href="/products">← {t('cart.continueShopping')}</a>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleClearCart}
+                  className="w-full sm:flex-1"
+                  disabled={isLoading}
+                >
+                  {t('cart.clearCart')}
+                </Button>
+              </div>
             </div>
             <div>
               <Card>

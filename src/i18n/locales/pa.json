@@ -38,7 +38,7 @@
   "home": {
     "features": {
       "freeShippingTitle": "ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ",
-      "freeShippingDesc": "₹500 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ ਤੇ",
+      "freeShippingDesc": "₹499 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ ਤੇ",
       "authenticTitle": "100% ਸ਼ੁੱਧ",
       "authenticDesc": "ਸ਼ੁੱਧ ਅਤੇ ਕੁਦਰਤੀ ਸਮੱਗਰੀ",
       "deliveryTitle": "ਤੇਜ਼ ਡਿਲੀਵਰੀ",
@@ -77,6 +77,7 @@
     "testimonials": {
       "title": "ਗਾਹਕਾਂ ਦੇ ਵਿਚਾਰ",
       "subtitle": "ਸਾਡੇ ਖੁਸ਼ ਗਾਹਕ ਕੀ ਕਹਿੰਦੇ ਹਨ",
+      "verified": "ਪ੍ਰਮਾਣਿਤ ਖਰੀਦਦਾਰ",
       "items": [
         {
           "name": "ਪ੍ਰਿਯਾ ਸ਼ਰਮਾ",
@@ -155,7 +156,24 @@
     "noRatings": "ਕੋਈ ਰੇਟਿੰਗ ਨਹੀਂ",
     "reviewsCount": "{{count}} ਸਮੀਖਿਆ",
     "reviewsCount_other": "{{count}} ਸਮੀਖਿਆਵਾਂ",
-    "buyNow": "Buy Now"
+    "buyNow": "Buy Now",
+    "recipeTitle": "ਵਿਧੀ ਅਤੇ ਵਰਤੋਂ",
+    "nutritionTitle": "ਪੋਸ਼ਣ ਸੰਬੰਧੀ ਜਾਣਕਾਰੀ",
+    "nutritionNote": "ਦਿੱਤੇ ਸਰਵਿੰਗ ਸਾਈਜ਼ ਲਈ ਅੰਦਾਜ਼ਨ ਮੁੱਲ।",
+    "fssai": "FSSAI ਲਾਇਸੈਂਸ ਨੰ.",
+    "nutritionKeys": {
+      "serving_size": "ਸਰਵਿੰਗ ਸਾਈਜ਼",
+      "total_fat": "ਕੁੱਲ ਚਰਬੀ",
+      "saturated_fat": "ਸੰਤ੍ਰਿਪਤ ਚਰਬੀ",
+      "total_carbohydrates": "ਕੁੱਲ ਕਾਰਬੋਹਾਈਡਰੇਟ",
+      "protein": "ਪ੍ਰੋਟੀਨ",
+      "energy": "ਊਰਜਾ",
+      "calcium": "ਕੈਲਸ਼ੀਅਮ",
+      "iron": "ਆਇਰਨ",
+      "sodium": "ਸੋਡੀਅਮ",
+      "sugars": "ਸ਼ੱਕਰ",
+      "sugar": "ਸ਼ੱਕਰ"
+    }
   },
   "footer": {
     "tagline": "1995 ਤੋਂ ਭਾਰਤੀ ਮਸਾਲਿਆਂ ਦਾ ਅਸਲੀ ਸੁਆਦ। ਅਜਿਹੀ ਗੁਣਵੱਤਾ ਜੋ ਘਰ ਵਰਗੀ ਲੱਗੇ।",
@@ -214,7 +232,7 @@
     "registerHere": "ਇੱਥੇ ਰਜਿਸਟਰ ਕਰੋ"
   },
   "about": {
-    "badge": "ਸਥਾਪਨਾ 1995 · ਉੱਜੈਨ, ਭਾਰਤ",
+    "badge": "ਸਥਾਪਨਾ 1995 · ਬੜਨਗਰ, ਭਾਰਤ",
     "heroPre": "ਹਰ ਚੁਟਕੀ ਦੱਸਦੀ ਹੈ ਇੱਕ ",
     "heroHighlight": "ਕਹਾਣੀ",
     "heroPost": "",
@@ -308,7 +326,7 @@
     "ctaButton": "ਮਸਾਲੇ ਖਰੀਦੋ"
   },
   "ribbon": {
-    "freeShipping": "₹500 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ 'ਤੇ ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ",
+    "freeShipping": "₹499 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ 'ਤੇ ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ",
     "pure": "100% ਸ਼ੁੱਧ ਅਤੇ ਕੁਦਰਤੀ — ਕੋਈ ਮਿਲਾਵਟ ਨਹੀਂ",
     "handPacked": "ਬੜਨਗਰ ਵਿੱਚ ਹੱਥਾਂ ਨਾਲ ਪੈਕ ਕੀਤਾ",
     "trusted": "1.1M+ ਰਸੋਈਆਂ ਦਾ ਭਰੋਸਾ"
@@ -329,7 +347,7 @@
     "saleEndsIn": "ਸੇਲ ਇਸ ਵਿੱਚ ਖਤਮ ਹੁੰਦੀ ਹੈ"
   },
   "trust": {
-    "freeShipping": "🚚 ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ ₹500+",
+    "freeShipping": "🚚 ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ ₹499+",
     "happyKitchens": "⭐ 1.1M+ ਖੁਸ਼ ਰਸੋਈਆਂ"
   },
   "trustBand": {
@@ -368,7 +386,7 @@
     "whatsIncluded": "ਕੀ ਸ਼ਾਮਲ ਹੈ ({{count}} ਚੀਜ਼ਾਂ)",
     "totalWeight": "ਕੁੱਲ ਭਾਰ:",
     "freeDelivery": "ਮੁਫ਼ਤ ਡਿਲੀਵਰੀ",
-    "ordersMin": "ਆਰਡਰ ₹500+",
+    "ordersMin": "ਆਰਡਰ ₹499+",
     "secure": "ਸੁਰੱਖਿਅਤ",
     "payment": "ਭੁਗਤਾਨ",
     "greatValue": "ਸ਼ਾਨਦਾਰ ਮੁੱਲ!",
@@ -386,7 +404,7 @@
   },
   "promo": {
     "flat20Title": "ਸਿੱਧੀ 20% ਛੂਟ",
-    "flat20Subtitle": "ਰੁ. 299 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ 'ਤੇ",
+    "flat20Subtitle": "₹299 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ 'ਤੇ",
     "freeDeliveryTitle": "ਮੁਫ਼ਤ ਡਿਲੀਵਰੀ",
     "freeDeliverySubtitle": "ਸ਼ਿਪਿੰਗ ਬੱਚਤ ਅਨਲੌਕ ਕਰੋ",
     "comboSaverTitle": "ਕੌਂਬੋ ਸੇਵਰ",
@@ -432,7 +450,10 @@
     "sortRelevance": "ਸੰਬੰਧਿਤਤਾ",
     "pages": "ਪੇਜ",
     "products": "ਉਤਪਾਦ",
-    "searchFor": "\"{{query}}\" ਖੋਜੋ"
+    "searchFor": "\"{{query}}\" ਖੋਜੋ",
+    "resultsFor": "\"{{query}}\" ਲਈ ਨਤੀਜੇ",
+    "resultsCount_one": "{{count}} ਨਤੀਜਾ ਮਿਲਿਆ",
+    "resultsCount_other": "{{count}} ਨਤੀਜੇ ਮਿਲੇ"
   },
   "pages": {
     "shipping": {
@@ -449,8 +470,8 @@
       "charges": {
         "title": "ਸ਼ਿਪਿੰਗ ਖਰਚੇ",
         "intro": "ਸ਼ਿਪਿੰਗ ਖਰਚੇ ਤੁਹਾਡੇ ਆਰਡਰ ਦੇ ਭਾਰ ਅਤੇ ਡਿਲੀਵਰੀ ਸਥਾਨ ਦੇ ਆਧਾਰ 'ਤੇ ਗਿਣੇ ਜਾਂਦੇ ਹਨ:",
-        "free": "₹500 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ: <b>ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ</b>",
-        "upto": "₹500 ਤੱਕ ਦੇ ਆਰਡਰ: ₹50 ਸ਼ਿਪਿੰਗ ਖਰਚਾ ਲਾਗੂ ਹੁੰਦਾ ਹੈ"
+        "free": "₹499 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ: <b>ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ</b>",
+        "upto": "₹499 ਤੱਕ ਦੇ ਆਰਡਰ: ₹69 ਸ਼ਿਪਿੰਗ ਖਰਚਾ ਲਾਗੂ ਹੁੰਦਾ ਹੈ"
       },
       "tracking": {
         "title": "ਆਰਡਰ ਟਰੈਕਿੰਗ",
@@ -515,12 +536,13 @@
         ]
       },
       "refund": {
-        "title": "ਰਿਫੰਡ ਪ੍ਰਕਿਰਿਆ",
-        "intro": "ਵਾਪਸ ਆਏ ਉਤਪਾਦ ਨੂੰ ਪ੍ਰਾਪਤ ਕਰਕੇ ਅਤੇ ਜਾਂਚਣ ਤੋਂ ਬਾਅਦ:",
+        "title": "Refund Process",
+        "intro": "Once we receive and inspect the returned product:",
         "items": [
-          "ਰਿਫੰਡ 5-7 ਕੰਮਕਾਜੀ ਦਿਨਾਂ ਵਿੱਚ ਪ੍ਰੋਸੈਸ ਕੀਤੇ ਜਾਂਦੇ ਹਨ",
-          "ਰਕਮ ਅਸਲ ਭੁਗਤਾਨ ਤਰੀਕੇ ਵਿੱਚ ਜਮ੍ਹਾਂ ਕੀਤੀ ਜਾਵੇਗੀ",
-          "ਰਿਫੰਡ ਪ੍ਰੋਸੈਸ ਹੋਣ 'ਤੇ ਤੁਹਾਨੂੰ ਪੁਸ਼ਟੀ ਮਿਲੇਗੀ"
+          "Refunds are processed within 5-7 business days",
+          "For prepaid orders, the amount is credited back to the original payment method",
+          "For Cash on Delivery (COD) orders, there is no original payment method to credit — our team will call you to arrange the refund via UPI or bank transfer. All COD refund matters are resolved over the phone.",
+          "You will receive a confirmation once the refund is processed"
         ]
       },
       "replacement": {
@@ -528,8 +550,8 @@
         "body": "ਅਸੀਂ ਖਰਾਬ ਜਾਂ ਨੁਕਸਦਾਰ ਚੀਜ਼ਾਂ ਲਈ ਬਦਲੀ ਪ੍ਰਦਾਨ ਕਰਦੇ ਹਾਂ, ਜੋ ਉੱਪਰ ਦਿੱਤੀ ਅਨਬਾਕਸਿੰਗ ਵੀਡੀਓ ਦੀ ਸ਼ਰਤ ਦੇ ਅਧੀਨ ਹੈ। ਵਾਪਸ ਆਈ ਚੀਜ਼ ਪ੍ਰਾਪਤ ਹੋਣ ਤੋਂ ਬਾਅਦ ਬਦਲੀ ਉਤਪਾਦ ਬਿਨਾਂ ਕਿਸੇ ਵਾਧੂ ਖਰਚੇ ਦੇ ਭੇਜਿਆ ਜਾਵੇਗਾ।"
       },
       "cancellation": {
-        "title": "ਰੱਦ ਕਰਨਾ",
-        "body": "ਆਰਡਰ ਦੇਣ ਤੋਂ ਬਾਅਦ ਰੱਦ ਨਹੀਂ ਕੀਤੇ ਜਾ ਸਕਦੇ। ਕਿਰਪਾ ਕਰਕੇ ਖਰੀਦਦਾਰੀ ਪੂਰੀ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਆਪਣੀਆਂ ਚੀਜ਼ਾਂ, ਮਾਤਰਾ ਅਤੇ ਪਤਾ ਧਿਆਨ ਨਾਲ ਜਾਂਚੋ।"
+        "title": "Cancellation",
+        "body": "You may cancel your order free of charge at any time before it has been shipped — just contact us and we will refund you in full. Once an order has been shipped, it can no longer be cancelled for a refund; you may still refuse delivery or use our returns process, but the shipping charge will not be refunded."
       },
       "contact": {
         "title": "ਸਾਡੇ ਨਾਲ ਸੰਪਰਕ ਕਰੋ",
@@ -660,7 +682,7 @@
         },
         {
           "q": "ਸ਼ਿਪਿੰਗ ਖਰਚੇ ਕੀ ਹਨ?",
-          "a": "₹500 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ 'ਤੇ ਸ਼ਿਪਿੰਗ ਮੁਫ਼ਤ ਹੈ। ₹500 ਤੋਂ ਘੱਟ ਦੇ ਆਰਡਰ ਲਈ ਮਾਮੂਲੀ ਸ਼ਿਪਿੰਗ ਖਰਚਾ ਲਾਗੂ ਹੁੰਦਾ ਹੈ, ਜੋ ਭੁਗਤਾਨ ਤੋਂ ਪਹਿਲਾਂ ਚੈੱਕਆਊਟ 'ਤੇ ਦਿਖਾਇਆ ਜਾਂਦਾ ਹੈ।"
+          "a": "₹499 ਤੋਂ ਵੱਧ ਦੇ ਆਰਡਰ 'ਤੇ ਸ਼ਿਪਿੰਗ ਮੁਫ਼ਤ ਹੈ। ₹499 ਤੋਂ ਘੱਟ ਦੇ ਆਰਡਰ ਲਈ ਮਾਮੂਲੀ ਸ਼ਿਪਿੰਗ ਖਰਚਾ ਲਾਗੂ ਹੁੰਦਾ ਹੈ, ਜੋ ਭੁਗਤਾਨ ਤੋਂ ਪਹਿਲਾਂ ਚੈੱਕਆਊਟ 'ਤੇ ਦਿਖਾਇਆ ਜਾਂਦਾ ਹੈ।"
         },
         {
           "q": "ਮੈਂ ਆਪਣਾ ਆਰਡਰ ਕਿਵੇਂ ਟਰੈਕ ਕਰਾਂ?",
@@ -722,7 +744,8 @@
       "hoursLine1": "ਸੋਮਵਾਰ – ਸ਼ਨੀਵਾਰ: ਸਵੇਰੇ 9:00 – ਸ਼ਾਮ 6:00",
       "hoursLine2": "ਐਤਵਾਰ: ਬੰਦ",
       "grievanceTitle": "ਸ਼ਿਕਾਇਤ ਅਧਿਕਾਰੀ",
-      "grievanceBody": "ਅਸੀਂ 48 ਘੰਟਿਆਂ ਵਿੱਚ ਸ਼ਿਕਾਇਤਾਂ ਦੀ ਪ੍ਰਾਪਤੀ ਸਵੀਕਾਰ ਕਰਦੇ ਹਾਂ ਅਤੇ 30 ਦਿਨਾਂ ਵਿੱਚ ਉਹਨਾਂ ਨੂੰ ਹੱਲ ਕਰਨ ਦਾ ਟੀਚਾ ਰੱਖਦੇ ਹਾਂ।"
+      "grievanceBody": "ਅਸੀਂ 48 ਘੰਟਿਆਂ ਵਿੱਚ ਸ਼ਿਕਾਇਤਾਂ ਦੀ ਪ੍ਰਾਪਤੀ ਸਵੀਕਾਰ ਕਰਦੇ ਹਾਂ ਅਤੇ 30 ਦਿਨਾਂ ਵਿੱਚ ਉਹਨਾਂ ਨੂੰ ਹੱਲ ਕਰਨ ਦਾ ਟੀਚਾ ਰੱਖਦੇ ਹਾਂ।",
+      "mapTitle": "ਨਕਸ਼ੇ 'ਤੇ ਸਾਡਾ ਸਟੋਰ"
     }
   },
   "notFound": {
@@ -839,7 +862,7 @@
     "loadError": "ਕੌਂਬੋ ਲੋਡ ਕਰਨ ਵਿੱਚ ਅਸਫਲ",
     "benefitCurated": "ਹੱਥਾਂ ਨਾਲ ਚੁਣੇ ਬੰਡਲ",
     "benefitValue": "ਵੱਖਰੇ ਖਰੀਦਣ ਨਾਲੋਂ ਬਿਹਤਰ ਮੁੱਲ",
-    "benefitShipping": "Rs. {{amount}} ਤੋਂ ਵੱਧ 'ਤੇ ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ",
+    "benefitShipping": "₹{{amount}} ਤੋਂ ਵੱਧ 'ਤੇ ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ",
     "eyebrow": "ਵੈਲਯੂ ਬੰਡਲ",
     "title": "ਕੌਂਬੋ ਆਫਰ",
     "subtitle": "ਸੋਚ-ਸਮਝ ਕੇ ਜੋੜੇ ਮਸਾਲਾ ਬੰਡਲ — ਵੱਧ ਸੁਆਦ, ਘੱਟ ਖਰਚ।",

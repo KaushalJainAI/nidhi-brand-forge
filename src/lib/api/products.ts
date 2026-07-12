@@ -38,6 +38,8 @@ export interface Product {
   organic: boolean;
   shelf_life?: string;
   ingredients?: string;
+  recipe?: string;
+  nutrition?: Record<string, string> | null;
   image: string;
   images?: { id: number; product: number; image: string; alt_text?: string }[];
   is_active: boolean;

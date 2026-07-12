@@ -122,6 +122,18 @@ const SearchResults = () => {
       {/* Results & Products */}
       <section className="py-6 sm:py-12">
         <div className="container mx-auto px-3 sm:px-4">
+          {/* Result heading + count */}
+          {searchQuery && (
+            <div className="mb-5 sm:mb-8">
+              <h1 className="text-lg sm:text-2xl font-bold text-foreground">
+                {t('search.resultsFor', { query: searchQuery })}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t('search.resultsCount', { count: totalResults })}
+              </p>
+            </div>
+          )}
+
           {/* Pages that match — quick links to cart, policies, orders, etc. */}
           {pageMatches.length > 0 && (
             <div className="mb-6 sm:mb-8">

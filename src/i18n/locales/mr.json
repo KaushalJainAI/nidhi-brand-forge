@@ -38,7 +38,7 @@
   "home": {
     "features": {
       "freeShippingTitle": "मोफत शिपिंग",
-      "freeShippingDesc": "₹500 वरील ऑर्डरवर",
+      "freeShippingDesc": "₹499 वरील ऑर्डरवर",
       "authenticTitle": "100% शुद्ध",
       "authenticDesc": "शुद्ध आणि नैसर्गिक घटक",
       "deliveryTitle": "जलद डिलिव्हरी",
@@ -77,6 +77,7 @@
     "testimonials": {
       "title": "ग्राहकांची मते",
       "subtitle": "आमचे आनंदी ग्राहक काय म्हणतात",
+      "verified": "सत्यापित खरेदीदार",
       "items": [
         {
           "name": "प्रिया शर्मा",
@@ -155,7 +156,24 @@
     "noRatings": "कोणतेही रेटिंग नाही",
     "reviewsCount": "{{count}} पुनरावलोकन",
     "reviewsCount_other": "{{count}} पुनरावलोकने",
-    "buyNow": "Buy Now"
+    "buyNow": "Buy Now",
+    "recipeTitle": "कृती आणि वापर",
+    "nutritionTitle": "पोषण माहिती",
+    "nutritionNote": "दर्शविलेल्या सर्व्हिंग साइझसाठी अंदाजे मूल्ये.",
+    "fssai": "FSSAI परवाना क्र.",
+    "nutritionKeys": {
+      "serving_size": "सर्व्हिंग साइझ",
+      "total_fat": "एकूण चरबी",
+      "saturated_fat": "संतृप्त चरबी",
+      "total_carbohydrates": "एकूण कर्बोदके",
+      "protein": "प्रथिने",
+      "energy": "ऊर्जा",
+      "calcium": "कॅल्शियम",
+      "iron": "लोह",
+      "sodium": "सोडियम",
+      "sugars": "साखर",
+      "sugar": "साखर"
+    }
   },
   "footer": {
     "tagline": "1995 पासून भारतीय मसाल्यांची खरी चव. घरासारखी वाटणारी गुणवत्ता.",
@@ -214,7 +232,7 @@
     "registerHere": "येथे नोंदणी करा"
   },
   "about": {
-    "badge": "स्थापना 1995 · उज्जैन, भारत",
+    "badge": "स्थापना 1995 · बडनगर, भारत",
     "heroPre": "प्रत्येक चिमूट सांगते एक ",
     "heroHighlight": "कहाणी",
     "heroPost": "",
@@ -308,7 +326,7 @@
     "ctaButton": "मसाले खरेदी करा"
   },
   "ribbon": {
-    "freeShipping": "₹500 पेक्षा जास्त ऑर्डरवर मोफत शिपिंग",
+    "freeShipping": "₹499 पेक्षा जास्त ऑर्डरवर मोफत शिपिंग",
     "pure": "100% शुद्ध आणि नैसर्गिक — कोणतीही भेसळ नाही",
     "handPacked": "बडनगरमध्ये हाताने पॅक केलेले",
     "trusted": "1.1M+ स्वयंपाकघरांचा विश्वास"
@@ -329,7 +347,7 @@
     "saleEndsIn": "सेल यात संपते"
   },
   "trust": {
-    "freeShipping": "🚚 मोफत शिपिंग ₹500+",
+    "freeShipping": "🚚 मोफत शिपिंग ₹499+",
     "happyKitchens": "⭐ 1.1M+ आनंदी स्वयंपाकघरे"
   },
   "trustBand": {
@@ -368,7 +386,7 @@
     "whatsIncluded": "काय समाविष्ट आहे ({{count}} वस्तू)",
     "totalWeight": "एकूण वजन:",
     "freeDelivery": "मोफत वितरण",
-    "ordersMin": "ऑर्डर ₹500+",
+    "ordersMin": "ऑर्डर ₹499+",
     "secure": "सुरक्षित",
     "payment": "पेमेंट",
     "greatValue": "उत्तम मूल्य!",
@@ -386,7 +404,7 @@
   },
   "promo": {
     "flat20Title": "सरळ 20% सूट",
-    "flat20Subtitle": "रु. 299 पेक्षा जास्त ऑर्डरवर",
+    "flat20Subtitle": "₹299 पेक्षा जास्त ऑर्डरवर",
     "freeDeliveryTitle": "मोफत वितरण",
     "freeDeliverySubtitle": "शिपिंग बचत अनलॉक करा",
     "comboSaverTitle": "कॉम्बो सेव्हर",
@@ -432,7 +450,10 @@
     "sortRelevance": "सुसंगतता",
     "pages": "पेजेस",
     "products": "उत्पादने",
-    "searchFor": "\"{{query}}\" शोधा"
+    "searchFor": "\"{{query}}\" शोधा",
+    "resultsFor": "\"{{query}}\" साठी निकाल",
+    "resultsCount_one": "{{count}} निकाल सापडला",
+    "resultsCount_other": "{{count}} निकाल सापडले"
   },
   "pages": {
     "shipping": {
@@ -449,8 +470,8 @@
       "charges": {
         "title": "शिपिंग शुल्क",
         "intro": "शिपिंग शुल्क तुमच्या ऑर्डरच्या वजनावर आणि वितरण स्थानावर आधारित मोजले जाते:",
-        "free": "₹500 पेक्षा जास्त ऑर्डर: <b>मोफत शिपिंग</b>",
-        "upto": "₹500 पर्यंतच्या ऑर्डर: ₹50 शिपिंग शुल्क लागू होते"
+        "free": "₹499 पेक्षा जास्त ऑर्डर: <b>मोफत शिपिंग</b>",
+        "upto": "₹499 पर्यंतच्या ऑर्डर: ₹69 शिपिंग शुल्क लागू होते"
       },
       "tracking": {
         "title": "ऑर्डर ट्रॅकिंग",
@@ -515,12 +536,13 @@
         ]
       },
       "refund": {
-        "title": "परतावा प्रक्रिया",
-        "intro": "परत आलेले उत्पादन मिळाल्यावर आणि तपासल्यावर:",
+        "title": "Refund Process",
+        "intro": "Once we receive and inspect the returned product:",
         "items": [
-          "परतावे 5-7 कार्य दिवसांत प्रक्रिया केले जातात",
-          "रक्कम मूळ पेमेंट पद्धतीत जमा केली जाईल",
-          "परतावा प्रक्रिया झाल्यावर तुम्हाला पुष्टी मिळेल"
+          "Refunds are processed within 5-7 business days",
+          "For prepaid orders, the amount is credited back to the original payment method",
+          "For Cash on Delivery (COD) orders, there is no original payment method to credit — our team will call you to arrange the refund via UPI or bank transfer. All COD refund matters are resolved over the phone.",
+          "You will receive a confirmation once the refund is processed"
         ]
       },
       "replacement": {
@@ -528,8 +550,8 @@
         "body": "आम्ही खराब किंवा सदोष वस्तूंसाठी बदली देतो, जी वरील अनबॉक्सिंग व्हिडिओ आवश्यकतेच्या अधीन आहे. परत आलेली वस्तू मिळाल्यानंतर बदली उत्पादन कोणत्याही अतिरिक्त खर्चाशिवाय पाठवले जाईल."
       },
       "cancellation": {
-        "title": "रद्द करणे",
-        "body": "ऑर्डर दिल्यानंतर रद्द करता येत नाहीत. कृपया खरेदी पूर्ण करण्यापूर्वी तुमच्या वस्तू, प्रमाण आणि पत्ता काळजीपूर्वक तपासा."
+        "title": "Cancellation",
+        "body": "You may cancel your order free of charge at any time before it has been shipped — just contact us and we will refund you in full. Once an order has been shipped, it can no longer be cancelled for a refund; you may still refuse delivery or use our returns process, but the shipping charge will not be refunded."
       },
       "contact": {
         "title": "आमच्याशी संपर्क साधा",
@@ -660,7 +682,7 @@
         },
         {
           "q": "शिपिंग शुल्क किती आहे?",
-          "a": "₹500 पेक्षा जास्त ऑर्डरवर शिपिंग मोफत आहे. ₹500 पेक्षा कमी ऑर्डरसाठी किरकोळ शिपिंग शुल्क लागू होते, जे पेमेंटपूर्वी चेकआउटवर दाखवले जाते."
+          "a": "₹499 पेक्षा जास्त ऑर्डरवर शिपिंग मोफत आहे. ₹499 पेक्षा कमी ऑर्डरसाठी किरकोळ शिपिंग शुल्क लागू होते, जे पेमेंटपूर्वी चेकआउटवर दाखवले जाते."
         },
         {
           "q": "मी माझी ऑर्डर कशी ट्रॅक करू?",
@@ -722,7 +744,8 @@
       "hoursLine1": "सोमवार – शनिवार: सकाळी 9:00 – संध्याकाळी 6:00",
       "hoursLine2": "रविवार: बंद",
       "grievanceTitle": "तक्रार निवारण अधिकारी",
-      "grievanceBody": "आम्ही 48 तासांत तक्रारींची पोच देतो आणि 30 दिवसांत त्या सोडवण्याचे लक्ष्य ठेवतो."
+      "grievanceBody": "आम्ही 48 तासांत तक्रारींची पोच देतो आणि 30 दिवसांत त्या सोडवण्याचे लक्ष्य ठेवतो.",
+      "mapTitle": "नकाशावर आमचे स्टोअर"
     }
   },
   "notFound": {
@@ -839,7 +862,7 @@
     "loadError": "कॉम्बो लोड करण्यात अयशस्वी",
     "benefitCurated": "हाताने निवडलेले बंडल",
     "benefitValue": "वेगळे खरेदी करण्यापेक्षा अधिक चांगले मूल्य",
-    "benefitShipping": "Rs. {{amount}} पेक्षा जास्त वर मोफत शिपिंग",
+    "benefitShipping": "₹{{amount}} पेक्षा जास्त वर मोफत शिपिंग",
     "eyebrow": "व्हॅल्यू बंडल",
     "title": "कॉम्बो ऑफर",
     "subtitle": "विचारपूर्वक जोडलेले मसाला बंडल — अधिक चव, कमी खर्च.",

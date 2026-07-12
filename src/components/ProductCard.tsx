@@ -81,6 +81,13 @@ const ProductCard = ({
     trackEvent({ event_type: "click", [itemType === "combo" ? "combo_id" : "product_id"]: id });
   };
 
+  // Some callers pass a bare numeric weight (e.g. 100 from a favorite saved off
+  // the catalog list) with no unit. Append "g" so it never renders as just "100".
+  const displayWeight =
+    typeof weight === "number" || /^\s*\d+(\.\d+)?\s*$/.test(String(weight))
+      ? `${String(weight).trim()}g`
+      : weight;
+
   // Auto-computed discount for the % OFF badge / savings label.
   const discountPercent =
     originalPrice && originalPrice > price
@@ -163,7 +170,7 @@ const ProductCard = ({
                   {t('product.youSave', { amount: saveAmount })}
                 </p>
               )}
-              <p className="text-[11px] sm:text-xs text-muted-foreground">{weight}</p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground">{displayWeight}</p>
             </div>
           </div>
         </CardContent>

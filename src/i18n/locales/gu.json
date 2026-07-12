@@ -38,7 +38,7 @@
   "home": {
     "features": {
       "freeShippingTitle": "ફ્રી શિપિંગ",
-      "freeShippingDesc": "₹500 થી વધુના ઓર્ડર પર",
+      "freeShippingDesc": "₹499 થી વધુના ઓર્ડર પર",
       "authenticTitle": "100% શુદ્ધ",
       "authenticDesc": "શુદ્ધ અને કુદરતી સામગ્રી",
       "deliveryTitle": "ઝડપી ડિલિવરી",
@@ -77,6 +77,7 @@
     "testimonials": {
       "title": "ગ્રાહકોના અભિપ્રાય",
       "subtitle": "અમારા ખુશ ગ્રાહકો શું કહે છે",
+      "verified": "ચકાસાયેલ ખરીદનાર",
       "items": [
         {
           "name": "પ્રિયા શર્મા",
@@ -155,7 +156,24 @@
     "noRatings": "કોઈ રેટિંગ નથી",
     "reviewsCount": "{{count}} સમીક્ષા",
     "reviewsCount_other": "{{count}} સમીક્ષાઓ",
-    "buyNow": "Buy Now"
+    "buyNow": "Buy Now",
+    "recipeTitle": "રેસીપી અને ઉપયોગ",
+    "nutritionTitle": "પોષણ માહિતી",
+    "nutritionNote": "દર્શાવેલ સર્વિંગ સાઇઝ માટે અંદાજિત મૂલ્યો.",
+    "fssai": "FSSAI લાઇસન્સ નં.",
+    "nutritionKeys": {
+      "serving_size": "સર્વિંગ સાઇઝ",
+      "total_fat": "કુલ ચરબી",
+      "saturated_fat": "સંતૃપ્ત ચરબી",
+      "total_carbohydrates": "કુલ કાર્બોહાઇડ્રેટ",
+      "protein": "પ્રોટીન",
+      "energy": "ઊર્જા",
+      "calcium": "કેલ્શિયમ",
+      "iron": "આયર્ન",
+      "sodium": "સોડિયમ",
+      "sugars": "ખાંડ",
+      "sugar": "ખાંડ"
+    }
   },
   "footer": {
     "tagline": "1995 થી ભારતીય મસાલાનો અસલી સ્વાદ. એવી ગુણવત્તા જે ઘર જેવી લાગે.",
@@ -214,7 +232,7 @@
     "registerHere": "અહીં રજિસ્ટર કરો"
   },
   "about": {
-    "badge": "સ્થાપના 1995 · ઉજ્જૈન, ભારત",
+    "badge": "સ્થાપના 1995 · બડનગર, ભારત",
     "heroPre": "દરેક ચપટી કહે છે એક ",
     "heroHighlight": "વાર્તા",
     "heroPost": "",
@@ -308,7 +326,7 @@
     "ctaButton": "મસાલા ખરીદો"
   },
   "ribbon": {
-    "freeShipping": "₹500થી વધુના ઓર્ડર પર મફત શિપિંગ",
+    "freeShipping": "₹499થી વધુના ઓર્ડર પર મફત શિપિંગ",
     "pure": "100% શુદ્ધ અને કુદરતી — કોઈ ભેળસેળ નહીં",
     "handPacked": "બડનગરમાં હાથથી પેક કરેલું",
     "trusted": "1.1M+ રસોડાંનો ભરોસો"
@@ -329,7 +347,7 @@
     "saleEndsIn": "સેલ સમાપ્ત થાય છે"
   },
   "trust": {
-    "freeShipping": "🚚 મફત શિપિંગ ₹500+",
+    "freeShipping": "🚚 મફત શિપિંગ ₹499+",
     "happyKitchens": "⭐ 1.1M+ ખુશ રસોડાં"
   },
   "trustBand": {
@@ -368,7 +386,7 @@
     "whatsIncluded": "શું શામેલ છે ({{count}} વસ્તુઓ)",
     "totalWeight": "કુલ વજન:",
     "freeDelivery": "મફત ડિલિવરી",
-    "ordersMin": "ઓર્ડર ₹500+",
+    "ordersMin": "ઓર્ડર ₹499+",
     "secure": "સુરક્ષિત",
     "payment": "ચુકવણી",
     "greatValue": "શ્રેષ્ઠ મૂલ્ય!",
@@ -386,7 +404,7 @@
   },
   "promo": {
     "flat20Title": "ફ્લેટ 20% છૂટ",
-    "flat20Subtitle": "રૂ. 299થી વધુના ઓર્ડર પર",
+    "flat20Subtitle": "₹299થી વધુના ઓર્ડર પર",
     "freeDeliveryTitle": "મફત ડિલિવરી",
     "freeDeliverySubtitle": "શિપિંગ બચત અનલૉક કરો",
     "comboSaverTitle": "કૉમ્બો સેવર",
@@ -432,7 +450,10 @@
     "sortRelevance": "સુસંગતતા",
     "pages": "પેજ",
     "products": "પ્રોડક્ટ",
-    "searchFor": "\"{{query}}\" શોધો"
+    "searchFor": "\"{{query}}\" શોધો",
+    "resultsFor": "\"{{query}}\" માટે પરિણામો",
+    "resultsCount_one": "{{count}} પરિણામ મળ્યું",
+    "resultsCount_other": "{{count}} પરિણામો મળ્યાં"
   },
   "pages": {
     "shipping": {
@@ -449,8 +470,8 @@
       "charges": {
         "title": "શિપિંગ ચાર્જ",
         "intro": "શિપિંગ ચાર્જ તમારા ઓર્ડરના વજન અને ડિલિવરી સ્થળના આધારે ગણવામાં આવે છે:",
-        "free": "₹500થી વધુના ઓર્ડર: <b>મફત શિપિંગ</b>",
-        "upto": "₹500 સુધીના ઓર્ડર: ₹50 શિપિંગ ચાર્જ લાગુ પડે છે"
+        "free": "₹499થી વધુના ઓર્ડર: <b>મફત શિપિંગ</b>",
+        "upto": "₹499 સુધીના ઓર્ડર: ₹69 શિપિંગ ચાર્જ લાગુ પડે છે"
       },
       "tracking": {
         "title": "ઓર્ડર ટ્રેકિંગ",
@@ -515,12 +536,13 @@
         ]
       },
       "refund": {
-        "title": "રિફંડ પ્રક્રિયા",
-        "intro": "પરત આવેલી પ્રોડક્ટ મળ્યા અને તપાસ્યા પછી:",
+        "title": "Refund Process",
+        "intro": "Once we receive and inspect the returned product:",
         "items": [
-          "રિફંડ 5-7 કાર્યકારી દિવસમાં પ્રોસેસ કરવામાં આવે છે",
-          "રકમ મૂળ ચુકવણી પદ્ધતિમાં જમા કરવામાં આવશે",
-          "રિફંડ પ્રોસેસ થતાં તમને પુષ્ટિ મળશે"
+          "Refunds are processed within 5-7 business days",
+          "For prepaid orders, the amount is credited back to the original payment method",
+          "For Cash on Delivery (COD) orders, there is no original payment method to credit — our team will call you to arrange the refund via UPI or bank transfer. All COD refund matters are resolved over the phone.",
+          "You will receive a confirmation once the refund is processed"
         ]
       },
       "replacement": {
@@ -528,8 +550,8 @@
         "body": "અમે ક્ષતિગ્રસ્ત કે ખામીયુક્ત વસ્તુઓ માટે બદલી આપીએ છીએ, જે ઉપર જણાવેલી અનબૉક્સિંગ વિડિયોની શરતને આધીન છે. પરત આવેલી વસ્તુ મળ્યા પછી બદલી પ્રોડક્ટ કોઈ વધારાના ખર્ચ વિના મોકલવામાં આવશે."
       },
       "cancellation": {
-        "title": "રદ કરવું",
-        "body": "ઓર્ડર આપ્યા પછી રદ કરી શકાતા નથી. કૃપા કરીને ખરીદી પૂર્ણ કરતા પહેલાં તમારી વસ્તુઓ, જથ્થો અને સરનામું ધ્યાનથી તપાસો."
+        "title": "Cancellation",
+        "body": "You may cancel your order free of charge at any time before it has been shipped — just contact us and we will refund you in full. Once an order has been shipped, it can no longer be cancelled for a refund; you may still refuse delivery or use our returns process, but the shipping charge will not be refunded."
       },
       "contact": {
         "title": "અમારો સંપર્ક કરો",
@@ -660,7 +682,7 @@
         },
         {
           "q": "શિપિંગ ચાર્જ શું છે?",
-          "a": "₹500થી વધુના ઓર્ડર પર શિપિંગ મફત છે. ₹500થી ઓછા ઓર્ડર માટે નજીવો શિપિંગ ચાર્જ લાગુ પડે છે, જે ચુકવણી પહેલાં ચેકઆઉટ પર બતાવવામાં આવે છે."
+          "a": "₹499થી વધુના ઓર્ડર પર શિપિંગ મફત છે. ₹499થી ઓછા ઓર્ડર માટે નજીવો શિપિંગ ચાર્જ લાગુ પડે છે, જે ચુકવણી પહેલાં ચેકઆઉટ પર બતાવવામાં આવે છે."
         },
         {
           "q": "હું મારો ઓર્ડર કેવી રીતે ટ્રેક કરું?",
@@ -722,7 +744,8 @@
       "hoursLine1": "સોમવાર – શનિવાર: સવારે 9:00 – સાંજે 6:00",
       "hoursLine2": "રવિવાર: બંધ",
       "grievanceTitle": "ફરિયાદ અધિકારી",
-      "grievanceBody": "અમે 48 કલાકમાં ફરિયાદોની પહોંચ સ્વીકારીએ છીએ અને 30 દિવસમાં તેનું નિરાકરણ કરવાનું લક્ષ્ય રાખીએ છીએ."
+      "grievanceBody": "અમે 48 કલાકમાં ફરિયાદોની પહોંચ સ્વીકારીએ છીએ અને 30 દિવસમાં તેનું નિરાકરણ કરવાનું લક્ષ્ય રાખીએ છીએ.",
+      "mapTitle": "નકશા પર અમારો સ્ટોર"
     }
   },
   "notFound": {
@@ -839,7 +862,7 @@
     "loadError": "કૉમ્બો લોડ કરવામાં નિષ્ફળ",
     "benefitCurated": "હાથથી પસંદ કરેલા બંડલ",
     "benefitValue": "અલગ-અલગ ખરીદવા કરતાં વધુ સારું મૂલ્ય",
-    "benefitShipping": "Rs. {{amount}} થી વધુ પર મફત શિપિંગ",
+    "benefitShipping": "₹{{amount}} થી વધુ પર મફત શિપિંગ",
     "eyebrow": "વેલ્યુ બંડલ",
     "title": "કૉમ્બો ઓફર",
     "subtitle": "વિચારપૂર્વક જોડેલા મસાલા બંડલ — વધુ સ્વાદ, ઓછો ખર્ચ.",

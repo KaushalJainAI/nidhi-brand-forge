@@ -4,17 +4,18 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Heart, Share2, Star, Loader2, Minus, Plus, Check, ChevronRight, MessageCircle } from "lucide-react";
+import { ShoppingCart, Heart, Share2, Star, Loader2, Minus, Plus, Check, ChevronRight, MessageCircle, ShieldCheck } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import ProductCard from "@/components/ProductCard";
 import TrustSignalBand from "@/components/TrustSignalBand";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
-import { MAX_ITEM_QUANTITY } from "@/config/limits";
+import { MAX_ITEM_QUANTITY, MAX_REVIEW_COMMENT } from "@/config/limits";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
 import { productsAPI, reviewsAPI, Product, ProductVariant } from "@/lib/api";
@@ -46,6 +47,17 @@ const ProductDetail = () => {
   const [totalReviews, setTotalReviews] = useState(0);
   const [hasMoreReviews, setHasMoreReviews] = useState(false);
   const [loadingMoreReviews, setLoadingMoreReviews] = useState(false);
+
+  // Write-a-review form state
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  // Whether the logged-in user is eligible to review this product (backend
+  // only accepts reviews from verified purchasers, one per product).
+  const [canReview, setCanReview] = useState(false);
+  const [canReviewReason, setCanReviewReason] = useState<'not_purchased' | 'already_reviewed' | null>(null);
 
   // Check if the currently-selected size is already in cart
   const itemInCart = cart.find(
@@ -132,6 +144,30 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
+  useEffect(() => {
+    if (!isLoggedIn || !product) {
+      setCanReview(false);
+      setCanReviewReason(null);
+      return;
+    }
+    let cancelled = false;
+    reviewsAPI
+      .canReviewProduct(product.id)
+      .then((res) => {
+        if (cancelled) return;
+        setCanReview(res.can_review);
+        setCanReviewReason(res.reason);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setCanReview(false);
+        setCanReviewReason(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoggedIn, product?.id]);
+
   // Load more reviews function
   const loadMoreReviews = async () => {
     if (!product || loadingMoreReviews || !hasMoreReviews) return;
@@ -147,6 +183,44 @@ const ProductDetail = () => {
       console.error("Error loading more reviews:", err);
     } finally {
       setLoadingMoreReviews(false);
+    }
+  };
+
+  // Submit a new review. The backend enforces verified-purchase and one-review-
+  // per-item; those rejections surface as APIError.message which we toast.
+  const submitReview = async () => {
+    if (!product || submittingReview) return;
+    if (reviewRating < 1) {
+      toast.error(t('product.reviewSelectRating'));
+      return;
+    }
+    if (!reviewComment.trim()) {
+      toast.error(t('product.reviewCommentRequired'));
+      return;
+    }
+    setSubmittingReview(true);
+    try {
+      const created = await reviewsAPI.create({
+        item_type: 'product',
+        product: Number(product.id),
+        rating: reviewRating,
+        title: reviewTitle.trim() || undefined,
+        comment: reviewComment.trim(),
+      }) as Review;
+      setReviews(prev => [created, ...prev]);
+      setTotalReviews(prev => prev + 1);
+      setReviewRating(0);
+      setReviewHover(0);
+      setReviewTitle("");
+      setReviewComment("");
+      // One review per product — retire the form now that it's been used.
+      setCanReview(false);
+      setCanReviewReason('already_reviewed');
+      toast.success(t('product.reviewSubmitted'));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('product.reviewError'));
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -416,7 +490,7 @@ const ProductDetail = () => {
                 {rating > 0 ? rating.toFixed(1) : t('product.noRatings')}
               </span>
               <span className="text-sm text-muted-foreground">
-                ({reviewsCount} {reviewsCount === 1 ? t('product.reviewsCount', { count: reviewsCount }) : t('product.reviewsCount_other', { count: reviewsCount })})
+                ({reviewsCount === 1 ? t('product.reviewsCount', { count: reviewsCount }) : t('product.reviewsCount_other', { count: reviewsCount })})
               </span>
             </div>
 
@@ -612,6 +686,12 @@ const ProductDetail = () => {
             </div>
             <TrustSignalBand />
 
+            {/* FSSAI licence disclosure — required for packaged food sold online. */}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary flex-shrink-0" />
+              <span className="notranslate">{t('product.fssai')}: 11414730000288</span>
+            </div>
+
             {/* Organic Badge */}
             {product.organic && (
               <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl">
@@ -635,6 +715,70 @@ const ProductDetail = () => {
               <h3 className="font-semibold mb-2">{t('product.ingredientsLabel')}</h3>
               <p className="text-muted-foreground">{product.ingredients}</p>
             </div>
+          )}
+
+          {/* Recipe / Usage & Nutrition — collapsible so they don't crowd the
+              page. Each only renders when the product actually has the data. */}
+          {(product.recipe?.trim() || (product.nutrition && Object.keys(product.nutrition).length > 0)) && (
+            <Accordion type="multiple" className="mt-6 space-y-3">
+              {product.recipe?.trim() && (
+                <AccordionItem
+                  value="recipe"
+                  className="rounded-xl border border-border bg-card px-4"
+                >
+                  <AccordionTrigger className="text-sm sm:text-base font-semibold hover:no-underline">
+                    <span className="flex items-center gap-2">
+                      <span aria-hidden>🍳</span>{t('product.recipeTitle')}
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {product.recipe}
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
+              {product.nutrition && Object.keys(product.nutrition).length > 0 && (
+                <AccordionItem
+                  value="nutrition"
+                  className="rounded-xl border border-border bg-card px-4"
+                >
+                  <AccordionTrigger className="text-sm sm:text-base font-semibold hover:no-underline">
+                    <span className="flex items-center gap-2">
+                      <span aria-hidden>📊</span>{t('product.nutritionTitle')}
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="mb-3 text-xs text-muted-foreground">{t('product.nutritionNote')}</p>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <tbody>
+                          {Object.entries(product.nutrition).map(([key, value], i) => (
+                            <tr
+                              key={key}
+                              className={i % 2 === 0 ? "bg-muted/40" : ""}
+                            >
+                              <th
+                                scope="row"
+                                className="py-2 px-3 text-left font-medium text-foreground whitespace-nowrap"
+                              >
+                                {t(`product.nutritionKeys.${key}`, {
+                                  defaultValue: key
+                                    .replace(/_/g, " ")
+                                    .replace(/\b\w/g, (c) => c.toUpperCase()),
+                                })}
+                              </th>
+                              <td className="py-2 px-3 text-right text-muted-foreground notranslate">
+                                {value}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
           )}
         </div>
 
@@ -666,7 +810,92 @@ const ProductDetail = () => {
               </span>
             )}
           </div>
-          
+
+          {/* Write a review — only verified purchasers who haven't already
+              reviewed this product get the form, mirroring the backend rule. */}
+          {isLoggedIn && canReview ? (
+            <Card className="mb-6">
+              <CardContent className="p-4 space-y-4">
+                <h3 className="font-semibold">{t('product.writeReview')}</h3>
+                <div>
+                  <Label className="mb-1 block text-sm">{t('product.yourRating')}</Label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        onMouseEnter={() => setReviewHover(star)}
+                        onMouseLeave={() => setReviewHover(0)}
+                        className="p-0.5"
+                        aria-label={`${star}`}
+                      >
+                        <Star
+                          className={`h-6 w-6 transition-colors ${
+                            star <= (reviewHover || reviewRating)
+                              ? "fill-amber-400 text-amber-400"
+                              : "text-muted-foreground/30"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="review-title" className="mb-1 block text-sm">{t('product.reviewTitle')}</Label>
+                  <Input
+                    id="review-title"
+                    value={reviewTitle}
+                    onChange={(e) => setReviewTitle(e.target.value)}
+                    placeholder={t('product.reviewTitlePlaceholder')}
+                    maxLength={120}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="review-comment" className="mb-1 block text-sm">{t('product.reviewComment')}</Label>
+                  <Textarea
+                    id="review-comment"
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    placeholder={t('product.reviewCommentPlaceholder')}
+                    rows={4}
+                    maxLength={MAX_REVIEW_COMMENT}
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <Button onClick={submitReview} disabled={submittingReview}>
+                    {submittingReview ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('common.loading')}</>
+                    ) : (
+                      t('product.submitReview')
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : isLoggedIn ? (
+            canReviewReason && (
+              <Card className="mb-6">
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">
+                    {canReviewReason === 'already_reviewed'
+                      ? t('product.alreadyReviewed')
+                      : t('product.purchaseToReview')}
+                  </p>
+                </CardContent>
+              </Card>
+            )
+          ) : (
+            <Card className="mb-6">
+              <CardContent className="p-4 flex items-center justify-between gap-3 flex-wrap">
+                <p className="text-sm text-muted-foreground">{t('product.loginToReview')}</p>
+                <Button variant="outline" onClick={() => navigate('/login', { state: { from: `/products/${id}` } })}>
+                  {t('nav.login', 'Login')}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {reviews.length > 0 ? (
             <div className="space-y-4">
               {reviews.map((review) => (

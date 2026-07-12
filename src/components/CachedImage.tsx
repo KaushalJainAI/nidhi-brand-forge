@@ -134,6 +134,21 @@ const CachedImage: React.FC<CachedImageProps> = ({
   useEffect(() => {
     if (!lazy) return;
 
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Elements already within (or near) the viewport on mount — e.g. the first
+    // rows of a results grid that renders after an async fetch — must load
+    // right away. Relying solely on the observer can leave them blank until the
+    // user scrolls, so do an immediate bounds check first.
+    const rect = el.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const margin = 200;
+    if (rect.top < vh + margin && rect.bottom > -margin) {
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -144,9 +159,7 @@ const CachedImage: React.FC<CachedImageProps> = ({
       { rootMargin }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
+    observer.observe(el);
 
     return () => observer.disconnect();
   }, [lazy, rootMargin, src]);

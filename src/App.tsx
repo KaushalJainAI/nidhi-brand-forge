@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import Combos from "./pages/Combos";
@@ -68,6 +68,8 @@ const AnimatedRoutes = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/favorites" element={<Favorites />} />
+        {/* Common alias — external/bookmarked /wishlist links resolve to favorites */}
+        <Route path="/wishlist" element={<Navigate to="/favorites" replace />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />

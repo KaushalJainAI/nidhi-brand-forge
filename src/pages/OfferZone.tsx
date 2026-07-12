@@ -189,7 +189,7 @@ const OfferZone = () => {
                       
                       {/* Content */}
                       <div className="p-4 sm:p-6">
-                        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-1">
+                        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2 min-h-[3.5rem] leading-snug">
                           {combo.title}
                         </h3>
                         <p className="text-muted-foreground text-xs sm:text-sm mb-4 line-clamp-2">

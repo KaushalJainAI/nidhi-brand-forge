@@ -6,7 +6,7 @@ import DealsStrip from "@/components/DealsStrip";
 import VideoStorySection from "@/components/VideoStorySection";
 import PromoCouponStrip from "@/components/PromoCouponStrip";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Truck, Shield, Clock, Award, Loader2 } from "lucide-react";
+import { ArrowRight, Truck, Shield, Clock, Award, Loader2, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { productsAPI, categoriesAPI, combosAPI } from "@/lib/api";
 import { searchAPI } from "@/lib/api/search";
@@ -133,12 +133,14 @@ const Index = () => {
 
   // Get section products or fallback. Rows now scroll horizontally, so we keep
   // every product the API returns instead of capping at 4.
-  const getSectionProducts = (sectionType: string) => {
+  const getSectionProducts = (sectionType: string, allowFallback = true) => {
     const section = sections.find(s => s.section_type === sectionType);
     if (section?.products?.length) {
       return section.products.map((p, i) => formatProduct(p, i));
     }
-    // Fallback to all products with filtering
+    // Fallback to all products, except for curated rows (e.g. "Newly Launched")
+    // where showing arbitrary products would be misleading — those hide instead.
+    if (!allowFallback) return [];
     return allProducts.slice(0, 12).map((p, i) => formatProduct(p, i));
   };
 
@@ -157,7 +159,7 @@ const Index = () => {
     itemType: "product" as const,
   });
 
-  const newlyLaunched = getSectionProducts("new");
+  const newlyLaunched = getSectionProducts("new", false);
   const specials = getSectionProducts("special");
   const bestSellers = getSectionProducts("bestseller");
   const trending = getSectionProducts("trending");
@@ -353,7 +355,13 @@ const Index = () => {
                     <span className="h-9 w-9 sm:h-10 sm:w-10 rounded-full spice-backdrop grid place-items-center font-bold text-primary text-sm">
                       {testimonial.name.charAt(0)}
                     </span>
-                    <p className="font-semibold text-foreground text-sm sm:text-base">{testimonial.name}</p>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm sm:text-base">{testimonial.name}</p>
+                      <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs text-green-600 dark:text-green-500 font-medium">
+                        <Check className="h-3 w-3" />
+                        {t('home.testimonials.verified')}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}

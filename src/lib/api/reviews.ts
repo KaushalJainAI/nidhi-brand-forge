@@ -30,9 +30,20 @@ export interface CreateReviewData {
   comment: string;
 }
 
+export interface CanReviewResponse {
+  can_review: boolean;
+  reason: 'not_purchased' | 'already_reviewed' | null;
+}
+
 export const reviewsAPI = {
   getByProduct: (productId: number, page: number = 1): Promise<PaginatedReviewsResponse> =>
     publicFetch(`${API_BASE_URL}/reviews/?product=${productId}&page=${page}`),
+
+  canReviewProduct: (productId: number): Promise<CanReviewResponse> =>
+    authFetch(`${API_BASE_URL}/reviews/can-review/?product=${productId}`),
+
+  canReviewCombo: (comboId: number): Promise<CanReviewResponse> =>
+    authFetch(`${API_BASE_URL}/reviews/can-review/?combo=${comboId}`),
 
   getByCombo: (comboId: number, page: number = 1): Promise<PaginatedReviewsResponse> =>
     publicFetch(`${API_BASE_URL}/reviews/?combo=${comboId}&page=${page}`),

@@ -38,7 +38,7 @@
   "home": {
     "features": {
       "freeShippingTitle": "Free Shipping",
-      "freeShippingDesc": "₹500 se upar ke order par",
+      "freeShippingDesc": "₹499 se upar ke order par",
       "authenticTitle": "100% Asli",
       "authenticDesc": "Shudh aur natural ingredients",
       "deliveryTitle": "Tez Delivery",
@@ -77,6 +77,7 @@
     "testimonials": {
       "title": "Customers Ki Raay",
       "subtitle": "Hamare khush customers kya kehte hain",
+      "verified": "Verified Buyer",
       "items": [
         {
           "name": "Priya Sharma",
@@ -85,7 +86,7 @@
         },
         {
           "name": "Rajesh Kumar",
-          "review": "Asli flavors aur badhiya packaging. Highly recommended!",
+          "review": "Asli flavours aur badhiya packaging. Highly recommended!",
           "rating": 5
         },
         {
@@ -155,7 +156,24 @@
     "noRatings": "No ratings",
     "reviewsCount": "{{count}} review",
     "reviewsCount_other": "{{count}} reviews",
-    "buyNow": "Buy Now"
+    "buyNow": "Buy Now",
+    "recipeTitle": "Recipe aur Upyog",
+    "nutritionTitle": "Nutritional Information",
+    "nutritionNote": "Diye gaye serving size ke liye approximate values.",
+    "fssai": "FSSAI Lic. No.",
+    "nutritionKeys": {
+      "serving_size": "Serving Size",
+      "total_fat": "Total Fat",
+      "saturated_fat": "Saturated Fat",
+      "total_carbohydrates": "Total Carbohydrates",
+      "protein": "Protein",
+      "energy": "Energy",
+      "calcium": "Calcium",
+      "iron": "Iron",
+      "sodium": "Sodium",
+      "sugars": "Sugars",
+      "sugar": "Sugar"
+    }
   },
   "footer": {
     "tagline": "1995 se Bhartiya masalon ka asli swaad. Aisi quality jo ghar jaisi lage.",
@@ -165,7 +183,7 @@
     "shippingPolicy": "Shipping Policy",
     "returnPolicy": "Return Policy",
     "faqs": "FAQs",
-    "contactDetail": "Contact Detail",
+    "contactDetail": "Contact Details",
     "rights": "Sarvadhikar surakshit.",
     "privacyPolicy": "Privacy Policy",
     "whatsapp": "Chat with us on WhatsApp",
@@ -214,7 +232,7 @@
     "registerHere": "Yahan register karein"
   },
   "about": {
-    "badge": "Est. 1995 · Ujjain, India",
+    "badge": "Est. 1995 · Barnagar, India",
     "heroPre": "Har chutki kehti hai ek ",
     "heroHighlight": "kahani",
     "heroPost": "",
@@ -308,7 +326,7 @@
     "ctaButton": "Masale Khareedein"
   },
   "ribbon": {
-    "freeShipping": "FREE shipping on orders above ₹500",
+    "freeShipping": "FREE shipping on orders above ₹499",
     "pure": "100% pure & natural — no fillers",
     "handPacked": "Hand-packed in Barnagar",
     "trusted": "Trusted by 1.1M+ kitchens"
@@ -316,8 +334,8 @@
   "ourStory": {
     "eyebrow": "Nidhi kitchen story",
     "label": "Our Story",
-    "heading": "Authentic Indian Flavors",
-    "body": "Experience the rich heritage of traditional Indian spices, carefully sourced and blended to perfection. Each product tells a story of generations of expertise and passion for authentic flavors.",
+    "heading": "Authentic Indian Flavours",
+    "body": "Experience the rich heritage of traditional Indian spices, carefully sourced and blended to perfection. Each product tells a story of generations of expertise and passion for authentic flavours.",
     "feature1Title": "Pure ingredients",
     "feature1Desc": "No fillers, clean blends",
     "feature2Title": "Fresh batches",
@@ -329,7 +347,7 @@
     "saleEndsIn": "Sale ends in"
   },
   "trust": {
-    "freeShipping": "🚚 Free shipping ₹500+",
+    "freeShipping": "🚚 Free shipping ₹499+",
     "happyKitchens": "⭐ 1.1M+ happy kitchens"
   },
   "trustBand": {
@@ -368,7 +386,7 @@
     "whatsIncluded": "What's Included ({{count}} items)",
     "totalWeight": "Total Weight:",
     "freeDelivery": "Free Delivery",
-    "ordersMin": "Orders ₹500+",
+    "ordersMin": "Orders ₹499+",
     "secure": "Secure",
     "payment": "Payment",
     "greatValue": "Great Value!",
@@ -386,7 +404,7 @@
   },
   "promo": {
     "flat20Title": "Flat 20% off",
-    "flat20Subtitle": "On orders above Rs. 299",
+    "flat20Subtitle": "On orders above ₹299",
     "freeDeliveryTitle": "Free delivery",
     "freeDeliverySubtitle": "Unlock shipping savings",
     "comboSaverTitle": "Combo saver",
@@ -432,7 +450,10 @@
     "sortRelevance": "Relevance",
     "pages": "Pages",
     "products": "Products",
-    "searchFor": "\"{{query}}\" search karein"
+    "searchFor": "\"{{query}}\" search karein",
+    "resultsFor": "\"{{query}}\" ke results",
+    "resultsCount_one": "{{count}} result mila",
+    "resultsCount_other": "{{count}} results mile"
   },
   "pages": {
     "shipping": {
@@ -449,8 +470,8 @@
       "charges": {
         "title": "Shipping Charges",
         "intro": "Shipping charge aapke order ke weight aur delivery location ke hisaab se calculate hota hai:",
-        "free": "₹500 se upar ke orders: <b>Free Shipping</b>",
-        "upto": "₹500 tak ke orders: ₹50 shipping charge lagta hai"
+        "free": "₹499 se upar ke orders: <b>Free Shipping</b>",
+        "upto": "₹499 tak ke orders: ₹69 shipping charge lagta hai"
       },
       "tracking": {
         "title": "Order Tracking",
@@ -516,11 +537,12 @@
       },
       "refund": {
         "title": "Refund Process",
-        "intro": "Wapas aaya product mil jaane aur inspect karne ke baad:",
+        "intro": "Once we receive and inspect the returned product:",
         "items": [
-          "Refunds 5-7 business days mein process kiye jaate hain",
-          "Amount original payment method mein credit ki jayegi",
-          "Refund process hone par aapko confirmation milega"
+          "Refunds are processed within 5-7 business days",
+          "For prepaid orders, the amount is credited back to the original payment method",
+          "For Cash on Delivery (COD) orders, there is no original payment method to credit — our team will call you to arrange the refund via UPI or bank transfer. All COD refund matters are resolved over the phone.",
+          "You will receive a confirmation once the refund is processed"
         ]
       },
       "replacement": {
@@ -529,7 +551,7 @@
       },
       "cancellation": {
         "title": "Cancellation",
-        "body": "Order dene ke baad cancel nahi kiye ja sakte. Kripya purchase complete karne se pehle apne items, quantity aur address dhyaan se check karein."
+        "body": "You may cancel your order free of charge at any time before it has been shipped — just contact us and we will refund you in full. Once an order has been shipped, it can no longer be cancelled for a refund; you may still refuse delivery or use our returns process, but the shipping charge will not be refunded."
       },
       "contact": {
         "title": "Contact Us",
@@ -660,7 +682,7 @@
         },
         {
           "q": "Shipping charges kya hain?",
-          "a": "₹500 se upar ke orders par shipping free hai. ₹500 se kam ke orders ke liye nominal shipping charge lagta hai, jo payment se pehle checkout par dikhaya jaata hai."
+          "a": "₹499 se upar ke orders par shipping free hai. ₹499 se kam ke orders ke liye nominal shipping charge lagta hai, jo payment se pehle checkout par dikhaya jaata hai."
         },
         {
           "q": "Main apna order kaise track karun?",
@@ -722,7 +744,8 @@
       "hoursLine1": "Monday – Saturday: 9:00 AM – 6:00 PM",
       "hoursLine2": "Sunday: Closed",
       "grievanceTitle": "Grievance Officer",
-      "grievanceBody": "Hum 48 ghante mein grievances acknowledge karte hain aur 30 din mein unhe resolve karne ka lakshya rakhte hain."
+      "grievanceBody": "Hum 48 ghante mein grievances acknowledge karte hain aur 30 din mein unhe resolve karne ka lakshya rakhte hain.",
+      "mapTitle": "Map par hamara store"
     }
   },
   "notFound": {
@@ -839,7 +862,7 @@
     "loadError": "Combos load karne mein fail",
     "benefitCurated": "Hand-curated bundles",
     "benefitValue": "Alag-alag khareedne se behtar value",
-    "benefitShipping": "Rs. {{amount}} se upar free shipping",
+    "benefitShipping": "₹{{amount}} se upar free shipping",
     "eyebrow": "Value Bundles",
     "title": "Combo Offers",
     "subtitle": "Soch-samajh kar jode gaye spice bundles — zyada flavour, kam kharch.",

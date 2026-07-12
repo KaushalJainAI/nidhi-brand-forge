@@ -254,6 +254,21 @@ const Contact = () => {
                   </p>
                 </div>
               </div>
+
+              {/* Store location map. Query-based embed needs no Maps API key. */}
+              <div className="overflow-hidden rounded-2xl border border-border shadow-card">
+                <iframe
+                  title={t('pages.contact.mapTitle')}
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(
+                    "Nidhi Grah Udyog, 7 Industrial Area, Runija Road, Barnagar, Ujjain, MP 456771, India"
+                  )}&output=embed`}
+                  className="block h-64 w-full sm:h-80"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
+              </div>
             </div>
           </div>
         </div>
