@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PasswordStrength from "@/components/PasswordStrength";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -90,7 +91,7 @@ const Profile = () => {
   useEffect(() => {
     const loadInitialData = async () => {
       setIsInitialLoading(true);
-      await Promise.all([fetchProfile(), fetchPaymentMethods()]);
+      await fetchProfile();
       setIsInitialLoading(false);
     };
     loadInitialData();
@@ -329,10 +330,9 @@ const Profile = () => {
     <>
       <div className="container py-4 sm:py-8 px-3 sm:px-4 pb-24 md:pb-8">
         <Tabs defaultValue="profile" className="max-w-3xl mx-auto">
-          <TabsList className="grid w-full grid-cols-3 h-9 sm:h-10">
+          <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
             <TabsTrigger value="profile" className="text-xs sm:text-sm">{t('profile.tabProfile')}</TabsTrigger>
             <TabsTrigger value="security" className="text-xs sm:text-sm">{t('profile.tabSecurity')}</TabsTrigger>
-            <TabsTrigger value="payment" className="text-xs sm:text-sm">{t('profile.tabPayment')}</TabsTrigger>
           </TabsList>
           {/* --- Profile Section --- */}
           <TabsContent value="profile">
@@ -424,6 +424,7 @@ const Profile = () => {
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">{t('profile.newPassword')}</Label>
                     <Input id="newPassword" type="password" value={pwdForm.newPassword} onChange={e => setPwdForm({ ...pwdForm, newPassword: e.target.value })} autoComplete="new-password" />
+                    <PasswordStrength password={pwdForm.newPassword} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirmNewPassword">{t('profile.confirmNewPassword')}</Label>
@@ -435,186 +436,6 @@ const Profile = () => {
                   {pwdError && <div className="text-xs text-red-500 mt-2">{pwdError}</div>}
                   {pwdSuccess && <div className="text-xs text-green-500 mt-2">{pwdSuccess}</div>}
                 </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          {/* --- Payment Section --- */}
-          <TabsContent value="payment">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('profile.paymentTitle')}</CardTitle>
-                <CardDescription>{t('profile.paymentDesc')}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {isLoadingPayments ? (
-                  <p className="text-center text-muted-foreground py-8">{t('profile.loadingPayments')}</p>
-                ) : !Array.isArray(paymentMethods) || paymentMethods.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">{t('profile.noPayments')}</p>
-                ) : (
-                  paymentMethods.map((method) => (
-                    <div key={method.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-3">
-                          {getPaymentIcon(method.payment_type)}
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-semibold">{method.masked_display}</p>
-                              {method.is_default && (
-                                <Badge variant="secondary" className="flex items-center gap-1">
-                                  <Star className="h-3 w-3" />
-                                  {t('profile.default')}
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-muted-foreground capitalize">{method.payment_type.toLowerCase()}</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          {!method.is_default && (
-                            <Button variant="outline" size="sm" onClick={() => handleSetDefault(method.id)}>
-                              {t('profile.setDefault')}
-                            </Button>
-                          )}
-                          <Button variant="ghost" size="sm" onClick={() => handleRemovePaymentMethod(method.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="ml-7 text-xs text-muted-foreground">
-                        {method.payment_type === "UPI" && <span>{t('profile.upiIdLabel', { id: method.upi_id })}</span>}
-                        {method.payment_type === "CARD" && (
-                          <>
-                            <span>
-                              {t('profile.cardEnding', { brand: method.card_brand, last: method.card_last_four })}
-                              {method.card_expiry_month && method.card_expiry_year
-                                ? t('profile.cardExpires', { month: method.card_expiry_month, year: method.card_expiry_year })
-                                : ""}
-                            </span>
-                          </>
-                        )}
-                        {method.payment_type === "NETBANKING" && <span>{t('profile.bankLabel', { bank: method.bank_name })}</span>}
-                        {method.payment_type === "WALLET" && <span>{t('profile.providerLabel', { provider: method.wallet_provider })}</span>}
-                      </div>
-                    </div>
-                  ))
-                )}
-                {/* Add Payment Dialog */}
-                <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="w-full">
-                      {t('profile.addPayment')}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px]">
-                    <form onSubmit={handleAddPaymentMethod}>
-                      <DialogHeader>
-                        <DialogTitle>{t('profile.addPaymentTitle')}</DialogTitle>
-                        <DialogDescription>{t('profile.addPaymentDesc')}</DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="payment_type">{t('profile.paymentType')}</Label>
-                          <Select
-                            value={newPayment.payment_type}
-                            onValueChange={value =>
-                              setNewPayment({ ...newPayment, payment_type: value as PaymentMethod["payment_type"] })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="UPI">{t('profile.typeUpi')}</SelectItem>
-                              <SelectItem value="CARD">{t('profile.typeCard')}</SelectItem>
-                              <SelectItem value="NETBANKING">{t('profile.typeNetbanking')}</SelectItem>
-                              <SelectItem value="WALLET">{t('profile.typeWallet')}</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        {/* UPI */}
-                        {newPayment.payment_type === "UPI" && (
-                          <div className="space-y-2">
-                            <Label htmlFor="upi_id">{t('profile.upiId')}</Label>
-                            <Input id="upi_id" placeholder="user@paytm" value={newPayment.upi_id} onChange={e => setNewPayment({ ...newPayment, upi_id: e.target.value })} required className={formErrors.upi_id ? "border-red-500" : ""} />
-                            {formErrors.upi_id && <div className="text-xs text-red-500">{formErrors.upi_id}</div>}
-                          </div>
-                        )}
-                        {/* CARD */}
-                        {newPayment.payment_type === "CARD" && (
-                          <>
-                            <div className="space-y-2">
-                              <Label htmlFor="card_brand">{t('profile.cardBrand')}</Label>
-                              <Select value={newPayment.card_brand} onValueChange={value => setNewPayment({ ...newPayment, card_brand: value })}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder={t('profile.selectCardBrand')} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Visa">Visa</SelectItem>
-                                  <SelectItem value="Mastercard">Mastercard</SelectItem>
-                                  <SelectItem value="RuPay">RuPay</SelectItem>
-                                  <SelectItem value="American Express">American Express</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              {formErrors.card_brand && <div className="text-xs text-red-500">{formErrors.card_brand}</div>}
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="card_last_four">{t('profile.lastFour')}</Label>
-                              <Input id="card_last_four" placeholder="1234" maxLength={4} value={newPayment.card_last_four} onChange={e => setNewPayment({ ...newPayment, card_last_four: e.target.value })} required className={formErrors.card_last_four ? "border-red-500" : ""} />
-                              {formErrors.card_last_four && <div className="text-xs text-red-500">{formErrors.card_last_four}</div>}
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="expiry_month">{t('profile.expiryMonth')}</Label>
-                                <Input id="expiry_month" placeholder="MM" maxLength={2} value={newPayment.card_expiry_month} onChange={e => setNewPayment({ ...newPayment, card_expiry_month: e.target.value })} required className={formErrors.card_expiry_month ? "border-red-500" : ""} />
-                                {formErrors.card_expiry_month && <div className="text-xs text-red-500">{formErrors.card_expiry_month}</div>}
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="expiry_year">{t('profile.expiryYear')}</Label>
-                                <Input id="expiry_year" placeholder="YYYY" maxLength={4} value={newPayment.card_expiry_year} onChange={e => setNewPayment({ ...newPayment, card_expiry_year: e.target.value })} required className={formErrors.card_expiry_year ? "border-red-500" : ""} />
-                                {formErrors.card_expiry_year && <div className="text-xs text-red-500">{formErrors.card_expiry_year}</div>}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                        {/* NETBANKING */}
-                        {newPayment.payment_type === "NETBANKING" && (
-                          <div className="space-y-2">
-                            <Label htmlFor="bank_name">{t('profile.bankName')}</Label>
-                            <Input id="bank_name" placeholder="State Bank of India" value={newPayment.bank_name} onChange={e => setNewPayment({ ...newPayment, bank_name: e.target.value })} required className={formErrors.bank_name ? "border-red-500" : ""} />
-                            {formErrors.bank_name && <div className="text-xs text-red-500">{formErrors.bank_name}</div>}
-                          </div>
-                        )}
-                        {/* WALLET */}
-                        {newPayment.payment_type === "WALLET" && (
-                          <div className="space-y-2">
-                            <Label htmlFor="wallet_provider">{t('profile.walletProvider')}</Label>
-                            <Select value={newPayment.wallet_provider} onValueChange={value => setNewPayment({ ...newPayment, wallet_provider: value })}>
-                              <SelectTrigger>
-                                <SelectValue placeholder={t('profile.selectWallet')} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="PayTM">PayTM</SelectItem>
-                                <SelectItem value="PhonePe">PhonePe</SelectItem>
-                                <SelectItem value="Google Pay">Google Pay</SelectItem>
-                                <SelectItem value="Amazon Pay">Amazon Pay</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            {formErrors.wallet_provider && <div className="text-xs text-red-500">{formErrors.wallet_provider}</div>}
-                          </div>
-                        )}
-                        <div className="flex items-center space-x-2 pt-2">
-                          <input type="checkbox" id="is_default" checked={newPayment.is_default} onChange={e => setNewPayment({ ...newPayment, is_default: e.target.checked })} className="h-4 w-4" />
-                          <Label htmlFor="is_default" className="cursor-pointer">{t('profile.setAsDefault')}</Label>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button type="submit" disabled={isAddingPayment}>
-                          {isAddingPayment ? t('profile.adding') : t('profile.addPaymentTitle')}
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
               </CardContent>
             </Card>
           </TabsContent>

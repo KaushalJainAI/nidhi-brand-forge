@@ -344,7 +344,8 @@
   },
   "flashSale": {
     "endsIn": "यात संपते",
-    "saleEndsIn": "सेल यात संपते"
+    "saleEndsIn": "सेल यात संपते",
+    "endsOn": "{{date}} रोजी संपेल"
   },
   "trust": {
     "freeShipping": "🚚 मोफत शिपिंग ₹499+",
@@ -453,7 +454,10 @@
     "searchFor": "\"{{query}}\" शोधा",
     "resultsFor": "\"{{query}}\" साठी निकाल",
     "resultsCount_one": "{{count}} निकाल सापडला",
-    "resultsCount_other": "{{count}} निकाल सापडले"
+    "resultsCount_other": "{{count}} निकाल सापडले",
+    "emptyTitle": "तुम्ही काय शोधत आहात?",
+    "emptyBody": "सुरू करण्यासाठी वरील सर्च बारमध्ये मसाला, मिश्रण किंवा कॉम्बो टाइप करा.",
+    "browseAll": "सर्व उत्पादने पहा"
   },
   "pages": {
     "shipping": {
@@ -1107,5 +1111,13 @@
     "statusProcessing": "प्रक्रिया सुरू",
     "statusShipped": "पाठवले",
     "statusDelivering": "वितरणासाठी निघाले"
+  },
+  "password": {
+    "strengthLabel": "पासवर्ड सामर्थ्य",
+    "veryWeak": "खूप कमकुवत",
+    "weak": "कमकुवत",
+    "fair": "ठीक",
+    "good": "चांगला",
+    "strong": "मजबूत"
   }
 }

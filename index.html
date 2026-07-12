@@ -27,7 +27,23 @@
 </head>
 
 <body>
-  <div id="root"></div>
+  <!-- Inline boot shell. The app is a single large bundle, so between first
+       paint and React mounting the page was plain white ("pages flash blank on
+       load"). This renders instantly from HTML and React replaces it on mount.
+       Keep it dependency-free: no external CSS/JS has loaded at this point. -->
+  <div id="root">
+    <div id="boot-shell" role="status" aria-label="Loading"
+      style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px;background:#fffdf8;font-family:Inter,system-ui,sans-serif;">
+      <img src="/logo.png" alt="" width="64" height="64" style="object-fit:contain;" />
+      <div
+        style="width:28px;height:28px;border:3px solid #e8e0d0;border-top-color:#c1440e;border-radius:50%;animation:boot-spin .7s linear infinite;">
+      </div>
+      <p style="margin:0;color:#8a8175;font-size:14px;">Loading Nidhi Masala…</p>
+    </div>
+  </div>
+  <style>
+    @keyframes boot-spin { to { transform: rotate(360deg); } }
+  </style>
   <!-- Translation is handled in-app by react-i18next (src/i18n). Google Translate
        was removed: it produced poor, uncontrolled translations and crashed React
        by mutating the DOM. -->

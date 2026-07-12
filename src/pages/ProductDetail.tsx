@@ -24,6 +24,8 @@ import { Review } from "@/lib/api/reviews";
 import CachedImage from "@/components/CachedImage";
 import product1 from "@/assets/product-1.jpg";
 import { useTranslation } from "react-i18next";
+import { formatWeight } from "@/lib/utils";
+import Seo, { SITE_URL } from "@/components/Seo";
 
 const ProductDetail = () => {
   const { t } = useTranslation();
@@ -278,7 +280,7 @@ const ProductDetail = () => {
       image: product.image || product1,
       price: product.final_price || Number(product.discount_price) || Number(product.price),
       originalPrice: product.discount_price ? Number(product.price) : undefined,
-      weight: `${product.weight}${product.unit || ''}`,
+      weight: formatWeight(product.weight, product.unit),
       badge: product.badge,
     });
     
@@ -391,10 +393,51 @@ const ProductDetail = () => {
   const savings = originalPrice && originalPrice > price ? originalPrice - price : 0;
   const effectiveStock = selectedVariant ? selectedVariant.stock : product.stock;
   const effectiveInStock = selectedVariant ? selectedVariant.in_stock : product.in_stock;
-  const effectiveWeight = selectedVariant ? selectedVariant.formatted_weight : `${product.weight}${product.unit || 'g'}`;
+  const effectiveWeight = selectedVariant ? selectedVariant.formatted_weight : formatWeight(product.weight, product.unit, "100g");
+
+  // Product schema drives Google rich results (price, availability, rating).
+  const productSchema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.image ? [product.image] : undefined,
+    sku: String(product.id),
+    category: product.category_name,
+    weight: effectiveWeight,
+    brand: { "@type": "Brand", name: "Nidhi Grah Udyog" },
+    offers: {
+      "@type": "Offer",
+      url: `${SITE_URL}/products/${product.slug}`,
+      priceCurrency: "INR",
+      price: String(price),
+      availability: effectiveInStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      seller: { "@type": "Organization", name: "Nidhi Grah Udyog" },
+    },
+  };
+  if (totalReviews > 0 && product.average_rating) {
+    productSchema.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: String(product.average_rating),
+      reviewCount: String(totalReviews),
+    };
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <Seo
+        title={product.name}
+        description={
+          product.description?.slice(0, 160) ||
+          `Buy ${product.name} online from Nidhi Grah Udyog — pure, authentic Indian spices.`
+        }
+        image={product.image}
+        path={`/products/${product.slug}`}
+        type="product"
+        schema={productSchema}
+      />
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground mb-4 overflow-x-auto whitespace-nowrap">

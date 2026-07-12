@@ -140,6 +140,40 @@ const getLangHeader = (): Record<string, string> => {
   }
 };
 
+/** A request that never settles leaves the UI spinning forever. */
+export const REQUEST_TIMEOUT_MS = 20000;
+
+/**
+ * fetch() with a hard timeout. Without one, a stalled connection hangs the
+ * promise indefinitely and the calling page shows its loading spinner forever
+ * instead of surfacing an error the user can act on.
+ */
+export const fetchWithTimeout = async (
+  url: string,
+  options: RequestInit = {},
+  timeoutMs: number = REQUEST_TIMEOUT_MS,
+): Promise<Response> => {
+  // Respect a caller-supplied signal by racing it alongside our timeout.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const callerSignal = options.signal;
+  if (callerSignal) {
+    if (callerSignal.aborted) controller.abort();
+    else callerSignal.addEventListener("abort", () => controller.abort(), { once: true });
+  }
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError" && !callerSignal?.aborted) {
+      throw new Error("The request timed out. Please check your connection and try again.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 export const authFetch = async <T = unknown>(url: string, options: RequestInit = {}): Promise<T> => {
   const csrfToken = getCookie("csrftoken");
   const headersObj: Record<string, string> = {
@@ -152,7 +186,7 @@ export const authFetch = async <T = unknown>(url: string, options: RequestInit =
 
   const optionHeaders = options.headers as Record<string, string> | undefined;
 
-  let response = await fetch(url, {
+  let response = await fetchWithTimeout(url, {
     ...options,
     credentials: "include",
     headers: {
@@ -171,7 +205,7 @@ export const authFetch = async <T = unknown>(url: string, options: RequestInit =
       }
 
       // Retry with new token cookies automatically included
-      response = await fetch(url, {
+      response = await fetchWithTimeout(url, {
         ...options,
         credentials: "include",
         headers: {
@@ -248,7 +282,7 @@ export const publicFetch = async <T = unknown>(url: string, options: RequestInit
     ...(csrfToken && { 'X-CSRFToken': csrfToken }),
     ...options.headers,
   };
-  const response = await fetch(url, { ...options, headers, credentials: "include" });
+  const response = await fetchWithTimeout(url, { ...options, headers, credentials: "include" });
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new APIError(response.status, response.statusText, errorData);

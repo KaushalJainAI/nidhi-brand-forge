@@ -344,7 +344,8 @@
   },
   "flashSale": {
     "endsIn": "સમાપ્ત થાય છે",
-    "saleEndsIn": "સેલ સમાપ્ત થાય છે"
+    "saleEndsIn": "સેલ સમાપ્ત થાય છે",
+    "endsOn": "{{date}} ના રોજ સમાપ્ત"
   },
   "trust": {
     "freeShipping": "🚚 મફત શિપિંગ ₹499+",
@@ -453,7 +454,10 @@
     "searchFor": "\"{{query}}\" શોધો",
     "resultsFor": "\"{{query}}\" માટે પરિણામો",
     "resultsCount_one": "{{count}} પરિણામ મળ્યું",
-    "resultsCount_other": "{{count}} પરિણામો મળ્યાં"
+    "resultsCount_other": "{{count}} પરિણામો મળ્યાં",
+    "emptyTitle": "તમે શું શોધી રહ્યા છો?",
+    "emptyBody": "શરૂ કરવા માટે ઉપરના સર્ચ બારમાં મસાલો, મિશ્રણ અથવા કોમ્બો ટાઇપ કરો.",
+    "browseAll": "બધા ઉત્પાદનો જુઓ"
   },
   "pages": {
     "shipping": {
@@ -1107,5 +1111,13 @@
     "statusProcessing": "પ્રોસેસ થઈ રહ્યું છે",
     "statusShipped": "મોકલ્યું",
     "statusDelivering": "ડિલિવરી માટે નીકળ્યું"
+  },
+  "password": {
+    "strengthLabel": "પાસવર્ડ મજબૂતાઈ",
+    "veryWeak": "ખૂબ નબળો",
+    "weak": "નબળો",
+    "fair": "ઠીક",
+    "good": "સારો",
+    "strong": "મજબૂત"
   }
 }

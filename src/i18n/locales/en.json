@@ -208,7 +208,8 @@
   },
   "flashSale": {
     "endsIn": "Ends in",
-    "saleEndsIn": "Sale ends in"
+    "saleEndsIn": "Sale ends in",
+    "endsOn": "Ends {{date}}"
   },
   "trust": {
     "freeShipping": "🚚 Free shipping ₹499+",
@@ -358,7 +359,10 @@
     "searchFor": "Search for \"{{query}}\"",
     "resultsFor": "Results for \"{{query}}\"",
     "resultsCount_one": "{{count}} result found",
-    "resultsCount_other": "{{count}} results found"
+    "resultsCount_other": "{{count}} results found",
+    "emptyTitle": "What are you looking for?",
+    "emptyBody": "Type a spice, blend or combo in the search bar above to get started.",
+    "browseAll": "Browse all products"
   },
   "auth": {
     "welcomeBack": "Welcome Back",
@@ -1135,5 +1139,13 @@
     "statusProcessing": "Processing",
     "statusShipped": "Shipped",
     "statusDelivering": "Out for delivery"
+  },
+  "password": {
+    "strengthLabel": "Password strength",
+    "veryWeak": "Very weak",
+    "weak": "Weak",
+    "fair": "Fair",
+    "good": "Good",
+    "strong": "Strong"
   }
 }

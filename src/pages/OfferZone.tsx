@@ -14,6 +14,7 @@ import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
 import heroVideo from "@/assets/grok-video-2e290515-947f-4dd0-baca-4581ae53774a (1).mp4";
 import { useTranslation } from "react-i18next";
+import { formatWeight } from "@/lib/utils";
 
 const comboImages = [product1, product2, product3, product4];
 
@@ -47,7 +48,7 @@ const OfferZone = () => {
             price: p.final_price || p.discount_price || p.price,
             originalPrice: p.price,
             badge: p.badge || `${Math.round(((p.price - (p.final_price || p.discount_price || p.price)) / p.price) * 100)}${t('product.off')}`,
-            weight: p.weight ? `${p.weight}${p.unit || 'g'}` : "100g",
+            weight: formatWeight(p.weight, p.unit, "100g"),
             itemType: "product" as const,
           }));
 

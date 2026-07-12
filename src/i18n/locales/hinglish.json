@@ -344,7 +344,8 @@
   },
   "flashSale": {
     "endsIn": "Ends in",
-    "saleEndsIn": "Sale ends in"
+    "saleEndsIn": "Sale ends in",
+    "endsOn": "{{date}} ko khatam"
   },
   "trust": {
     "freeShipping": "🚚 Free shipping ₹499+",
@@ -453,7 +454,10 @@
     "searchFor": "\"{{query}}\" search karein",
     "resultsFor": "\"{{query}}\" ke results",
     "resultsCount_one": "{{count}} result mila",
-    "resultsCount_other": "{{count}} results mile"
+    "resultsCount_other": "{{count}} results mile",
+    "emptyTitle": "Aap kya dhundh rahe hain?",
+    "emptyBody": "Shuru karne ke liye upar search bar mein koi masala, blend ya combo type karein.",
+    "browseAll": "Saare products dekhein"
   },
   "pages": {
     "shipping": {
@@ -1107,5 +1111,13 @@
     "statusProcessing": "Processing",
     "statusShipped": "Shipped",
     "statusDelivering": "Out for delivery"
+  },
+  "password": {
+    "strengthLabel": "Password strength",
+    "veryWeak": "Bahut weak",
+    "weak": "Weak",
+    "fair": "Theek",
+    "good": "Achha",
+    "strong": "Strong"
   }
 }

@@ -40,6 +40,17 @@ const DealsStrip = ({ title, subtitle, items }: DealsStripProps) => {
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
 
+  // The timer runs to midnight tonight — say so, rather than showing a bare
+  // clock with no date to anchor it.
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+  const deadlineLabel = endOfDay.toLocaleString(undefined, {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
   return (
     <section className="py-8 sm:py-10">
       <div className="container mx-auto px-2 sm:px-4">
@@ -64,11 +75,17 @@ const DealsStrip = ({ title, subtitle, items }: DealsStripProps) => {
               </h2>
               {subtitle && <p className="text-white/90 text-xs sm:text-sm mt-0.5">{subtitle}</p>}
             </div>
-            <div className="flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3 py-2 text-sm font-semibold backdrop-blur notranslate">
-              <span className="hidden sm:inline mr-1">{t('flashSale.endsIn')}</span>
-              <span className="bg-white/20 rounded-lg px-2 py-1 tabular-nums">{fmt(h)}</span>:
-              <span className="bg-white/20 rounded-lg px-2 py-1 tabular-nums">{fmt(m)}</span>:
-              <span className="bg-white/20 rounded-lg px-2 py-1 tabular-nums">{fmt(s)}</span>
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3 py-2 text-sm font-semibold backdrop-blur notranslate">
+                <span className="hidden sm:inline mr-1">{t('flashSale.endsIn')}</span>
+                <span className="bg-white/20 rounded-lg px-2 py-1 tabular-nums">{fmt(h)}</span>:
+                <span className="bg-white/20 rounded-lg px-2 py-1 tabular-nums">{fmt(m)}</span>:
+                <span className="bg-white/20 rounded-lg px-2 py-1 tabular-nums">{fmt(s)}</span>
+              </div>
+              {/* A bare ticking clock reads as fake urgency; name the deadline. */}
+              <span className="text-[11px] text-white/85 sm:text-xs notranslate">
+                {t('flashSale.endsOn', { date: deadlineLabel })}
+              </span>
             </div>
           </div>
           <div className="relative rounded-lg bg-background/96 p-3 shadow-inner sm:p-4">

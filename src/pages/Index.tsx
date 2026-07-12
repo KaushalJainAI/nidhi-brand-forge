@@ -12,6 +12,8 @@ import { productsAPI, categoriesAPI, combosAPI } from "@/lib/api";
 import { searchAPI } from "@/lib/api/search";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { formatWeight } from "@/lib/utils";
+import Seo, { SITE_URL, SITE_NAME } from "@/components/Seo";
 
 interface ProductData {
   id: number;
@@ -110,7 +112,7 @@ const Index = () => {
     image: product.image,
     price: product.final_price || product.discount_price || product.price,
     originalPrice: product.discount_price ? product.price : undefined,
-    weight: product.weight ? `${product.weight}${product.unit || 'g'}` : "",
+    weight: formatWeight(product.weight, product.unit),
     badge: product.badge,
     itemType: "product" as const,
     variantCount: (product as any).variant_count ?? 1,
@@ -154,7 +156,7 @@ const Index = () => {
     originalPrice: product.original_price && product.original_price > product.price
       ? product.original_price
       : undefined,
-    weight: product.weight ? `${product.weight}${product.unit || 'g'}` : "",
+    weight: formatWeight(product.weight, product.unit),
     badge: product.is_featured ? "Featured" : undefined,
     itemType: "product" as const,
   });
@@ -180,6 +182,47 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col pb-20 md:pb-0">
+      <Seo
+        title="Premium Indian Spices & Masalas"
+        description="Shop authentic Indian spices and masalas from Nidhi Grah Udyog. 100% pure, natural ingredients for traditional Indian flavors. FSSAI certified."
+        path="/"
+        schema={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: SITE_NAME,
+            url: SITE_URL,
+            logo: `${SITE_URL}/logo.png`,
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: "7, Industrial Area, Runija Road, Barnagar",
+              addressLocality: "Ujjain",
+              addressRegion: "MP",
+              postalCode: "456771",
+              addressCountry: "IN",
+            },
+            contactPoint: {
+              "@type": "ContactPoint",
+              telephone: "+91-93000-05040",
+              contactType: "customer service",
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: SITE_NAME,
+            url: SITE_URL,
+            potentialAction: {
+              "@type": "SearchAction",
+              target: {
+                "@type": "EntryPoint",
+                urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+              },
+              "query-input": "required name=search_term_string",
+            },
+          },
+        ]}
+      />
       <main className="flex-grow">
         <HeroSection />
 

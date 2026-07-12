@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { cartAPI, searchAPI } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/api/config";
 import { FREE_SHIPPING_THRESHOLD, DEFAULT_TAX_RATE } from "@/config/limits";
+import { formatWeight } from "@/lib/utils";
 
 // Helper to resolve image URLs from backend (may be relative paths)
 const getImageUrl = (imagePath: string | null | undefined): string => {
@@ -178,7 +179,7 @@ const Cart = () => {
           image: getImageUrl(p.image),
           price: p.price,
           originalPrice: p.original_price > p.price ? p.original_price : undefined,
-          weight: p.weight ? `${p.weight}${p.unit || 'g'}` : "100g",
+          weight: formatWeight(p.weight, p.unit, "100g"),
           itemType: "product" as const,
           badge: p.is_featured ? "Featured" : undefined,
         }));

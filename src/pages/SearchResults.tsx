@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import { Search as SearchIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,6 +10,7 @@ import { searchAPI } from "@/lib/api/search";
 import { API_BASE_URL } from "@/lib/api/config";
 import { trackEvent, track } from "@/lib/api/analytics";
 import { useTranslation } from "react-i18next";
+import { formatWeight } from "@/lib/utils";
 
 interface SearchProduct {
   id: number;
@@ -117,6 +120,26 @@ const SearchResults = () => {
     );
   }
 
+  // /search with no query: there is nothing to render below, so without this
+  // the page is blank. Prompt instead, and offer a way back into the catalog.
+  if (!searchQuery.trim()) {
+    return (
+      <div className="min-h-screen bg-background pb-20 md:pb-0">
+        <div className="container mx-auto px-4 py-20 text-center">
+          <SearchIcon className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+          <h1 className="mb-2 text-xl font-bold text-foreground sm:text-2xl">
+            {t('search.emptyTitle')}
+          </h1>
+          <p className="mb-6 text-muted-foreground">{t('search.emptyBody')}</p>
+          <Button asChild>
+            <Link to="/products">{t('search.browseAll')}</Link>
+          </Button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       {/* Results & Products */}
@@ -189,7 +212,7 @@ const SearchResults = () => {
                   image={product.image.startsWith('/') ? `${API_BASE_URL.replace(/\/api\/?$/, '')}${product.image}` : product.image}
                   price={product.price}
                   originalPrice={product.original_price}
-                  weight={product.weight ? `${product.weight}${product.unit || 'g'}` : "100g"}
+                  weight={formatWeight(product.weight, product.unit, "100g")}
                   badge={product.is_featured ? t('product.featured') : product.discount > 0 ? `${product.discount}${t('product.off')}` : undefined}
                 />
               ))}
