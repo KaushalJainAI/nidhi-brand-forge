@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const Footer = () => {
@@ -16,14 +16,13 @@ const Footer = () => {
             <p className="text-muted-foreground text-xs sm:text-base mb-2 sm:mb-4">
               {t('footer.tagline')}
             </p>
-            <div className="flex space-x-3">
-              <a href="https://facebook.nidhimasala.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="h-9 w-9 rounded-full spice-backdrop grid place-items-center text-muted-foreground hover:text-primary hover:scale-110 transition-all">
-                <Facebook className="h-4 w-4 sm:h-5 sm:w-5" />
-              </a>
-              <a href="https://instagram.nidhimasala.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="h-9 w-9 rounded-full spice-backdrop grid place-items-center text-muted-foreground hover:text-primary hover:scale-110 transition-all">
-                <Instagram className="h-4 w-4 sm:h-5 sm:w-5" />
-              </a>
-            </div>
+            {/* Social icons removed until the accounts exist.
+                facebook.nidhimasala.com / instagram.nidhimasala.com are
+                registrar forwarding records pointing at facebook.com and
+                instagram.com *root* — no profile path. Facebook root hits a
+                login wall, and Instagram root renders the VISITOR's own feed,
+                which is why the link looked like "the wrong account".
+                To restore: drop the real profile URLs into SOCIAL_LINKS. */}
           </div>
 
           {/* Quick Links */}
