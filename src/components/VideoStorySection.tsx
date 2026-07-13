@@ -2,7 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { ArrowRight, Play, ShieldCheck, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import spicesVideo from "@/assets/grok-video-2e290515-947f-4dd0-baca-4581ae53774a (1).mp4";
+import spicesVideo from "@/assets/kitchen-story.mp4";
+import spicesPoster from "@/assets/kitchen-story-poster.jpg";
 
 const VideoStorySection = () => {
   const { t } = useTranslation();
@@ -20,12 +21,17 @@ const VideoStorySection = () => {
       <div className="container relative mx-auto px-3 sm:px-4">
         <div className="grid grid-cols-1 lg:grid-cols-[1.08fr_0.92fr] gap-5 sm:gap-8 items-center">
           <div className="relative aspect-video overflow-hidden rounded-lg border border-border shadow-2xl">
+            {/* Muted + looping, so the clip carries no audio track. The poster
+                fills the frame while the video buffers instead of a black box. */}
             <video
               className="w-full h-full object-cover"
               autoPlay
               muted
               loop
               playsInline
+              preload="metadata"
+              poster={spicesPoster}
+              aria-label={t('ourStory.eyebrow')}
               src={spicesVideo}
             />
             <div className="absolute inset-0 bg-gradient-to-tr from-foreground/30 via-transparent to-transparent" />
