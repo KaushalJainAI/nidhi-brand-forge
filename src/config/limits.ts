@@ -5,14 +5,16 @@
  * trip); the backend remains the authoritative guard. Keep the defaults in sync
  * with the backend; both are overridable per-environment (Vite VITE_* here).
  */
+import { readEnv } from "./runtimeEnv";
+
 function intEnv(name: string, fallback: number): number {
-  const raw = (import.meta.env as Record<string, string | undefined>)[name];
+  const raw = readEnv(name);
   const n = raw != null ? parseInt(raw, 10) : NaN;
   return Number.isFinite(n) && n > 0 ? n : fallback;
 }
 
 function numberEnv(name: string, fallback: number): number {
-  const raw = (import.meta.env as Record<string, string | undefined>)[name];
+  const raw = readEnv(name);
   const n = raw != null ? Number(raw) : NaN;
   return Number.isFinite(n) && n >= 0 ? n : fallback;
 }

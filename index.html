@@ -47,6 +47,10 @@
   <!-- Translation is handled in-app by react-i18next (src/i18n). Google Translate
        was removed: it produced poor, uncontrolled translations and crashed React
        by mutating the DOM. -->
+  <!-- Runtime config (window.APP_CONFIG), generated per container start from env
+       vars. A classic script runs before the deferred module bundle below, so
+       APP_CONFIG is set before the app reads it. -->
+  <script src="/config.js"></script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

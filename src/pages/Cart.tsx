@@ -86,6 +86,9 @@ const Cart = () => {
   const outOfStockItems = cart.filter(item => item.inStock === false);
   
   const subtotal = inStockItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Total units (not distinct lines) so this count matches the navbar and
+  // floating cart bar, which both sum item quantities.
+  const inStockQuantity = inStockItems.reduce((sum, item) => sum + item.quantity, 0);
   // Per-product GST from each line's tax_rate (papad/papad katran are 0, which
   // is an explicit 0 — preserved). When a rate is ABSENT we fall back to the
   // backend DEFAULT_TAX_RATE (not 0) so the cart never quotes a total below what
@@ -364,7 +367,7 @@ const Cart = () => {
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('cart.subtotal')} ({inStockItems.length})</span>
+                    <span className="text-muted-foreground">{t('cart.subtotal')} ({inStockQuantity})</span>
                     <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">

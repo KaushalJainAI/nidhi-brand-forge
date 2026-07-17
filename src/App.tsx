@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { readEnv } from "@/config/runtimeEnv";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
@@ -67,6 +68,8 @@ const AnimatedRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/billing" element={<Billing />} />
+        {/* Common alias — external/bookmarked /checkout links resolve to billing */}
+        <Route path="/checkout" element={<Navigate to="/billing" replace />} />
         <Route path="/favorites" element={<Favorites />} />
         {/* Common alias — external/bookmarked /wishlist links resolve to favorites */}
         <Route path="/wishlist" element={<Navigate to="/favorites" replace />} />
@@ -93,7 +96,7 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+      <GoogleOAuthProvider clientId={readEnv("VITE_GOOGLE_CLIENT_ID") || ""}>
         <AuthProvider>
           <LanguageProvider>
             <FavoritesProvider>

@@ -93,7 +93,7 @@ const OfferZone = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 md:pb-24">
       {/* Video Hero Section */}
       <section className="relative h-[280px] sm:h-[400px] md:h-[500px] overflow-hidden">
         <video

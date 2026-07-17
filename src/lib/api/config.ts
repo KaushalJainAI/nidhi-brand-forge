@@ -1,9 +1,20 @@
-const envApiUrl = import.meta.env.VITE_API_URL;
+import { readEnv } from "@/config/runtimeEnv";
+
+// Runtime override (window.APP_CONFIG.API_URL) wins over the build-time value.
+const envApiUrl = readEnv("VITE_API_URL");
 export const API_BASE_URL = (envApiUrl && envApiUrl.trim() !== "") ? envApiUrl : "/api";
 
-// Debug helper to detect configuration issues in production
-if (import.meta.env.PROD && (API_BASE_URL === "/api" || !API_BASE_URL.startsWith('http'))) {
-  console.warn("API_BASE_URL is using relative path or default. Ensure VITE_API_URL is set during build.");
+// A relative "/api" is the intended production config: the frontend container
+// proxies /api/ to the backend, so requests always resolve against whichever
+// domain the user is on. That keeps them same-origin, which is what lets the
+// SameSite=Lax auth cookies ride along. One image serves several domains, so an
+// absolute URL would pin every one of them to a single API host and silently
+// break auth everywhere else.
+if (import.meta.env.PROD && /^https?:\/\//.test(API_BASE_URL)) {
+  console.warn(
+    `API_BASE_URL is absolute (${API_BASE_URL}). Requests from any other domain ` +
+    `are cross-site, so SameSite=Lax auth cookies will not be sent.`,
+  );
 }
 
 
