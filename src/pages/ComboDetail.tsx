@@ -14,18 +14,12 @@ import { useAuth } from "@/context/AuthContext";
 import ProductCard from "@/components/ProductCard";
 import CachedImage from "@/components/CachedImage";
 import product1 from "@/assets/product-1.jpg";
-import { API_BASE_URL } from "@/lib/api/config";
+import { resolveImageUrl } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
-// Helper to resolve image URLs from backend (may be relative paths)
-const getImageUrl = (imagePath: string | null | undefined): string => {
-  if (!imagePath) return product1;
-  // If it's already an absolute URL or data URL, return as-is
-  if (imagePath.startsWith('http') || imagePath.startsWith('data:')) return imagePath;
-  // If it's a relative path starting with /, prepend the base URL
-  const baseUrl = API_BASE_URL.replace('/api', '');
-  return imagePath.startsWith('/') ? `${baseUrl}${imagePath}` : `${baseUrl}/${imagePath}`;
-};
+// Resolve a backend image path with the local product placeholder as fallback.
+const getImageUrl = (imagePath: string | null | undefined): string =>
+  resolveImageUrl(imagePath, product1);
 
 const ComboDetail = () => {
   const { t } = useTranslation();

@@ -254,12 +254,17 @@ export const authFetch = async <T = unknown>(url: string, options: RequestInit =
  * must set the multipart boundary itself. Mirrors authFetch's CSRF handling and
  * one-shot 401 refresh-and-retry.
  */
+/** Uploads (e.g. audio) can legitimately take longer than a JSON call. */
+export const UPLOAD_TIMEOUT_MS = 60000;
+
 export const authFetchForm = async <T = unknown>(url: string, form: FormData): Promise<T> => {
   const send = () => {
     const csrfToken = getCookie("csrftoken");
     const headers: Record<string, string> = { ...getLangHeader() };
     if (csrfToken) headers["X-CSRFToken"] = csrfToken;
-    return fetch(url, { method: "POST", body: form, credentials: "include", headers });
+    // Route through fetchWithTimeout so a stalled upload rejects instead of
+    // hanging the UI forever (the JSON paths already have this guarantee).
+    return fetchWithTimeout(url, { method: "POST", body: form, credentials: "include", headers }, UPLOAD_TIMEOUT_MS);
   };
 
   let response = await send();

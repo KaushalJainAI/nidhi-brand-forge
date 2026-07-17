@@ -15,19 +15,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cartAPI, searchAPI } from "@/lib/api";
-import { API_BASE_URL } from "@/lib/api/config";
 import { FREE_SHIPPING_THRESHOLD, DEFAULT_TAX_RATE } from "@/config/limits";
-import { formatWeight } from "@/lib/utils";
-
-// Helper to resolve image URLs from backend (may be relative paths)
-const getImageUrl = (imagePath: string | null | undefined): string => {
-  if (!imagePath) return product1;
-  // If it's already an absolute URL or data URL, return as-is
-  if (imagePath.startsWith('http') || imagePath.startsWith('data:')) return imagePath;
-  // If it's a relative path starting with /, prepend the base URL
-  const baseUrl = API_BASE_URL.replace('/api', '');
-  return imagePath.startsWith('/') ? `${baseUrl}${imagePath}` : `${baseUrl}/${imagePath}`;
-};
+import { formatWeight, resolveImageUrl } from "@/lib/utils";
 
 
 const Cart = () => {
@@ -49,12 +38,8 @@ const Cart = () => {
     const fetchCart = async () => {
       setIsLoading(true);
       try {
-        // console.log('Fetching cart from backend...');
-        
         const response = await cartAPI.get();
-        
-        // console.log('Backend cart response:', response);
-        
+
         if (response.success && response.items && Array.isArray(response.items)) {
           const backendCart = response.items.map((item: any) => ({
             id: Number(item.product_id || item.id),
@@ -66,9 +51,8 @@ const Cart = () => {
             quantity: item.quantity,
             badge: item.badge,
           }));
-          
+
           setCart(backendCart);
-          // console.log('Cart loaded from backend:', backendCart);
         }
       } catch (error) {
         console.error('Failed to fetch cart:', error);
@@ -128,12 +112,8 @@ const Cart = () => {
     setIsLoading(true);
     try {
       // Fetch the latest cart state from backend before checkout
-      // console.log('Fetching latest cart before checkout...');
-      
       const response = await cartAPI.get();
-      
-      // console.log('Checkout cart response:', response);
-      
+
       if (!response.success) {
         toast.error("Failed to verify cart");
         return;
@@ -179,7 +159,7 @@ const Cart = () => {
         const formattedProducts = (response.products || []).map((p: any) => ({
           id: Number(p.id),
           name: p.name,
-          image: getImageUrl(p.image),
+          image: resolveImageUrl(p.image, product1),
           price: p.price,
           originalPrice: p.original_price > p.price ? p.original_price : undefined,
           weight: formatWeight(p.weight, p.unit, "100g"),
@@ -191,7 +171,7 @@ const Cart = () => {
         const formattedCombos = (response.combos || []).map((c: any) => ({
           id: Number(c.id),
           name: c.name || c.display_title,
-          image: getImageUrl(c.image),
+          image: resolveImageUrl(c.image, product1),
           price: c.price || c.final_price,
           originalPrice: c.original_price > c.price ? c.original_price : undefined,
           weight: "Combo",

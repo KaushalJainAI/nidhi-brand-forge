@@ -1,10 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 
 interface CachedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   fallbackSrc?: string;
-  lazy?: boolean;        // Enable lazy loading
-  rootMargin?: string;   // How far ahead to load
+  lazy?: boolean;        // Enable native lazy loading (loading="lazy")
+  /**
+   * Kept for API compatibility with older call sites; native lazy loading has no
+   * equivalent knob, so it is intentionally ignored.
+   */
+  rootMargin?: string;
   /**
    * Target display width in CSS px. When set (and the src is a Cloudinary
    * image), the delivered image is capped at ~2x this width so we never ship a
@@ -14,13 +18,7 @@ interface CachedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   cldWidth?: number;
 }
 
-const MAX_CACHE_SIZE = 50; // Max images to cache in memory
-const CACHE_NAME = 'ngu-image-cache-v2'; // bumped: entries now format/size-optimized
-
-// Ask Cloudinary's f_auto for a modern format even though we load via fetch()
-// (fetch's default Accept is */*, which would defeat format auto-negotiation).
-const IMG_ACCEPT = 'image/avif,image/webp,image/png,image/*,*/*;q=0.8';
-
+// Ask Cloudinary's f_auto for a modern format (webp/avif) and auto quality.
 /**
  * Insert Cloudinary delivery transforms (auto format + auto quality, and an
  * optional width cap) into a res.cloudinary.com /image/upload/ URL. Non-Cloudinary
@@ -59,64 +57,31 @@ const getProxiedUrl = (url: string) => {
   return url;
 };
 
-interface CacheEntry {
-  blobUrl: string;
-  lastAccessed: number;
-}
-
-// Global memory cache for object URLs
-const memoryCache: Map<string, CacheEntry> = new Map();
-
-const addToMemoryCache = (url: string, blobUrl: string) => {
-  if (memoryCache.size >= MAX_CACHE_SIZE) {
-    let oldestKey: string | null = null;
-    let oldestTime = Infinity;
-    
-    for (const [key, entry] of memoryCache.entries()) {
-      if (entry.lastAccessed < oldestTime) {
-        oldestTime = entry.lastAccessed;
-        oldestKey = key;
-      }
-    }
-    
-    if (oldestKey) {
-      const oldEntry = memoryCache.get(oldestKey);
-      if (oldEntry) {
-        URL.revokeObjectURL(oldEntry.blobUrl);
-        memoryCache.delete(oldestKey);
-      }
-    }
-  }
-  
-  memoryCache.set(url, { blobUrl, lastAccessed: Date.now() });
-};
-
-const getFromMemoryCache = (url: string): string | undefined => {
-  const entry = memoryCache.get(url);
-  if (entry) {
-    entry.lastAccessed = Date.now();
-    return entry.blobUrl;
-  }
-  return undefined;
-};
-
-const CachedImage: React.FC<CachedImageProps> = ({ 
-  src, 
-  fallbackSrc, 
-  alt, 
+/**
+ * Image with sane defaults: Cloudinary format/quality/width optimization, an
+ * S3/dev-host proxy rewrite, a fallback on error, and native lazy loading. The
+ * browser's own HTTP cache handles caching — no hand-rolled blob/Cache-API/LRU
+ * layer (that duplicated bytes in memory and could revoke a blob URL still shown
+ * on screen). A muted pulse fills the box until the image paints.
+ */
+const CachedImage: React.FC<CachedImageProps> = ({
+  src,
+  fallbackSrc,
+  alt,
   lazy = true,
-  rootMargin = '200px',
+  rootMargin: _rootMargin,
   cldWidth,
   className,
+  onLoad,
+  onError,
   ...props
 }) => {
-  const [isVisible, setIsVisible] = useState(!lazy);
-  const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
 
   const proxiedSrc = optimizeCloudinary(getProxiedUrl(src), cldWidth);
   const proxiedFallback = fallbackSrc ? getProxiedUrl(fallbackSrc) : undefined;
+  const displaySrc = errored && proxiedFallback ? proxiedFallback : proxiedSrc;
 
   // The passed className styles the container <div>, but object-fit / object-position
   // only take effect on the <img> itself. Without this split the inner image keeps
@@ -130,134 +95,25 @@ const CachedImage: React.FC<CachedImageProps> = ({
   const containerClasses = classTokens.filter((c) => !/^object-/.test(c)).join(' ');
   const imgFitClasses = imgObjectClasses.length ? imgObjectClasses.join(' ') : 'object-contain';
 
-  // Intersection Observer for lazy loading
-  useEffect(() => {
-    if (!lazy) return;
-
-    const el = containerRef.current;
-    if (!el) return;
-
-    // Elements already within (or near) the viewport on mount — e.g. the first
-    // rows of a results grid that renders after an async fetch — must load
-    // right away. Relying solely on the observer can leave them blank until the
-    // user scrolls, so do an immediate bounds check first.
-    const rect = el.getBoundingClientRect();
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    const margin = 200;
-    if (rect.top < vh + margin && rect.bottom > -margin) {
-      setIsVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin }
-    );
-
-    observer.observe(el);
-
-    return () => observer.disconnect();
-  }, [lazy, rootMargin, src]);
-
-  // Load image when visible
-  useEffect(() => {
-    if (!isVisible || !proxiedSrc) return;
-    
-    let isMounted = true;
-
-    const loadImage = async () => {
-      // 1. Check memory cache (fastest)
-      const memCached = getFromMemoryCache(proxiedSrc);
-      if (memCached) {
-        if (isMounted) {
-          setImgSrc(memCached);
-          setLoading(false);
-        }
-        return;
-      }
-
-      // 2. Check Cache API (disk)
-      try {
-        if ('caches' in window) {
-          const cache = await caches.open(CACHE_NAME);
-          const cachedResponse = await cache.match(proxiedSrc);
-          
-          if (cachedResponse) {
-            const blob = await cachedResponse.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            
-            if (isMounted) {
-              addToMemoryCache(proxiedSrc, blobUrl);
-              setImgSrc(blobUrl);
-              setLoading(false);
-            }
-            return;
-          }
-        }
-      } catch (e) {
-        console.warn('Cache API lookup failed:', e);
-      }
-
-      // 3. Network fetch
-      try {
-        const response = await fetch(proxiedSrc, { mode: 'cors', headers: { Accept: IMG_ACCEPT } });
-        if (response.ok) {
-          const blob = await response.blob();
-          const blobUrl = URL.createObjectURL(blob);
-          
-          if (isMounted) {
-            addToMemoryCache(proxiedSrc, blobUrl);
-            setImgSrc(blobUrl);
-            setLoading(false);
-          }
-          
-          // Background cache in Cache API
-          if ('caches' in window) {
-            try {
-              const cache = await caches.open(CACHE_NAME);
-              await cache.put(proxiedSrc, new Response(blob.slice(), {
-                headers: response.headers
-              }));
-            } catch (e) {
-              console.warn('Cache API write failed:', e);
-            }
-          }
-        } else {
-          throw new Error('Image fetch failed');
-        }
-      } catch (error) {
-        console.warn('Failed to load image:', proxiedSrc, error);
-        if (isMounted) {
-          setImgSrc(proxiedFallback || proxiedSrc);
-          setLoading(false);
-        }
-      }
-    };
-
-    loadImage();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [proxiedSrc, proxiedFallback, isVisible]);
-
   return (
-    <div ref={containerRef} className={`relative overflow-hidden ${containerClasses}`}>
-      {loading && (
-        <div className="absolute inset-0 animate-pulse bg-muted flex items-center justify-center">
-            {/* Optional: Add a placeholder icon or tiny logo here */}
-        </div>
+    <div className={`relative overflow-hidden ${containerClasses}`}>
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-muted" />
       )}
       <img
-        src={imgSrc || proxiedSrc}
+        src={displaySrc}
         alt={alt}
+        loading={lazy ? 'lazy' : 'eager'}
+        decoding="async"
         {...props}
-        className={`w-full h-full ${imgFitClasses} transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
+        onLoad={(e) => { setLoaded(true); onLoad?.(e); }}
+        onError={(e) => {
+          // Swap to the fallback once; if the fallback also fails, stop trying.
+          if (!errored && proxiedFallback) setErrored(true);
+          setLoaded(true);
+          onError?.(e);
+        }}
+        className={`w-full h-full ${imgFitClasses} transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
       />
     </div>
   );

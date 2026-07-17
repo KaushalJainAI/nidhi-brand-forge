@@ -30,6 +30,40 @@ interface AddToCartResult {
   error?: string;
 }
 
+/**
+ * The raw cart-line shape the backend returns (snake_case). Kept explicit so a
+ * backend field rename becomes a compile error in `mapBackendToFrontend` instead
+ * of silently producing `undefined` prices at checkout.
+ */
+interface BackendCartItem {
+  id: number;
+  product_id?: number;
+  variant_id?: number | null;
+  variant_slug?: string | null;
+  weight?: string | null;
+  item_type?: "product" | "combo";
+  name: string;
+  image: string;
+  price: number;
+  originalPrice?: number;
+  quantity: number;
+  badge?: string;
+  stock?: number;
+  in_stock?: boolean;
+  tax_rate?: number;
+}
+
+/**
+ * The API layer throws `APIError` (extends Error) with the backend's message
+ * already extracted onto `.message`; network/timeout failures are plain Errors
+ * whose message is also user-appropriate. So the message to show the user is
+ * simply `error.message` — the old `error?.response?.data?.error` was an axios
+ * shape that never exists on our fetch client, so users only ever saw the
+ * generic fallback.
+ */
+const errMsg = (error: unknown, fallback: string): string =>
+  error instanceof Error && error.message ? error.message : fallback;
+
 interface CartContextType {
   cart: CartItem[];
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
@@ -89,8 +123,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [isLoggedIn]);
 
   // Helper to map backend response to frontend format
-  const mapBackendToFrontend = useCallback((items: any[]): CartItem[] => {
-    return items.map((item: any) => ({
+  const mapBackendToFrontend = useCallback((items: BackendCartItem[]): CartItem[] => {
+    return items.map((item) => ({
       id: Number(item.product_id || item.id),  // Use product_id (the actual product/combo ID)
       variantId: item.variant_id ?? null,
       variantSlug: item.variant_slug ?? null,
@@ -114,19 +148,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isLoggedIn) return;
 
     try {
-      // console.log('Fetching cart from backend...');
-      
       const response = await cartAPI.get();
-      
-      // console.log('Backend cart response:', response);
-      
+
       if (response.success && response.items && Array.isArray(response.items)) {
         const backendCart = mapBackendToFrontend(response.items);
-        
+
         setCart(backendCart);
         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(backendCart));
-        
-        // console.log('Cart loaded from backend:', backendCart);
       }
     } catch (error) {
       console.error("Failed to fetch cart from backend:", error);
@@ -182,11 +210,44 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toast.error(response.error || "Failed to add item");
         return { success: false, error: response.error || "Failed to add item" };
       }
-    } catch (error: any) {
-      console.error("Failed to add item:", error);
-      const errorMsg = error?.response?.data?.error || "Failed to add item to cart";
+    } catch (error) {
+      const errorMsg = errMsg(error, "Failed to add item to cart");
       toast.error(errorMsg);
       return { success: false, error: errorMsg };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Shared optimistic-mutation runner for updateQuantity / removeFromCart /
+   * clearCart. Snapshots the cart, applies `optimistic` immediately, then runs
+   * `apiCall`; on success it re-syncs from the backend response (via
+   * `onSuccess`), and on ANY failure (`success:false` OR a thrown APIError) it
+   * reverts to the snapshot and shows `failMsg`. This is the single source of
+   * truth for the "optimistic update + revert on error" pattern the three
+   * mutations used to each re-implement.
+   */
+  const mutateCart = async (
+    optimistic: (prev: CartItem[]) => CartItem[],
+    apiCall: () => Promise<{ success?: boolean; items?: unknown[]; error?: string }>,
+    failMsg: string,
+    onSuccess?: (response: { items?: unknown[] }) => void,
+  ) => {
+    const previousCart = [...cart];
+    setCart(optimistic);
+    setIsLoading(true);
+    try {
+      const response = await apiCall();
+      if (response.success === false) {
+        setCart(previousCart);
+        toast.error(response.error || failMsg);
+        return;
+      }
+      onSuccess?.(response);
+    } catch (error) {
+      setCart(previousCart);
+      toast.error(errMsg(error, failMsg));
     } finally {
       setIsLoading(false);
     }
@@ -208,43 +269,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Optimistic update
     const cartKey = getCartKey(id, itemType, variantId);
-    const previousCart = [...cart];
-    setCart(prev =>
-      prev.map(i =>
-        getCartKey(i.id, i.itemType, i.variantId) === cartKey
-          ? { ...i, quantity }
-          : i
-      )
+    await mutateCart(
+      prev => prev.map(i => (getCartKey(i.id, i.itemType, i.variantId) === cartKey ? { ...i, quantity } : i)),
+      () => cartAPI.updateItem({ product_id: id, item_type: itemType, quantity, variant_id: variantId ?? undefined }),
+      "Failed to update quantity",
+      response => { if (response.items) setCart(mapBackendToFrontend(response.items as BackendCartItem[])); },
     );
-
-    setIsLoading(true);
-    try {
-      const response = await cartAPI.updateItem({
-        product_id: id,
-        item_type: itemType,
-        quantity,
-        variant_id: variantId ?? undefined,
-      });
-
-      if (response.success && response.items) {
-        // Sync with backend response
-        const backendCart = mapBackendToFrontend(response.items);
-        setCart(backendCart);
-      } else {
-        // Revert on error
-        setCart(previousCart);
-        toast.error(response.error || "Failed to update quantity");
-      }
-    } catch (error: any) {
-      console.error("Failed to update quantity:", error);
-      // Revert on error
-      setCart(previousCart);
-      toast.error(error?.response?.data?.error || "Failed to update quantity");
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const removeFromCart = async (id: number, itemType: "product" | "combo", variantId?: number | null) => {
@@ -253,41 +284,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Optimistic update
     const cartKey = getCartKey(id, itemType, variantId);
-    const previousCart = [...cart];
-    setCart(prev => prev.filter(i => getCartKey(i.id, i.itemType, i.variantId) !== cartKey));
-
-    setIsLoading(true);
-    try {
-      // Send product_id and item_type to backend
-      const response = await cartAPI.removeItem({
-        product_id: id,
-        item_type: itemType,
-        variant_id: variantId ?? undefined,
-      });
-
-      if (response.success && response.items) {
-        // Sync with backend response
-        const backendCart = mapBackendToFrontend(response.items);
-        setCart(backendCart);
+    await mutateCart(
+      prev => prev.filter(i => getCartKey(i.id, i.itemType, i.variantId) !== cartKey),
+      () => cartAPI.removeItem({ product_id: id, item_type: itemType, variant_id: variantId ?? undefined }),
+      "Failed to remove item",
+      response => {
+        if (response.items) setCart(mapBackendToFrontend(response.items as BackendCartItem[]));
         trackEvent({
           event_type: "remove_from_cart",
           [itemType === "combo" ? "combo_id" : "product_id"]: id,
         });
-      } else if (!response.success) {
-        // Revert on error
-        setCart(previousCart);
-        toast.error(response.error || "Failed to remove item");
-      }
-    } catch (error: any) {
-      console.error("Failed to remove item:", error);
-      // Revert on error
-      setCart(previousCart);
-      toast.error(error?.response?.data?.error || "Failed to remove item");
-    } finally {
-      setIsLoading(false);
-    }
+      },
+    );
   };
 
   const clearCart = async () => {
@@ -296,29 +305,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Optimistic update
-    const previousCart = [...cart];
-    setCart([]);
-
-    setIsLoading(true);
-    try {
-      const response = await cartAPI.clear();
-
-      if (response.success) {
-        localStorage.removeItem(CART_STORAGE_KEY);
-      } else {
-        // Revert on error
-        setCart(previousCart);
-        toast.error(response.error || "Failed to clear cart");
-      }
-    } catch (error: any) {
-      console.error("Failed to clear cart:", error);
-      // Revert on error
-      setCart(previousCart);
-      toast.error(error?.response?.data?.error || "Failed to clear cart");
-    } finally {
-      setIsLoading(false);
-    }
+    await mutateCart(
+      () => [],
+      () => cartAPI.clear(),
+      "Failed to clear cart",
+      () => localStorage.removeItem(CART_STORAGE_KEY),
+    );
   };
 
   return (
