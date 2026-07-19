@@ -278,7 +278,9 @@ const Billing = () => {
     try {
       const fullAddress = `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode}`;
 
-      // 1. Place the order (this clears the cart inside the transaction).
+      // 1. Place the order. For ONLINE the backend keeps the cart until the
+      //    payment is captured (a re-checkout supersedes this pending order), so
+      //    an abandoned payment leaves the cart intact to retry.
       const placed = await ordersAPI.create({
         shipping_address: fullAddress,
         phone_number: formData.phone,
@@ -335,8 +337,10 @@ const Billing = () => {
           }
         },
         onDismiss: () => {
-          // Modal closed / payment abandoned: the order is pending and can be
-          // retried from My Orders. Never re-add to cart (it's already gone).
+          // Modal closed / payment abandoned: the order stays pending. The cart
+          // was NOT emptied (ONLINE keeps it until capture), so the customer can
+          // retry from My Orders OR just check out again — a fresh checkout
+          // supersedes this pending order. Nothing to restore here.
           toast.message(t('billing.paymentIncomplete'));
           navigate("/my-orders");
           setIsLoading(false);
