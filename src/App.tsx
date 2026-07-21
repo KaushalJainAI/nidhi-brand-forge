@@ -44,6 +44,7 @@ import FloatingCartBar from "./components/FloatingCartBar";
 import AssistantWidget from "./components/AssistantWidget";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import CookieConsent from "./components/CookieConsent";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -53,10 +54,13 @@ const AnimatedRoutes = () => {
   usePageTracking();
 
   return (
-    <div 
+    <div
       key={location.pathname}
       className="animate-page-enter"
     >
+      {/* Keyed on the path so navigating away from a crashed page clears the
+          error and renders the next route normally. */}
+      <ErrorBoundary key={location.pathname}>
       <Routes location={location}>
         <Route path="/" element={<Index />} />
         <Route path="/products" element={<Products />} />
@@ -89,11 +93,16 @@ const AnimatedRoutes = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </ErrorBoundary>
     </div>
   );
 };
 
 const App = () => (
+  // Outermost boundary: the route-level one above cannot catch a crash in the
+  // providers themselves (auth, cart, i18n), which is exactly the class of
+  // failure that would otherwise render a blank white page.
+  <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <GoogleOAuthProvider clientId={readEnv("VITE_GOOGLE_CLIENT_ID") || ""}>
@@ -113,7 +122,9 @@ const App = () => (
                   <MobileFooter />
                   <FloatingCartBar />
                   <FloatingWhatsApp />
-                  <AssistantWidget />
+                  {/* Non-essential chrome: a widget crash must not replace the
+                      storefront with a full-page error. */}
+                  <ErrorBoundary fallback={null}><AssistantWidget /></ErrorBoundary>
                   <CookieConsent />
                 </BrowserRouter>
               </CartProvider>
@@ -123,6 +134,7 @@ const App = () => (
       </GoogleOAuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

@@ -1119,5 +1119,16 @@
     "fair": "Theek",
     "good": "Achha",
     "strong": "Strong"
+  },
+  "errorBoundary": {
+    "title": "Humari taraf se kuch gadbad ho gayi",
+    "message": "Is page ko load karte waqt ek technical issue aa gaya. Isme aapki koi galti nahi hai. Please page reload karein — aur agar problem baar-baar aaye to humse contact karein, hum ise theek kar denge.",
+    "reload": "Page reload karein",
+    "home": "Home par wapas jaayein",
+    "contactTitle": "Ab bhi dikkat hai? Humse contact karein",
+    "contactHint": "Neeche diya gaya reference bataayein, taaki hum pata laga sakein ki kya hua.",
+    "whatsapp": "WhatsApp",
+    "copy": "Details copy karein",
+    "copied": "Copy ho gaya"
   }
 }

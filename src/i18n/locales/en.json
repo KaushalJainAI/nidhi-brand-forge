@@ -1147,5 +1147,16 @@
     "fair": "Fair",
     "good": "Good",
     "strong": "Strong"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong on our end",
+    "message": "We hit a technical issue while loading this page. It is not something you did. Please try reloading — and if it keeps happening, contact us and we will sort it out for you.",
+    "reload": "Reload page",
+    "home": "Back to home",
+    "contactTitle": "Still stuck? Contact us",
+    "contactHint": "Quote the reference below and we can trace exactly what happened.",
+    "whatsapp": "WhatsApp",
+    "copy": "Copy details",
+    "copied": "Copied"
   }
 }
