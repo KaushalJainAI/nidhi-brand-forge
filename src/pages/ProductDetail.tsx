@@ -230,7 +230,7 @@ const ProductDetail = () => {
     if (!product) return;
     
     if (!isLoggedIn) {
-      window.alert("You need to log in to add items to your cart.");
+      toast.warning(t('product.loginRequired'));
       navigate('/login', { state: { from: '/cart' } });
       return;
     }
@@ -261,7 +261,7 @@ const ProductDetail = () => {
   const handleBuyNow = () => {
     if (!product) return;
     if (!isLoggedIn) {
-      window.alert("You need to log in to add items to your cart.");
+      toast.warning(t('product.loginRequired'));
       navigate('/login', { state: { from: '/cart' } });
       return;
     }

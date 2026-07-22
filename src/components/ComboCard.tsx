@@ -46,7 +46,7 @@ const ComboCard = ({ combo }: ComboCardProps) => {
 
   const handleAddToCart = () => {
     if (!isLoggedIn) {
-      window.alert(t('product.loginRequired'));
+      toast.warning(t('product.loginRequired'));
       navigate("/login", { state: { from: "/cart" } });
       return;
     }

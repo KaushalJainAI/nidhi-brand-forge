@@ -30,7 +30,7 @@ const Cart = () => {
   // Fetch cart from backend on mount - only once
   useEffect(() => {
     if (!isLoggedIn) {
-      window.alert("You need to log in to view your cart.");
+      toast.warning(t('product.loginRequired'));
       navigate('/login', { state: { from: '/cart' } });
       return;
     }

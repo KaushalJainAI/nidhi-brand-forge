@@ -50,7 +50,7 @@ const ComboStoryCard = ({ combo, reverse = false }: ComboStoryCardProps) => {
 
   const handleAddToCart = () => {
     if (!isLoggedIn) {
-      window.alert(t('product.loginRequired'));
+      toast.warning(t('product.loginRequired'));
       navigate("/login", { state: { from: "/cart" } });
       return;
     }
