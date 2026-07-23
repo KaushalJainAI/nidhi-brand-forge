@@ -130,6 +130,15 @@ lib/api/
 └── auth.ts         # login(), register(), getProfile()
 ```
 
+**Runtime config (one image, many deployments).** Vite inlines `VITE_*` at *build*
+time, freezing them into the bundle. To reconfigure a built image per deployment
+**without rebuilding**, the container entrypoint writes `window.APP_CONFIG` from its
+env on every start, and `src/config/runtimeEnv.ts → readEnv()` prefers that runtime
+value over the build-time Vite value (falling back so `npm run dev` still works).
+`config.ts` resolves the API base URL this way, so `window.APP_CONFIG.API_URL` wins
+over `VITE_API_URL`. Keep the deployed value **relative (`/api`)** so the SPA calls
+whatever origin served it. (`public/config.js` is the local-dev stub.)
+
 ### 2. Authentication & Token Refresh
 
 Auth tokens are HttpOnly cookies sent automatically with every `credentials: "include"` request.
@@ -210,12 +219,16 @@ Events fire and forget — failures are silently ignored to keep the UX clean.
 
 ### 8. AI Shopping Assistant
 
-An always-available chat widget (`components/AssistantWidget` or similar) calls
-`POST /api/assistant/chat/` with the user's message and conversation history. The
-backend runs the agent loop and returns a `reply` plus an optional `proposed_action`
-(e.g., add-to-cart proposal the UI must confirm). Anonymous users get product Q&A;
-logged-in users also get cart/order tools. The selected language is forwarded so
-the assistant replies in the right language.
+The chat widget (`components/AssistantWidget.tsx`) calls `POST /api/assistant/chat/`
+with the user's message and conversation history. The backend runs the agent loop and
+returns a `reply` plus an optional `proposed_action` (e.g., add-to-cart proposal the
+UI must confirm). The selected language is forwarded so the assistant replies in the
+right language.
+
+**Login-only.** The assistant is gated behind login — the widget only fetches when
+`!!user`, and a logged-out user who triggers it is routed to `/login` (the backend
+rejects anonymous chat with `IsAuthenticated`). Logged-in users get product Q&A **and**
+cart/order tools.
 
 **Voice input:** `hooks/useVoiceInput` records with `MediaRecorder`, converts the
 audio to 16 kHz mono WAV (`lib/audio.ts`), and POSTs it to `POST /api/assistant/transcribe/`
@@ -332,6 +345,13 @@ try {
 
 ### 404 Handling
 React Router catches unmatched routes → `NotFound` page.
+
+### Render-time crashes (Error Boundaries)
+React error boundaries wrap the app so a thrown render error shows a recoverable
+fallback ("something went wrong, try again") instead of a blank white page. This
+contains a crash to the boundary's subtree rather than unmounting the whole SPA.
+User-facing gate failures (e.g. "please log in") are surfaced as **styled toasts**,
+never blocking `window.alert()`s.
 
 ---
 
