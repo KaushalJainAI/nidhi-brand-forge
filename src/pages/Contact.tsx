@@ -59,7 +59,7 @@ const Contact = () => {
     {
       icon: <Mail className="h-5 w-5 sm:h-6 sm:w-6" />,
       title: t('pages.contact.emailTitle'),
-      lines: ["nidhigrahudyog@rediffmail.com"],
+      lines: ["nidhispicesandfood@gmail.com"],
       notranslate: true,
     },
   ];

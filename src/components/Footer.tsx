@@ -104,7 +104,7 @@ const Footer = () => {
               </li>
               <li className="notranslate flex items-center space-x-2 sm:space-x-3 text-muted-foreground">
                 <Mail className="h-3 w-3 sm:h-5 sm:w-5 flex-shrink-0" />
-                <a href="mailto:nidhigrahudyog@rediffmail.com" className="hover:text-primary transition-colors break-all">nidhigrahudyog@rediffmail.com</a>
+                <a href="mailto:nidhispicesandfood@gmail.com" className="hover:text-primary transition-colors break-all">nidhispicesandfood@gmail.com</a>
               </li>
             </ul>
           </div>

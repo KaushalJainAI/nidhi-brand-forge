@@ -10,7 +10,7 @@ import { AlertTriangle, RefreshCw, Home, Phone, Mail, MessageCircle, Copy, Check
 const SUPPORT_PHONE = "+91 93000 05040";
 const SUPPORT_PHONE_TEL = "+919300005040";
 const SUPPORT_WHATSAPP = "https://wa.me/919300005040";
-const SUPPORT_EMAIL = "nidhigrahudyog@rediffmail.com";
+const SUPPORT_EMAIL = "nidhispicesandfood@gmail.com";
 
 /**
  * `i18next.t` from the singleton rather than the `useTranslation` hook: this is
