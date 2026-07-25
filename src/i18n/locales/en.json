@@ -305,7 +305,9 @@
     "items": "items",
     "viewCart": "View Cart",
     "freeShippingUnlocked": "🎉 You've unlocked FREE shipping!",
-    "addMoreForShipping": "Add ₹{{amount}} more for FREE shipping"
+    "addMoreForShipping": "Add ₹{{amount}} more for FREE shipping",
+    "shipping": "Shipping",
+    "free": "FREE"
   },
   "promo": {
     "flat20Title": "Flat 20% off",
@@ -1138,7 +1140,9 @@
     "statusConfirmed": "Confirmed",
     "statusProcessing": "Processing",
     "statusShipped": "Shipped",
-    "statusDelivering": "Out for delivery"
+    "statusDelivering": "Out for delivery",
+    "shipping": "Shipping",
+    "free": "FREE"
   },
   "password": {
     "strengthLabel": "Password strength",

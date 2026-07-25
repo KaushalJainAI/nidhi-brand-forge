@@ -213,7 +213,9 @@
     "items": "ਚੀਜ਼ਾਂ",
     "viewCart": "ਕਾਰਟ ਦੇਖੋ",
     "freeShippingUnlocked": "🎉 ਤੁਸੀਂ ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ ਅਨਲੌਕ ਕੀਤੀ!",
-    "addMoreForShipping": "ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ ਲਈ ₹{{amount}} ਹੋਰ ਜੋੜੋ"
+    "addMoreForShipping": "ਮੁਫ਼ਤ ਸ਼ਿਪਿੰਗ ਲਈ ₹{{amount}} ਹੋਰ ਜੋੜੋ",
+    "shipping": "ਸ਼ਿਪਿੰਗ",
+    "free": "ਮੁਫ਼ਤ"
   },
   "auth": {
     "welcomeBack": "ਵਾਪਸ ਆਉਣ 'ਤੇ ਸੁਆਗਤ ਹੈ",
@@ -1110,7 +1112,9 @@
     "statusConfirmed": "ਪੁਸ਼ਟ",
     "statusProcessing": "ਪ੍ਰੋਸੈਸ ਹੋ ਰਿਹਾ ਹੈ",
     "statusShipped": "ਭੇਜਿਆ ਗਿਆ",
-    "statusDelivering": "ਡਿਲੀਵਰੀ ਲਈ ਨਿਕਲਿਆ"
+    "statusDelivering": "ਡਿਲੀਵਰੀ ਲਈ ਨਿਕਲਿਆ",
+    "shipping": "ਸ਼ਿਪਿੰਗ",
+    "free": "ਮੁਫ਼ਤ"
   },
   "password": {
     "strengthLabel": "ਪਾਸਵਰਡ ਮਜ਼ਬੂਤੀ",

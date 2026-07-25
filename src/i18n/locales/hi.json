@@ -291,7 +291,9 @@
     "items": "आइटम",
     "viewCart": "कार्ट देखें",
     "freeShippingUnlocked": "🎉 आपने फ्री शिपिंग अनलॉक किया!",
-    "addMoreForShipping": "फ्री शिपिंग के लिए ₹{{amount}} और जोड़ें"
+    "addMoreForShipping": "फ्री शिपिंग के लिए ₹{{amount}} और जोड़ें",
+    "shipping": "शिपिंग",
+    "free": "मुफ़्त"
   },
   "promo": {
     "flat20Title": "फ्लैट 20% छूट",
@@ -1110,7 +1112,9 @@
     "statusConfirmed": "पुष्ट",
     "statusProcessing": "प्रोसेस हो रहा है",
     "statusShipped": "भेजा गया",
-    "statusDelivering": "डिलीवरी के लिए निकला"
+    "statusDelivering": "डिलीवरी के लिए निकला",
+    "shipping": "शिपिंग",
+    "free": "मुफ़्त"
   },
   "password": {
     "strengthLabel": "पासवर्ड मजबूती",

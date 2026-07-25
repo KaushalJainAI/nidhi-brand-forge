@@ -507,6 +507,17 @@ const MyOrders = () => {
                                 <span>{t('myOrders.tax')}</span>
                                 <span>{formatCurrency(order.tax)}</span>
                               </div>
+                              {/* Delivery fee actually charged. Shown as FREE when
+                                  the order cleared the free-shipping threshold so
+                                  subtotal + tax + delivery reconciles with total. */}
+                              <div className="flex justify-between text-sm text-muted-foreground">
+                                <span>{t('myOrders.shipping')}</span>
+                                <span>
+                                  {Number(order.shipping_charge ?? 0) === 0
+                                    ? t('myOrders.free')
+                                    : formatCurrency(Number(order.shipping_charge))}
+                                </span>
+                              </div>
                             </div>
 
                             {/* Address */}

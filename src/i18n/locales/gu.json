@@ -213,7 +213,9 @@
     "items": "વસ્તુઓ",
     "viewCart": "કાર્ટ જુઓ",
     "freeShippingUnlocked": "🎉 તમે મફત શિપિંગ અનલૉક કર્યું!",
-    "addMoreForShipping": "મફત શિપિંગ માટે ₹{{amount}} વધુ ઉમેરો"
+    "addMoreForShipping": "મફત શિપિંગ માટે ₹{{amount}} વધુ ઉમેરો",
+    "shipping": "શિપિંગ",
+    "free": "મફત"
   },
   "auth": {
     "welcomeBack": "પાછા આવ્યા તે બદલ સ્વાગત છે",
@@ -1110,7 +1112,9 @@
     "statusConfirmed": "પુષ્ટ",
     "statusProcessing": "પ્રોસેસ થઈ રહ્યું છે",
     "statusShipped": "મોકલ્યું",
-    "statusDelivering": "ડિલિવરી માટે નીકળ્યું"
+    "statusDelivering": "ડિલિવરી માટે નીકળ્યું",
+    "shipping": "શિપિંગ",
+    "free": "મફત"
   },
   "password": {
     "strengthLabel": "પાસવર્ડ મજબૂતાઈ",

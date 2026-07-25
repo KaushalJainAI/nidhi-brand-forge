@@ -213,7 +213,9 @@
     "items": "items",
     "viewCart": "View Cart",
     "freeShippingUnlocked": "🎉 You've unlocked FREE shipping!",
-    "addMoreForShipping": "Add ₹{{amount}} more for FREE shipping"
+    "addMoreForShipping": "Add ₹{{amount}} more for FREE shipping",
+    "shipping": "Shipping",
+    "free": "FREE"
   },
   "auth": {
     "welcomeBack": "Wapsi Par Swagat Hai",
@@ -1110,7 +1112,9 @@
     "statusConfirmed": "Confirmed",
     "statusProcessing": "Processing",
     "statusShipped": "Shipped",
-    "statusDelivering": "Out for delivery"
+    "statusDelivering": "Out for delivery",
+    "shipping": "Shipping",
+    "free": "FREE"
   },
   "password": {
     "strengthLabel": "Password strength",

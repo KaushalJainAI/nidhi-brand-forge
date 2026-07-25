@@ -15,7 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cartAPI, searchAPI } from "@/lib/api";
-import { FREE_SHIPPING_THRESHOLD, DEFAULT_TAX_RATE } from "@/config/limits";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE, DEFAULT_TAX_RATE } from "@/config/limits";
 import { formatWeight, resolveImageUrl } from "@/lib/utils";
 
 
@@ -81,7 +81,11 @@ const Cart = () => {
     (sum, item) => sum + item.price * item.quantity * ((item.taxRate ?? DEFAULT_TAX_RATE) / 100),
     0
   );
-  const total = subtotal + tax;
+  // Delivery fee, mirroring the backend rule (waived at/above the free-shipping
+  // threshold, which is checked against the subtotal). Quoting it here keeps the
+  // cart total consistent with checkout instead of jumping up on the next page.
+  const shipping = subtotal > 0 && subtotal < FREE_SHIPPING_THRESHOLD ? SHIPPING_CHARGE : 0;
+  const total = subtotal + tax + shipping;
 
   const handleRemoveItem = async (id: number, itemType: "product" | "combo", variantId?: number | null) => {
     try {
@@ -353,6 +357,12 @@ const Cart = () => {
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t('cart.tax')}</span>
                     <span className="font-semibold">₹{tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t('cart.shipping')}</span>
+                    <span className="font-semibold">
+                      {shipping === 0 ? t('cart.free') : `₹${shipping.toFixed(2)}`}
+                    </span>
                   </div>
                   <Separator />
                   <div className="flex justify-between text-sm sm:text-base">
