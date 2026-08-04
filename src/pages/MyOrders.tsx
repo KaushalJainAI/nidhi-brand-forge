@@ -34,6 +34,7 @@ import { MAX_REVIEW_COMMENT } from "@/config/limits";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation, Trans } from "react-i18next";
+import { PriceBreakup } from "@/components/PriceBreakup";
 
 import product1 from "@/assets/product-1.jpg";
 
@@ -109,6 +110,7 @@ const MyOrders = () => {
       in_transit: t('myOrders.statusInTransit'),
       delivered: t('myOrders.statusDelivered'),
       cancelled: t('myOrders.statusCancelled'),
+      refunded: t('myOrders.statusRefunded', 'Refunded'),
     };
     const key = status.toLowerCase();
     // Title-case fallback for any status without an explicit label.
@@ -191,7 +193,10 @@ const MyOrders = () => {
       toast.success(t('myOrders.billDownloaded', { order: order.order_number }));
     } catch (error) {
       console.error("Failed to download bill:", error);
-      toast.error(t('myOrders.billFailed'));
+      // The API explains WHY when no invoice exists yet; a generic failure
+      // message would send the customer to support over a normal state.
+      const reason = error instanceof Error ? error.message : "";
+      toast.error(reason || t('myOrders.billFailed'));
     }
   };
 
@@ -300,7 +305,7 @@ const MyOrders = () => {
     // Mirror the backend: a customer may cancel until the parcel is out for
     // delivery or already delivered/cancelled.
     const s = status.toLowerCase();
-    return !["delivering", "delivered", "cancelled"].includes(s);
+    return !["delivering", "delivered", "cancelled", "refunded"].includes(s);
   };
 
   // A payable ONLINE order that hasn't been paid yet can be retried. The cart is
@@ -314,7 +319,7 @@ const MyOrders = () => {
     const s = order.status.toLowerCase();
     return method === "ONLINE" &&
       ["pending", "processing", "failed"].includes(ps) &&
-      !["cancelled", "delivered", "delivering"].includes(s);
+      !["cancelled", "delivered", "delivering", "refunded"].includes(s);
   };
 
   const handleRetryPayment = async (order: Order) => {
@@ -452,6 +457,45 @@ const MyOrders = () => {
                         </span>
                       </div>
 
+                      {/* Refund — the customer's own money coming back, so it sits
+                          OUTSIDE the "show more" fold: never make someone expand a
+                          section to find out how much they were refunded.
+                          A refund can be partial, so the amount is always shown;
+                          the "Refunded" status alone would imply the whole order. */}
+                      {Number(order.refunded_amount ?? 0) > 0 && (
+                        <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b">
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold text-sm sm:text-base text-orange-700 dark:text-orange-400">
+                              {t('myOrders.refunded', 'Refunded')}
+                            </span>
+                            <span className="text-base sm:text-lg font-bold text-orange-700 dark:text-orange-400">
+                              {formatCurrency(Number(order.refunded_amount))}
+                            </span>
+                          </div>
+                          {Number(order.refunded_amount) < Number(order.total ?? 0) - 0.005 && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {t('myOrders.refundedPartial',
+                                 'Partial refund of your {{total}} order.',
+                                 { total: formatCurrency(order.total) })}
+                            </p>
+                          )}
+                          {(order.refunds ?? []).length > 1 && (
+                            <div className="mt-2 space-y-0.5">
+                              {(order.refunds ?? []).map(r => (
+                                <div key={r.id} className="flex justify-between text-xs text-muted-foreground">
+                                  <span>{new Date(r.created_at).toLocaleDateString()}</span>
+                                  <span>{formatCurrency(Number(r.amount))}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t('myOrders.refundedNote',
+                               'Refunds usually reach your account in 5–7 business days.')}
+                          </p>
+                        </div>
+                      )}
+
                       {/* SHOW MORE section with smooth transition */}
                       <div
                         className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -489,37 +533,23 @@ const MyOrders = () => {
                               ))}
                             </div>
 
-                            {/* Summary */}
-                            <div className="mb-4 pb-4 border-b space-y-1">
-                              <div className="flex justify-between text-sm text-muted-foreground">
-                                <span>{t('myOrders.subtotal')}</span>
-                                <span>{formatCurrency(order.subtotal)}</span>
-                              </div>
-                              {order.discount > 0 && (
-                                <div className="flex justify-between text-sm text-green-600">
-                                  <span>{t('myOrders.discount')}</span>
-                                  <span>
-                                    -{formatCurrency(order.discount)}
-                                  </span>
-                                </div>
-                              )}
-                              <div className="flex justify-between text-sm text-muted-foreground">
-                                <span>{t('myOrders.tax')}</span>
-                                <span>{formatCurrency(order.tax)}</span>
-                              </div>
-                              {/* Delivery fee actually charged. Shown as FREE when
-                                  the order cleared the free-shipping threshold so
-                                  subtotal + tax + delivery reconciles with total. */}
-                              <div className="flex justify-between text-sm text-muted-foreground">
-                                <span>{t('myOrders.shipping')}</span>
-                                <span>
-                                  {Number(order.shipping_charge ?? 0) === 0
-                                    ? t('myOrders.free')
-                                    : formatCurrency(Number(order.shipping_charge))}
-                                </span>
-                              </div>
+                            {/* Summary — same breakup the customer saw at checkout,
+                                rebuilt from the order's own stored GST slabs. */}
+                            <div className="mb-4 pb-4 border-b">
+                              <PriceBreakup
+                                subtotal={Number(order.subtotal ?? 0)}
+                                discount={Number(order.discount ?? 0)}
+                                tax={Number(order.tax ?? 0)}
+                                taxableValue={
+                                  order.taxable_value != null ? Number(order.taxable_value) : undefined
+                                }
+                                taxBreakdown={order.tax_breakdown}
+                                taxInclusive={order.tax_inclusive !== false}
+                                shipping={Number(order.shipping_charge ?? 0)}
+                                shippingTax={Number(order.shipping_tax ?? 0)}
+                                total={Number(order.total ?? 0)}
+                              />
                             </div>
-
                             {/* Address */}
                             <p className="text-sm text-muted-foreground mb-4">
                               {t('myOrders.shippingTo', { address: order.shipping_address })}
@@ -564,15 +594,20 @@ const MyOrders = () => {
                           {t('myOrders.support')}
                         </Button>
 
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
-                          onClick={() => handleDownloadBill(order)}
-                        >
-                          <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          {t('myOrders.bill')}
-                        </Button>
+                        {/* Only once a tax invoice has actually been issued —
+                            at payment confirmation, or at dispatch for COD.
+                            Before that there is no document to download. */}
+                        {order.invoice && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
+                            onClick={() => handleDownloadBill(order)}
+                          >
+                            <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                            {t('myOrders.bill')}
+                          </Button>
+                        )}
 
                         {/* Retry payment for an unpaid ONLINE order (reuses the
                             same order — the cart is already gone). */}

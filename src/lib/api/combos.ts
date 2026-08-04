@@ -5,7 +5,17 @@ export interface ComboItem {
   product_name: string;
   product_slug: string;
   product_image: string;
+  /** Small square crop, when the product has one. Cards prefer it over
+   *  `product_image` for collage tiles. */
+  product_thumbnail?: string;
   product_price: number;
+  /** The exact packaging size this combo bundles. Price and stock come from
+   *  here — a combo means "1 x 500g", not "1 x whichever size is default". */
+  variant?: number;
+  variant_label?: string;
+  variant_price?: string;
+  variant_stock?: number;
+  variant_is_active?: boolean;
   quantity: number;
 }
 
