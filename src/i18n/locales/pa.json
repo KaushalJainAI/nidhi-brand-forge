@@ -1123,7 +1123,8 @@
     "statusShipped": "ਭੇਜਿਆ ਗਿਆ",
     "statusDelivering": "ਡਿਲੀਵਰੀ ਲਈ ਨਿਕਲਿਆ",
     "shipping": "ਸ਼ਿਪਿੰਗ",
-    "free": "ਮੁਫ਼ਤ"
+    "free": "ਮੁਫ਼ਤ",
+    "alreadyReviewed": "ਪਹਿਲਾਂ ਹੀ ਸਮੀਖਿਆ ਕੀਤੀ"
   },
   "password": {
     "strengthLabel": "ਪਾਸਵਰਡ ਮਜ਼ਬੂਤੀ",

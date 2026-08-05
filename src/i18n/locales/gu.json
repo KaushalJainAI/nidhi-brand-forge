@@ -1123,7 +1123,8 @@
     "statusShipped": "મોકલ્યું",
     "statusDelivering": "ડિલિવરી માટે નીકળ્યું",
     "shipping": "શિપિંગ",
-    "free": "મફત"
+    "free": "મફત",
+    "alreadyReviewed": "પહેલેથી સમીક્ષા કરેલ"
   },
   "password": {
     "strengthLabel": "પાસવર્ડ મજબૂતાઈ",

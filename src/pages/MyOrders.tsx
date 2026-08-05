@@ -52,15 +52,7 @@ const MyOrders = () => {
     }
   }, [isLoggedIn, authLoading, navigate]);
 
-  const [reviewDialog, setReviewDialog] = useState<{
-    open: boolean;
-    orderId: number | null;
-  }>({
-    open: false,
-    orderId: null,
-  });
-
-  // New: Per-product/combo review dialog
+  // Per-product/combo review dialog
   const [productReviewDialog, setProductReviewDialog] = useState<{
     open: boolean;
     itemType: 'product' | 'combo';
@@ -77,6 +69,12 @@ const MyOrders = () => {
 
   const [currentRating, setCurrentRating] = useState(0);
   const [currentReview, setCurrentReview] = useState("");
+  // Which of the open order's items the customer may still review, keyed
+  // "<item_type>:<id>". The dialog used to open on items[0] unconditionally and
+  // offer no hint that it had already been reviewed, so the only feedback was a
+  // failed submit.
+  const [itemEligibility, setItemEligibility] = useState<Record<string, boolean>>({});
+  const eligibilityKey = (itemType: 'product' | 'combo', itemId: number) => `${itemType}:${itemId}`;
 
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
@@ -222,6 +220,57 @@ const MyOrders = () => {
     setCurrentReview("");
   };
 
+  /**
+   * Open the review dialog for an order, landing on the first item the customer
+   * can actually review rather than always on items[0] — otherwise an order
+   * whose first item is already reviewed opens onto a guaranteed failure.
+   * Eligibility for every item is fetched in the background to grey out the
+   * ones already done.
+   */
+  const openOrderReviewDialog = async (order: Order) => {
+    const items = (order.items || []).filter(
+      (it) => (it.item_type === 'combo' ? it.combo_id : it.product_id),
+    );
+    if (items.length === 0) return;
+
+    const idOf = (it: typeof items[number]) =>
+      (it.item_type === 'combo' ? it.combo_id : it.product_id) as number;
+
+    // Open immediately on items[0] so the dialog never feels laggy; the
+    // eligibility results below move the selection if that one is spent.
+    openProductReviewDialog(items[0].item_type, idOf(items[0]), items[0].product_name, order.id);
+
+    const results = await Promise.all(
+      items.map(async (it) => {
+        const id = idOf(it);
+        try {
+          const res = it.item_type === 'combo'
+            ? await reviewsAPI.canReviewCombo(id)
+            : await reviewsAPI.canReviewProduct(id);
+          return [eligibilityKey(it.item_type, id), res.can_review] as const;
+        } catch {
+          // Treat an unknown as reviewable: the POST re-checks anyway, and
+          // wrongly greying out a valid item is worse than a clear error.
+          return [eligibilityKey(it.item_type, id), true] as const;
+        }
+      }),
+    );
+    setItemEligibility(Object.fromEntries(results));
+
+    const firstOpen = items.find((it) => {
+      const entry = results.find(([k]) => k === eligibilityKey(it.item_type, idOf(it)));
+      return entry?.[1];
+    });
+    if (firstOpen && idOf(firstOpen) !== idOf(items[0])) {
+      setProductReviewDialog((prev) => prev.orderId === order.id ? {
+        ...prev,
+        itemType: firstOpen.item_type,
+        itemId: idOf(firstOpen),
+        itemName: firstOpen.product_name,
+      } : prev);
+    }
+  };
+
   const [reviewLoading, setReviewLoading] = useState(false);
 
   const handleSubmitProductReview = async () => {
@@ -239,7 +288,11 @@ const MyOrders = () => {
       const reviewData = {
         item_type: productReviewDialog.itemType,
         rating: currentRating,
-        title: productReviewDialog.itemName,
+        // This dialog has no title input. It used to send the item's own name,
+        // which then displayed as the review's headline — every review titled
+        // after the product. The title is optional server-side, so leave it
+        // blank and let the card fall back to its default heading.
+        title: "",
         comment: currentReview || "",
         ...(productReviewDialog.itemType === 'product' 
           ? { product: productReviewDialog.itemId }
@@ -247,6 +300,11 @@ const MyOrders = () => {
         ),
       };
       await reviewsAPI.create(reviewData);
+      // One review per item — retire it from the selector immediately.
+      setItemEligibility(prev => ({
+        ...prev,
+        [eligibilityKey(productReviewDialog.itemType, productReviewDialog.itemId as number)]: false,
+      }));
       toast.success(t('myOrders.reviewSubmitted', { name: productReviewDialog.itemName }));
       setProductReviewDialog({ open: false, itemType: 'product', itemId: null, itemName: "", orderId: null });
       setCurrentRating(0);
@@ -263,17 +321,6 @@ const MyOrders = () => {
     } finally {
       setReviewLoading(false);
     }
-  };
-
-  const handleSubmitReview = () => {
-    if (currentRating === 0) {
-      toast.error(t('myOrders.selectRating'));
-      return;
-    }
-    toast.success(t('myOrders.feedbackThanks'));
-    setReviewDialog({ open: false, orderId: null });
-    setCurrentRating(0);
-    setCurrentReview("");
   };
 
   const openCancelDialog = (orderId: number) => {
@@ -699,14 +746,7 @@ const MyOrders = () => {
                                 variant="outline"
                                 size="sm"
                                 className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
-                                onClick={() => {
-                                  // Open dialog with first item
-                                  const firstItem = order.items[0];
-                                  const itemId = firstItem.item_type === 'combo' ? firstItem.combo_id : firstItem.product_id;
-                                  if (itemId) {
-                                    openProductReviewDialog(firstItem.item_type, itemId, firstItem.product_name, order.id);
-                                  }
-                                }}
+                                onClick={() => { void openOrderReviewDialog(order); }}
                               >
                                 <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                                 {t('myOrders.review')}
@@ -727,11 +767,18 @@ const MyOrders = () => {
                                   <div className="flex flex-wrap gap-2">
                                     {order.items.map((item) => {
                                       const itemId = item.item_type === 'combo' ? item.combo_id : item.product_id;
+                                      // undefined = not looked up yet; treat as
+                                      // reviewable so the buttons stay usable.
+                                      const eligible = itemId
+                                        ? itemEligibility[eligibilityKey(item.item_type, itemId)] !== false
+                                        : false;
                                       return (
                                         <Button
                                           key={item.id}
                                           variant={productReviewDialog.itemId === itemId ? "default" : "outline"}
                                           size="sm"
+                                          disabled={!eligible}
+                                          title={eligible ? undefined : t('myOrders.alreadyReviewed')}
                                           onClick={() => {
                                             if (itemId) {
                                               setProductReviewDialog(prev => ({
@@ -740,10 +787,13 @@ const MyOrders = () => {
                                                 itemId: itemId,
                                                 itemName: item.product_name,
                                               }));
+                                              setCurrentRating(0);
+                                              setCurrentReview("");
                                             }
                                           }}
                                         >
                                           {item.product_name}
+                                          {!eligible && ` — ${t('myOrders.alreadyReviewed')}`}
                                         </Button>
                                       );
                                     })}

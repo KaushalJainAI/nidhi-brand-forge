@@ -34,6 +34,8 @@ export const SHIPPING_CHARGE = numberEnv("VITE_SHIPPING_CHARGE_NET", 59);
 // SHIPPING_TAX_RATE. Distinct from DEFAULT_TAX_RATE: goods are 0%/5%, the
 // delivery service is 18%.
 export const SHIPPING_TAX_RATE = numberEnv("VITE_SHIPPING_TAX_RATE", 18);
+// Mirrors backend FREE_SHIPPING_THRESHOLD — keep the two defaults identical, or an
+// environment that forgets the env var quotes a cutoff the backend won't honour.
 export const FREE_SHIPPING_THRESHOLD = numberEnv("VITE_FREE_SHIPPING_THRESHOLD", 499);
 // Fallback GST rate mirroring backend DEFAULT_TAX_RATE. Only used as a safety net
 // when a line lacks tax_rate — defaulting to the backend rate (not 0) avoids

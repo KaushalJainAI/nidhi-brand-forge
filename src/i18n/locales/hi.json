@@ -1123,7 +1123,8 @@
     "statusShipped": "भेजा गया",
     "statusDelivering": "डिलीवरी के लिए निकला",
     "shipping": "शिपिंग",
-    "free": "मुफ़्त"
+    "free": "मुफ़्त",
+    "alreadyReviewed": "पहले ही समीक्षा की गई"
   },
   "password": {
     "strengthLabel": "पासवर्ड मजबूती",

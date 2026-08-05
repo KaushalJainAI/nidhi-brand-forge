@@ -1123,7 +1123,8 @@
     "statusShipped": "पाठवले",
     "statusDelivering": "वितरणासाठी निघाले",
     "shipping": "शिपिंग",
-    "free": "मोफत"
+    "free": "मोफत",
+    "alreadyReviewed": "आधीच पुनरावलोकन केले"
   },
   "password": {
     "strengthLabel": "पासवर्ड सामर्थ्य",

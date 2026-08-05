@@ -1123,7 +1123,8 @@
     "statusShipped": "Shipped",
     "statusDelivering": "Out for delivery",
     "shipping": "Shipping",
-    "free": "FREE"
+    "free": "FREE",
+    "alreadyReviewed": "Already review kiya hua"
   },
   "password": {
     "strengthLabel": "Password strength",
