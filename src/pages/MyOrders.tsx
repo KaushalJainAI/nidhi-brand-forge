@@ -34,6 +34,7 @@ import { MAX_REVIEW_COMMENT } from "@/config/limits";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation, Trans } from "react-i18next";
+import { PriceBreakup } from "@/components/PriceBreakup";
 
 import product1 from "@/assets/product-1.jpg";
 
@@ -51,15 +52,7 @@ const MyOrders = () => {
     }
   }, [isLoggedIn, authLoading, navigate]);
 
-  const [reviewDialog, setReviewDialog] = useState<{
-    open: boolean;
-    orderId: number | null;
-  }>({
-    open: false,
-    orderId: null,
-  });
-
-  // New: Per-product/combo review dialog
+  // Per-product/combo review dialog
   const [productReviewDialog, setProductReviewDialog] = useState<{
     open: boolean;
     itemType: 'product' | 'combo';
@@ -76,6 +69,12 @@ const MyOrders = () => {
 
   const [currentRating, setCurrentRating] = useState(0);
   const [currentReview, setCurrentReview] = useState("");
+  // Which of the open order's items the customer may still review, keyed
+  // "<item_type>:<id>". The dialog used to open on items[0] unconditionally and
+  // offer no hint that it had already been reviewed, so the only feedback was a
+  // failed submit.
+  const [itemEligibility, setItemEligibility] = useState<Record<string, boolean>>({});
+  const eligibilityKey = (itemType: 'product' | 'combo', itemId: number) => `${itemType}:${itemId}`;
 
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
@@ -109,6 +108,7 @@ const MyOrders = () => {
       in_transit: t('myOrders.statusInTransit'),
       delivered: t('myOrders.statusDelivered'),
       cancelled: t('myOrders.statusCancelled'),
+      refunded: t('myOrders.statusRefunded', 'Refunded'),
     };
     const key = status.toLowerCase();
     // Title-case fallback for any status without an explicit label.
@@ -191,7 +191,10 @@ const MyOrders = () => {
       toast.success(t('myOrders.billDownloaded', { order: order.order_number }));
     } catch (error) {
       console.error("Failed to download bill:", error);
-      toast.error(t('myOrders.billFailed'));
+      // The API explains WHY when no invoice exists yet; a generic failure
+      // message would send the customer to support over a normal state.
+      const reason = error instanceof Error ? error.message : "";
+      toast.error(reason || t('myOrders.billFailed'));
     }
   };
 
@@ -217,6 +220,57 @@ const MyOrders = () => {
     setCurrentReview("");
   };
 
+  /**
+   * Open the review dialog for an order, landing on the first item the customer
+   * can actually review rather than always on items[0] — otherwise an order
+   * whose first item is already reviewed opens onto a guaranteed failure.
+   * Eligibility for every item is fetched in the background to grey out the
+   * ones already done.
+   */
+  const openOrderReviewDialog = async (order: Order) => {
+    const items = (order.items || []).filter(
+      (it) => (it.item_type === 'combo' ? it.combo_id : it.product_id),
+    );
+    if (items.length === 0) return;
+
+    const idOf = (it: typeof items[number]) =>
+      (it.item_type === 'combo' ? it.combo_id : it.product_id) as number;
+
+    // Open immediately on items[0] so the dialog never feels laggy; the
+    // eligibility results below move the selection if that one is spent.
+    openProductReviewDialog(items[0].item_type, idOf(items[0]), items[0].product_name, order.id);
+
+    const results = await Promise.all(
+      items.map(async (it) => {
+        const id = idOf(it);
+        try {
+          const res = it.item_type === 'combo'
+            ? await reviewsAPI.canReviewCombo(id)
+            : await reviewsAPI.canReviewProduct(id);
+          return [eligibilityKey(it.item_type, id), res.can_review] as const;
+        } catch {
+          // Treat an unknown as reviewable: the POST re-checks anyway, and
+          // wrongly greying out a valid item is worse than a clear error.
+          return [eligibilityKey(it.item_type, id), true] as const;
+        }
+      }),
+    );
+    setItemEligibility(Object.fromEntries(results));
+
+    const firstOpen = items.find((it) => {
+      const entry = results.find(([k]) => k === eligibilityKey(it.item_type, idOf(it)));
+      return entry?.[1];
+    });
+    if (firstOpen && idOf(firstOpen) !== idOf(items[0])) {
+      setProductReviewDialog((prev) => prev.orderId === order.id ? {
+        ...prev,
+        itemType: firstOpen.item_type,
+        itemId: idOf(firstOpen),
+        itemName: firstOpen.product_name,
+      } : prev);
+    }
+  };
+
   const [reviewLoading, setReviewLoading] = useState(false);
 
   const handleSubmitProductReview = async () => {
@@ -234,7 +288,11 @@ const MyOrders = () => {
       const reviewData = {
         item_type: productReviewDialog.itemType,
         rating: currentRating,
-        title: productReviewDialog.itemName,
+        // This dialog has no title input. It used to send the item's own name,
+        // which then displayed as the review's headline — every review titled
+        // after the product. The title is optional server-side, so leave it
+        // blank and let the card fall back to its default heading.
+        title: "",
         comment: currentReview || "",
         ...(productReviewDialog.itemType === 'product' 
           ? { product: productReviewDialog.itemId }
@@ -242,6 +300,11 @@ const MyOrders = () => {
         ),
       };
       await reviewsAPI.create(reviewData);
+      // One review per item — retire it from the selector immediately.
+      setItemEligibility(prev => ({
+        ...prev,
+        [eligibilityKey(productReviewDialog.itemType, productReviewDialog.itemId as number)]: false,
+      }));
       toast.success(t('myOrders.reviewSubmitted', { name: productReviewDialog.itemName }));
       setProductReviewDialog({ open: false, itemType: 'product', itemId: null, itemName: "", orderId: null });
       setCurrentRating(0);
@@ -258,17 +321,6 @@ const MyOrders = () => {
     } finally {
       setReviewLoading(false);
     }
-  };
-
-  const handleSubmitReview = () => {
-    if (currentRating === 0) {
-      toast.error(t('myOrders.selectRating'));
-      return;
-    }
-    toast.success(t('myOrders.feedbackThanks'));
-    setReviewDialog({ open: false, orderId: null });
-    setCurrentRating(0);
-    setCurrentReview("");
   };
 
   const openCancelDialog = (orderId: number) => {
@@ -300,7 +352,7 @@ const MyOrders = () => {
     // Mirror the backend: a customer may cancel until the parcel is out for
     // delivery or already delivered/cancelled.
     const s = status.toLowerCase();
-    return !["delivering", "delivered", "cancelled"].includes(s);
+    return !["delivering", "delivered", "cancelled", "refunded"].includes(s);
   };
 
   // A payable ONLINE order that hasn't been paid yet can be retried. The cart is
@@ -314,7 +366,7 @@ const MyOrders = () => {
     const s = order.status.toLowerCase();
     return method === "ONLINE" &&
       ["pending", "processing", "failed"].includes(ps) &&
-      !["cancelled", "delivered", "delivering"].includes(s);
+      !["cancelled", "delivered", "delivering", "refunded"].includes(s);
   };
 
   const handleRetryPayment = async (order: Order) => {
@@ -452,6 +504,45 @@ const MyOrders = () => {
                         </span>
                       </div>
 
+                      {/* Refund — the customer's own money coming back, so it sits
+                          OUTSIDE the "show more" fold: never make someone expand a
+                          section to find out how much they were refunded.
+                          A refund can be partial, so the amount is always shown;
+                          the "Refunded" status alone would imply the whole order. */}
+                      {Number(order.refunded_amount ?? 0) > 0 && (
+                        <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b">
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold text-sm sm:text-base text-orange-700 dark:text-orange-400">
+                              {t('myOrders.refunded', 'Refunded')}
+                            </span>
+                            <span className="text-base sm:text-lg font-bold text-orange-700 dark:text-orange-400">
+                              {formatCurrency(Number(order.refunded_amount))}
+                            </span>
+                          </div>
+                          {Number(order.refunded_amount) < Number(order.total ?? 0) - 0.005 && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {t('myOrders.refundedPartial',
+                                 'Partial refund of your {{total}} order.',
+                                 { total: formatCurrency(order.total) })}
+                            </p>
+                          )}
+                          {(order.refunds ?? []).length > 1 && (
+                            <div className="mt-2 space-y-0.5">
+                              {(order.refunds ?? []).map(r => (
+                                <div key={r.id} className="flex justify-between text-xs text-muted-foreground">
+                                  <span>{new Date(r.created_at).toLocaleDateString()}</span>
+                                  <span>{formatCurrency(Number(r.amount))}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t('myOrders.refundedNote',
+                               'Refunds usually reach your account in 5–7 business days.')}
+                          </p>
+                        </div>
+                      )}
+
                       {/* SHOW MORE section with smooth transition */}
                       <div
                         className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -489,37 +580,23 @@ const MyOrders = () => {
                               ))}
                             </div>
 
-                            {/* Summary */}
-                            <div className="mb-4 pb-4 border-b space-y-1">
-                              <div className="flex justify-between text-sm text-muted-foreground">
-                                <span>{t('myOrders.subtotal')}</span>
-                                <span>{formatCurrency(order.subtotal)}</span>
-                              </div>
-                              {order.discount > 0 && (
-                                <div className="flex justify-between text-sm text-green-600">
-                                  <span>{t('myOrders.discount')}</span>
-                                  <span>
-                                    -{formatCurrency(order.discount)}
-                                  </span>
-                                </div>
-                              )}
-                              <div className="flex justify-between text-sm text-muted-foreground">
-                                <span>{t('myOrders.tax')}</span>
-                                <span>{formatCurrency(order.tax)}</span>
-                              </div>
-                              {/* Delivery fee actually charged. Shown as FREE when
-                                  the order cleared the free-shipping threshold so
-                                  subtotal + tax + delivery reconciles with total. */}
-                              <div className="flex justify-between text-sm text-muted-foreground">
-                                <span>{t('myOrders.shipping')}</span>
-                                <span>
-                                  {Number(order.shipping_charge ?? 0) === 0
-                                    ? t('myOrders.free')
-                                    : formatCurrency(Number(order.shipping_charge))}
-                                </span>
-                              </div>
+                            {/* Summary — same breakup the customer saw at checkout,
+                                rebuilt from the order's own stored GST slabs. */}
+                            <div className="mb-4 pb-4 border-b">
+                              <PriceBreakup
+                                subtotal={Number(order.subtotal ?? 0)}
+                                discount={Number(order.discount ?? 0)}
+                                tax={Number(order.tax ?? 0)}
+                                taxableValue={
+                                  order.taxable_value != null ? Number(order.taxable_value) : undefined
+                                }
+                                taxBreakdown={order.tax_breakdown}
+                                taxInclusive={order.tax_inclusive !== false}
+                                shipping={Number(order.shipping_charge ?? 0)}
+                                shippingTax={Number(order.shipping_tax ?? 0)}
+                                total={Number(order.total ?? 0)}
+                              />
                             </div>
-
                             {/* Address */}
                             <p className="text-sm text-muted-foreground mb-4">
                               {t('myOrders.shippingTo', { address: order.shipping_address })}
@@ -564,15 +641,20 @@ const MyOrders = () => {
                           {t('myOrders.support')}
                         </Button>
 
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
-                          onClick={() => handleDownloadBill(order)}
-                        >
-                          <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          {t('myOrders.bill')}
-                        </Button>
+                        {/* Only once a tax invoice has actually been issued —
+                            at payment confirmation, or at dispatch for COD.
+                            Before that there is no document to download. */}
+                        {order.invoice && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
+                            onClick={() => handleDownloadBill(order)}
+                          >
+                            <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                            {t('myOrders.bill')}
+                          </Button>
+                        )}
 
                         {/* Retry payment for an unpaid ONLINE order (reuses the
                             same order — the cart is already gone). */}
@@ -664,14 +746,7 @@ const MyOrders = () => {
                                 variant="outline"
                                 size="sm"
                                 className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
-                                onClick={() => {
-                                  // Open dialog with first item
-                                  const firstItem = order.items[0];
-                                  const itemId = firstItem.item_type === 'combo' ? firstItem.combo_id : firstItem.product_id;
-                                  if (itemId) {
-                                    openProductReviewDialog(firstItem.item_type, itemId, firstItem.product_name, order.id);
-                                  }
-                                }}
+                                onClick={() => { void openOrderReviewDialog(order); }}
                               >
                                 <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                                 {t('myOrders.review')}
@@ -692,11 +767,18 @@ const MyOrders = () => {
                                   <div className="flex flex-wrap gap-2">
                                     {order.items.map((item) => {
                                       const itemId = item.item_type === 'combo' ? item.combo_id : item.product_id;
+                                      // undefined = not looked up yet; treat as
+                                      // reviewable so the buttons stay usable.
+                                      const eligible = itemId
+                                        ? itemEligibility[eligibilityKey(item.item_type, itemId)] !== false
+                                        : false;
                                       return (
                                         <Button
                                           key={item.id}
                                           variant={productReviewDialog.itemId === itemId ? "default" : "outline"}
                                           size="sm"
+                                          disabled={!eligible}
+                                          title={eligible ? undefined : t('myOrders.alreadyReviewed')}
                                           onClick={() => {
                                             if (itemId) {
                                               setProductReviewDialog(prev => ({
@@ -705,10 +787,13 @@ const MyOrders = () => {
                                                 itemId: itemId,
                                                 itemName: item.product_name,
                                               }));
+                                              setCurrentRating(0);
+                                              setCurrentReview("");
                                             }
                                           }}
                                         >
                                           {item.product_name}
+                                          {!eligible && ` — ${t('myOrders.alreadyReviewed')}`}
                                         </Button>
                                       );
                                     })}

@@ -24,9 +24,34 @@ export interface CartItem {
   weight?: string;
 }
 
+/** One GST rate slab present in the cart (0% papad, 5% spices, …). */
+export interface TaxSlab {
+  /** GST percentage. `null` only on legacy orders whose rate wasn't recorded. */
+  rate: number | null;
+  /** Net (pre-GST) value taxed at this rate. */
+  taxable_value: number | null;
+  tax_amount: number;
+}
+
 export interface CartSummary {
   subtotal: number;
+  /** GST contained in `subtotal` — prices are inclusive, so never added to `total`. */
   tax: number;
+  /** Per-rate breakup of `tax`, for the customer-facing bill. */
+  tax_breakdown?: TaxSlab[];
+  /** `subtotal` net of the GST inside it. */
+  taxable_value?: number;
+  /** NET delivery fee — GST-EXCLUSIVE, unlike product prices. See `shipping_tax`. */
+  shipping?: number;
+  /**
+   * GST on the delivery fee (SAC 9968, 18%), charged ON TOP of `shipping`.
+   * Goods GST is inside `subtotal` and never added to `total`; this one IS.
+   */
+  shipping_tax?: number;
+  /** All GST the customer pays: `tax` + `shipping_tax`. */
+  total_tax?: number;
+  /** Order value at/above which delivery is free — drives the "add ₹X more" nudge. */
+  free_shipping_threshold?: number;
   discount: number;
   total: number;
 }

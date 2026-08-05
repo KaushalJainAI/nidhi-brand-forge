@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Heart, Share2, Package, Loader2, Minus, Plus, Check, Truck, Shield, ChevronRight, Gift, MessageCircle } from "lucide-react";
+import { ShoppingCart, Heart, Share2, Package, Loader2, Minus, Plus, Check, Truck, Shield, ChevronRight, Gift, MessageCircle, Star } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { reviewsAPI, Review } from "@/lib/api/reviews";
+import { MAX_REVIEW_COMMENT } from "@/config/limits";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -35,6 +38,17 @@ const ComboDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Combo reviews. My Orders has always offered a review dialog for combos, but
+  // nothing on the storefront rendered the result — they were write-only.
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [canReview, setCanReview] = useState(false);
+  const [canReviewReason, setCanReviewReason] = useState<'not_purchased' | 'already_reviewed' | null>(null);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+
   useEffect(() => {
     const fetchCombo = async () => {
       if (!id) {
@@ -54,6 +68,15 @@ const ComboDetail = () => {
         }
         
         setCombo(comboData);
+
+        try {
+          const reviewsData = await reviewsAPI.getByCombo(comboData.id, 1);
+          setReviews(reviewsData.results || []);
+          setTotalReviews(reviewsData.count || 0);
+        } catch {
+          setReviews([]);
+          setTotalReviews(0);
+        }
       } catch (err: any) {
         console.error("Error fetching combo:", err);
         setError(err.message || "Failed to load combo");
@@ -65,6 +88,62 @@ const ComboDetail = () => {
 
     fetchCombo();
   }, [id]);
+
+  // Eligibility is a UX hint only — the POST re-checks verified purchase.
+  useEffect(() => {
+    if (!isLoggedIn || !combo) {
+      setCanReview(false);
+      setCanReviewReason(null);
+      return;
+    }
+    let cancelled = false;
+    reviewsAPI
+      .canReviewCombo(combo.id)
+      .then((res) => {
+        if (cancelled) return;
+        setCanReview(res.can_review);
+        setCanReviewReason(res.reason);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setCanReview(false);
+        setCanReviewReason(null);
+      });
+    return () => { cancelled = true; };
+  }, [isLoggedIn, combo?.id]);
+
+  const submitComboReview = async () => {
+    if (!combo || submittingReview) return;
+    if (reviewRating < 1) {
+      toast.error(t('product.reviewSelectRating'));
+      return;
+    }
+    if (!reviewComment.trim()) {
+      toast.error(t('product.reviewCommentRequired'));
+      return;
+    }
+    setSubmittingReview(true);
+    try {
+      const created = await reviewsAPI.create({
+        item_type: 'combo',
+        combo: Number(combo.id),
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+      }) as Review;
+      setReviews(prev => [created, ...prev]);
+      setTotalReviews(prev => prev + 1);
+      setReviewRating(0);
+      setReviewHover(0);
+      setReviewComment("");
+      setCanReview(false);
+      setCanReviewReason('already_reviewed');
+      toast.success(t('product.reviewSubmitted'));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('product.reviewError'));
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   // Check if combo is already in cart
   const itemInCart = cart.find(item => item.id === Number(id) && item.itemType === "combo");
@@ -602,6 +681,108 @@ const ComboDetail = () => {
             </div>
           </section>
         )}
+        {/* Combo reviews */}
+        <section className="max-w-4xl mt-10">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold">{t('product.customerReviews')}</h2>
+            {totalReviews > 0 && (
+              <span className="text-sm text-muted-foreground">
+                {t('product.showingReviews', { count: reviews.length, total: totalReviews })}
+              </span>
+            )}
+          </div>
+
+          {isLoggedIn && canReview ? (
+            <Card className="mb-6">
+              <CardContent className="p-4 space-y-4">
+                <h3 className="font-semibold">{t('product.writeReview')}</h3>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      onMouseEnter={() => setReviewHover(star)}
+                      onMouseLeave={() => setReviewHover(0)}
+                      className="p-0.5"
+                      aria-label={`${star}`}
+                    >
+                      <Star
+                        className={`h-6 w-6 transition-colors ${
+                          star <= (reviewHover || reviewRating)
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-muted-foreground/30"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <Textarea
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder={t('product.reviewCommentPlaceholder')}
+                  rows={4}
+                  maxLength={MAX_REVIEW_COMMENT}
+                />
+                <div className="flex justify-end">
+                  <Button onClick={submitComboReview} disabled={submittingReview}>
+                    {submittingReview ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('common.loading')}</>
+                    ) : (
+                      t('product.submitReview')
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : isLoggedIn ? (
+            canReviewReason && (
+              <Card className="mb-6">
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">
+                    {canReviewReason === 'already_reviewed'
+                      ? t('product.alreadyReviewed')
+                      : t('product.purchaseToReview')}
+                  </p>
+                </CardContent>
+              </Card>
+            )
+          ) : null}
+
+          {reviews.length > 0 ? (
+            <div className="space-y-4">
+              {reviews.map((review) => (
+                <Card key={review.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      {[...Array(5)].map((_, index) => (
+                        <Star
+                          key={index}
+                          className={`h-4 w-4 ${index < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+                        />
+                      ))}
+                      {review.title && (
+                        <span className="text-sm font-medium ml-2">{review.title}</span>
+                      )}
+                      {review.is_verified_purchase && (
+                        <span className="inline-flex items-center gap-1 text-xs text-green-600 font-medium ml-2">
+                          <Check className="h-3 w-3" />
+                          {t('home.testimonials.verified')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-2">{review.comment}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {review.user_name} · {new Date(review.created_at).toLocaleDateString('en-IN')}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">{t('product.noReviews')}</p>
+          )}
+        </section>
       </div>
 
       {/* Sticky Mobile Cart Bar */}

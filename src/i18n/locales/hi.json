@@ -285,6 +285,12 @@
     "noStock": "चेकआउट के लिए कोई स्टॉक वाला आइटम नहीं",
     "subtotal": "उप-योग",
     "tax": "कर (GST)",
+    "taxIncluded": "GST सहित {{amount}}",
+    "discount": "छूट",
+    "taxableValue": "कर योग्य मूल्य",
+    "gst": "GST",
+    "gstAtRate": "GST {{rate}}%",
+    "freeShippingNudge": "मुफ़्त डिलीवरी के लिए ₹{{amount}} और जोड़ें",
     "processing": "प्रोसेस हो रहा है...",
     "noItems": "कोई आइटम नहीं",
     "item": "आइटम",
@@ -337,6 +343,7 @@
     "checkBack": "शानदार सौदों के लिए जल्द वापस आएँ!"
   },
   "search": {
+    "clear": "खोज साफ़ करें",
     "searching": "उत्पाद खोजे जा रहे हैं...",
     "noResults": "आपकी खोज से मेल खाते कोई उत्पाद नहीं मिले",
     "tryDifferent": "अलग कीवर्ड से खोजने का प्रयास करें",
@@ -957,6 +964,7 @@
     "shipping": "शिपिंग",
     "free": "मुफ़्त",
     "tax": "कर (GST)",
+    "taxIncluded": "GST सहित {{amount}}",
     "total": "कुल",
     "scanToPay": "₹{{amount}} भुगतान के लिए स्कैन करें",
     "qrAlt": "UPI भुगतान QR कोड",
@@ -1085,6 +1093,7 @@
     "subtotal": "उप-योग",
     "discount": "छूट",
     "tax": "कर",
+    "taxIncluded": "GST सहित {{amount}}",
     "shippingTo": "शिपिंग यहाँ: {{address}}",
     "reorder": "फिर से ऑर्डर करें",
     "support": "सहायता",
@@ -1114,7 +1123,8 @@
     "statusShipped": "भेजा गया",
     "statusDelivering": "डिलीवरी के लिए निकला",
     "shipping": "शिपिंग",
-    "free": "मुफ़्त"
+    "free": "मुफ़्त",
+    "alreadyReviewed": "पहले ही समीक्षा की गई"
   },
   "password": {
     "strengthLabel": "पासवर्ड मजबूती",

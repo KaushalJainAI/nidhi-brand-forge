@@ -24,8 +24,46 @@ interface ApiErrorBody {
   detail?: string;
   message?: string;
   non_field_errors?: string[];
+  /**
+   * The custom exception handler wraps DRF's real payload:
+   *   { success: false, error: "Validation error", details: { ... } }
+   * `error` is only ever the generic label, so it must NOT win over `details`.
+   */
+  details?: Record<string, unknown> | string;
   [key: string]: unknown;
 }
+
+/**
+ * Pull the most specific human-readable message out of a DRF error payload:
+ * a bare string, `{error|detail|message}`, `non_field_errors`, or the first
+ * field's first error rendered as "Field: message".
+ */
+const extractMessage = (body: unknown): string | null => {
+  if (typeof body === 'string') return body;
+  if (!body || typeof body !== 'object') return null;
+  const b = body as ApiErrorBody;
+
+  // A nested {"error": "..."} inside details carries the real reason (e.g.
+  // "You have already reviewed this product") — prefer it over the label.
+  if (typeof b.error === 'string' && b.error !== 'Validation error') return b.error;
+  if (typeof b.detail === 'string') return b.detail;
+  if (Array.isArray(b.non_field_errors) && b.non_field_errors.length > 0) {
+    return String(b.non_field_errors[0]);
+  }
+  if (typeof b.message === 'string') return b.message;
+
+  for (const [key, value] of Object.entries(b)) {
+    if (key === 'success' || key === 'error' || key === 'details') continue;
+    if (Array.isArray(value) && value.length > 0) {
+      // e.g. "Title: This field is required."
+      const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
+      return `${label}: ${value[0]}`;
+    }
+    if (typeof value === 'string') return value;
+  }
+  // Nothing more specific than the generic label.
+  return typeof b.error === 'string' ? b.error : null;
+};
 
 /**
  * Some endpoints wrap their payload in a `{ data: ... }` envelope while others
@@ -53,35 +91,15 @@ export class APIError extends Error {
   data: unknown;
 
   constructor(status: number, statusText: string, data: unknown) {
-    let errorMessage = statusText;
-
-    // Intelligently extract the best error message from the backend response
-    if (typeof data === 'string') {
-      errorMessage = data;
-    } else if (data && typeof data === 'object') {
-      const body = data as ApiErrorBody;
-      if (body.error) {
-        errorMessage = body.error;
-      } else if (body.detail) {
-        errorMessage = body.detail;
-      } else if (Array.isArray(body.non_field_errors) && body.non_field_errors.length > 0) {
-        errorMessage = body.non_field_errors[0];
-      } else if (body.message) {
-        errorMessage = body.message;
-      } else {
-        // Fallback: extract the first field exception
-        const firstKey = Object.keys(body)[0];
-        if (firstKey) {
-          const value = body[firstKey];
-          if (Array.isArray(value) && value.length > 0) {
-            // e.g. "email: This field is required."
-            errorMessage = `${firstKey.charAt(0).toUpperCase() + firstKey.slice(1).replace(/_/g, ' ')}: ${value[0]}`;
-          } else if (typeof value === 'string') {
-            errorMessage = value;
-          }
-        }
-      }
-    }
+    // Look INSIDE `details` first. The backend's exception handler returns
+    // {success:false, error:"Validation error", details:{...}}, so reading
+    // `error` first reduced every field error and every business rule
+    // ("You have already reviewed this product") to a useless "Validation error".
+    const body = (data && typeof data === 'object' ? data : null) as ApiErrorBody | null;
+    const errorMessage =
+      (body?.details ? extractMessage(body.details) : null) ??
+      extractMessage(data) ??
+      statusText;
 
     super(errorMessage);
     this.status = status;

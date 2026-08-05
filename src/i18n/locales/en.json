@@ -299,6 +299,12 @@
     "noStock": "No in-stock items to checkout",
     "subtotal": "Subtotal",
     "tax": "Tax (GST)",
+    "taxIncluded": "Incl. GST {{amount}}",
+    "discount": "Discount",
+    "taxableValue": "Taxable value",
+    "gst": "GST",
+    "gstAtRate": "GST {{rate}}%",
+    "freeShippingNudge": "Add ₹{{amount}} more for free delivery",
     "processing": "Processing...",
     "noItems": "No Items",
     "item": "item",
@@ -307,6 +313,7 @@
     "freeShippingUnlocked": "🎉 You've unlocked FREE shipping!",
     "addMoreForShipping": "Add ₹{{amount}} more for FREE shipping",
     "shipping": "Shipping",
+    "shippingGst": "GST on delivery (18%)",
     "free": "FREE"
   },
   "promo": {
@@ -352,6 +359,7 @@
     "checkBack": "Check back soon for amazing deals!"
   },
   "search": {
+    "clear": "Clear search",
     "searching": "Searching for products...",
     "noResults": "No products found matching your search",
     "tryDifferent": "Try searching with different keywords",
@@ -975,6 +983,7 @@
     "shipping": "Shipping",
     "free": "FREE",
     "tax": "Tax (GST)",
+    "taxIncluded": "Incl. GST {{amount}}",
     "total": "Total",
     "scanToPay": "Scan to Pay ₹{{amount}}",
     "qrAlt": "UPI Payment QR Code",
@@ -1108,6 +1117,7 @@
     "subtotal": "Subtotal",
     "discount": "Discount",
     "tax": "Tax",
+    "taxIncluded": "Incl. GST {{amount}}",
     "shippingTo": "Shipping to: {{address}}",
     "reorder": "Reorder",
     "support": "Support",
@@ -1142,7 +1152,8 @@
     "statusShipped": "Shipped",
     "statusDelivering": "Out for delivery",
     "shipping": "Shipping",
-    "free": "FREE"
+    "free": "FREE",
+    "alreadyReviewed": "Already reviewed"
   },
   "password": {
     "strengthLabel": "Password strength",

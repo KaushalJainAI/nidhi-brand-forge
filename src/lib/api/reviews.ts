@@ -11,7 +11,14 @@ export interface Review {
   title?: string;
   comment: string;
   is_verified_purchase?: boolean;
+  is_featured?: boolean;
   created_at: string;
+}
+
+/** Home page testimonials strip: admin-picked reviews, topped up to three. */
+export interface FeaturedReviewsResponse {
+  count: number;
+  results: Review[];
 }
 
 export interface PaginatedReviewsResponse {
@@ -38,6 +45,10 @@ export interface CanReviewResponse {
 export const reviewsAPI = {
   getByProduct: (productId: number, page: number = 1): Promise<PaginatedReviewsResponse> =>
     publicFetch(`${API_BASE_URL}/reviews/?product=${productId}&page=${page}`),
+
+  /** Reviews chosen by an admin for the home page (public, no auth). */
+  getFeatured: (): Promise<FeaturedReviewsResponse> =>
+    publicFetch(`${API_BASE_URL}/reviews/featured/`),
 
   canReviewProduct: (productId: number): Promise<CanReviewResponse> =>
     authFetch(`${API_BASE_URL}/reviews/can-review/?product=${productId}`),

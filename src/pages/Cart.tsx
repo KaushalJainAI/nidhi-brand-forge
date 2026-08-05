@@ -15,8 +15,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cartAPI, searchAPI } from "@/lib/api";
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE, DEFAULT_TAX_RATE } from "@/config/limits";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE, DEFAULT_TAX_RATE, shippingTaxFor } from "@/config/limits";
 import { formatWeight, resolveImageUrl } from "@/lib/utils";
+import { PriceBreakup } from "@/components/PriceBreakup";
 
 
 const Cart = () => {
@@ -73,19 +74,41 @@ const Cart = () => {
   // Total units (not distinct lines) so this count matches the navbar and
   // floating cart bar, which both sum item quantities.
   const inStockQuantity = inStockItems.reduce((sum, item) => sum + item.quantity, 0);
-  // Per-product GST from each line's tax_rate (papad/papad katran are 0, which
-  // is an explicit 0 — preserved). When a rate is ABSENT we fall back to the
-  // backend DEFAULT_TAX_RATE (not 0) so the cart never quotes a total below what
-  // checkout will actually charge.
-  const tax = inStockItems.reduce(
-    (sum, item) => sum + item.price * item.quantity * ((item.taxRate ?? DEFAULT_TAX_RATE) / 100),
-    0
-  );
+  // Prices are GST-inclusive, so this is the tax ALREADY CONTAINED in the
+  // subtotal — displayed for disclosure and never added to the total. Extracted
+  // as price * rate/(100+rate), matching Backend/orders/pricing.py. Papad lines
+  // (explicit 0) contribute nothing; an absent rate falls back to the backend
+  // default so the split we show matches the invoice.
+  const tax = inStockItems.reduce((sum, item) => {
+    const rate = item.taxRate ?? DEFAULT_TAX_RATE;
+    return sum + (item.price * item.quantity * rate) / (100 + rate);
+  }, 0);
+  // Per-rate breakup for the bill, mirroring group_tax_by_rate() on the backend:
+  // a cart mixing papad (0%) with spices (5%) must show both slabs.
+  const taxBreakdown = Object.values(
+    inStockItems.reduce<Record<number, { rate: number; taxable_value: number; tax_amount: number }>>(
+      (acc, item) => {
+        const rate = item.taxRate ?? DEFAULT_TAX_RATE;
+        const gross = item.price * item.quantity;
+        const slabTax = (gross * rate) / (100 + rate);
+        const slab = acc[rate] ?? (acc[rate] = { rate, taxable_value: 0, tax_amount: 0 });
+        slab.taxable_value += gross - slabTax;
+        slab.tax_amount += slabTax;
+        return acc;
+      },
+      {},
+    ),
+  ).sort((a, b) => a.rate - b.rate);
   // Delivery fee, mirroring the backend rule (waived at/above the free-shipping
   // threshold, which is checked against the subtotal). Quoting it here keeps the
   // cart total consistent with checkout instead of jumping up on the next page.
   const shipping = subtotal > 0 && subtotal < FREE_SHIPPING_THRESHOLD ? SHIPPING_CHARGE : 0;
-  const total = subtotal + tax + shipping;
+  // The delivery fee is quoted NET and taxed at 18% on top (SAC 9968) — the
+  // opposite convention to goods. Rounded to paisa the same way the backend
+  // does it, so the cart total matches the order to the last paisa.
+  const shippingTax = shippingTaxFor(shipping);
+  // Goods `tax` is a component of `subtotal`, not an addend; delivery tax IS.
+  const total = subtotal + shipping + shippingTax;
 
   const handleRemoveItem = async (id: number, itemType: "product" | "combo", variantId?: number | null) => {
     try {
@@ -350,25 +373,16 @@ const Cart = () => {
                       </p>
                     </div>
                   )}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('cart.subtotal')} ({inStockQuantity})</span>
-                    <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('cart.tax')}</span>
-                    <span className="font-semibold">₹{tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('cart.shipping')}</span>
-                    <span className="font-semibold">
-                      {shipping === 0 ? t('cart.free') : `₹${shipping.toFixed(2)}`}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span className="font-bold">{t('cart.total')}</span>
-                    <span className="font-bold text-primary">₹{total.toFixed(2)}</span>
-                  </div>
+                  <PriceBreakup
+                    subtotal={subtotal}
+                    tax={tax}
+                    taxableValue={subtotal - tax}
+                    taxBreakdown={taxBreakdown}
+                    shipping={shipping}
+                    shippingTax={shippingTax}
+                    total={total}
+                    freeShippingThreshold={FREE_SHIPPING_THRESHOLD}
+                  />
                 </CardContent>
                 <CardFooter className="py-3 sm:py-4">
                   <Button 

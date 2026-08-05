@@ -30,13 +30,14 @@ const OfferZone = () => {
     const fetchOfferData = async () => {
       setLoading(true);
       try {
-        const [productsRes, combosRes] = await Promise.all([
-          productsAPI.getAll().catch(() => ({ results: [] })),
-          combosAPI.getAll().catch(() => ({ results: [] })),
+        // Both list endpoints have `pagination_class = None` and return a plain
+        // array, so a failure falls back to an empty one. The old fallback was
+        // `{ results: [] }`, which forced every read through a `.results ||`
+        // dance for a paginated shape neither endpoint has ever returned.
+        const [products, combos] = await Promise.all([
+          productsAPI.getAll().catch(() => []),
+          combosAPI.getAll().catch(() => []),
         ]);
-
-        const products = productsRes.results || productsRes || [];
-        const combos = combosRes.results || combosRes || [];
 
         // Filter products that have discounts for Hot Deals
         const discountedProducts = products

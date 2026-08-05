@@ -4,6 +4,7 @@ import { Minus, Plus, ShoppingBag, Check, ArrowRight, Sparkles } from "lucide-re
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import CachedImage from "@/components/CachedImage";
 import { trackEvent } from "@/lib/api/analytics";
 import { useTranslation } from "react-i18next";

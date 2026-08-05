@@ -20,14 +20,16 @@ import { openRazorpayCheckout } from "@/lib/razorpay";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { MapPin, Loader2, ShieldCheck } from "lucide-react";
 import { track } from "@/lib/api/analytics";
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE, DEFAULT_TAX_RATE, MAX_ONLINE_ORDER_TOTAL } from "@/config/limits";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_CHARGE, DEFAULT_TAX_RATE, MAX_ONLINE_ORDER_TOTAL, shippingTaxFor } from "@/config/limits";
 import { useTranslation } from "react-i18next";
+import { PriceBreakup } from "@/components/PriceBreakup";
 
 // Normalise the backend cart summary into the shape the UI renders. The backend
-// is authoritative for tax/shipping/total (per-line GST). We only fall back to a
-// browser estimate if the summary is somehow absent, and even then we default an
-// unknown tax_rate to the backend default (5%) rather than 0, so we never quote
-// a total the customer would be charged more than.
+// is authoritative for tax/shipping/total (per-line GST). Prices are
+// GST-INCLUSIVE: `tax` is the portion already contained in `subtotal`, shown for
+// disclosure and never added into `total`. We only fall back to a browser
+// estimate if the summary is somehow absent, and even then we default an unknown
+// tax_rate to the backend default (5%) so the split we show matches the invoice.
 const summaryFromBackend = (summary: any, items: any[]) => {
   if (summary && typeof summary.total === "number") {
     return {
@@ -35,16 +37,33 @@ const summaryFromBackend = (summary: any, items: any[]) => {
       discount: summary.discount ?? 0,
       shipping: summary.shipping ?? 0,
       tax: summary.tax ?? 0,
+      // MUST be carried through. It is the one GST that ADDS to the total (the
+      // fee is quoted net), so dropping it leaves the rows summing ₹10.62 short
+      // of the backend's `total` with nothing on screen to explain the gap.
+      shipping_tax: summary.shipping_tax ?? 0,
+      tax_breakdown: summary.tax_breakdown ?? [],
+      taxable_value: summary.taxable_value ?? (summary.subtotal ?? 0) - (summary.tax ?? 0),
       total: summary.total,
     };
   }
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_CHARGE;
-  const tax = items.reduce(
-    (acc, item) => acc + item.price * item.quantity * ((item.tax_rate ?? DEFAULT_TAX_RATE) / 100),
-    0,
-  );
-  return { subtotal, discount: 0, shipping, tax, total: subtotal + shipping + tax };
+  const tax = items.reduce((acc, item) => {
+    const rate = item.tax_rate ?? DEFAULT_TAX_RATE;
+    return acc + (item.price * item.quantity * rate) / (100 + rate);
+  }, 0);
+  // Delivery is billed NET + 18% (SAC 9968), so its GST is a real addend here —
+  // unlike the goods `tax` above, which is already inside `subtotal`. Omitting it
+  // would quote the customer less than they are actually charged.
+  const shippingTax = shippingTaxFor(shipping);
+  // No per-slab detail in the fallback — the backend is the only place that
+  // knows each line's real rate. PriceBreakup degrades to a single GST row.
+  return {
+    subtotal, discount: 0, shipping, tax,
+    shipping_tax: shippingTax,
+    tax_breakdown: [], taxable_value: subtotal - tax,
+    total: subtotal + shipping + shippingTax,
+  };
 };
 
 const Billing = () => {
@@ -114,9 +133,8 @@ const Billing = () => {
 
         // 3. Use the backend's authoritative summary (per-line GST, shipping,
         //    total). Never recompute tax in the browser: line-level tax_rate can
-        //    be missing here, and a `?? 0` fallback would under-quote tax (the
-        //    backend defaults to 5%), showing the customer a total below what
-        //    they'll actually be charged.
+        //    be missing here, and a `?? 0` fallback would misstate the GST split
+        //    on the breakdown (the backend defaults to 5%).
         setCartSummary(summaryFromBackend(cartResp.summary, items));
       } catch (err: any) {
         console.error('Failed to load billing info:', err);
@@ -146,13 +164,17 @@ const Billing = () => {
         return;
       }
 
-      setCartSummary({
+      // Routed through summaryFromBackend rather than hand-built, so the coupon
+      // path can't quietly lose the fields the breakdown needs — `shipping_tax`
+      // above all, without which the rows stop summing to `total`.
+      setCartSummary(summaryFromBackend({
         subtotal: response.subtotal,
         discount: response.discount_amount,
         shipping: response.shipping_charge,
+        shipping_tax: response.shipping_tax,
         tax: response.tax,
         total: response.total_amount,
-      });
+      }, cartItems));
 
       setAppliedCoupon({
         code: response.coupon_code,
@@ -283,6 +305,11 @@ const Billing = () => {
       //    an abandoned payment leaves the cart intact to retry.
       const placed = await ordersAPI.create({
         shipping_address: fullAddress,
+        // State and PIN also go up UNFLATTENED. `fullAddress` is a courier
+        // label; the GST place of supply needs the state as its own value to
+        // decide CGST+SGST vs IGST, and the form has always collected it.
+        shipping_state: formData.state,
+        shipping_pincode: formData.zipCode,
         phone_number: formData.phone,
         payment_method: 'ONLINE',
         coupon_code: appliedCoupon?.code || undefined,
@@ -510,33 +537,16 @@ const Billing = () => {
 
                 {/* Summary */}
                 <Separator className="my-3 sm:my-4" />
-                <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('billing.subtotal')}</span>
-                    <span className="font-semibold">₹{cartSummary.subtotal.toFixed(2)}</span>
-                  </div>
-                  {cartSummary.discount > 0 && (
-                    <div className="flex justify-between text-green-600">
-                      <span>{t('billing.discount')}</span>
-                      <span className="font-semibold">-₹{cartSummary.discount.toFixed(2)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('billing.shipping')}</span>
-                    <span className="font-semibold">
-                      {cartSummary.shipping === 0 ? t('billing.free') : `₹${cartSummary.shipping.toFixed(2)}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('billing.tax')}</span>
-                    <span className="font-semibold">₹{cartSummary.tax.toFixed(2)}</span>
-                  </div>
-                  <Separator className="my-2" />
-                  <div className="flex justify-between text-base sm:text-lg font-bold">
-                    <span>{t('billing.total')}</span>
-                    <span className="text-primary">₹{cartSummary.total.toFixed(2)}</span>
-                  </div>
-                </div>
+                <PriceBreakup
+                  subtotal={cartSummary.subtotal}
+                  discount={cartSummary.discount}
+                  tax={cartSummary.tax}
+                  taxableValue={cartSummary.taxable_value}
+                  taxBreakdown={cartSummary.tax_breakdown}
+                  shipping={cartSummary.shipping}
+                  shippingTax={cartSummary.shipping_tax}
+                  total={cartSummary.total}
+                />
 
                 {/* Secure-pay note */}
                 <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-4 mb-2">

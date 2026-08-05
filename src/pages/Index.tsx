@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Clock, Award, Loader2, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { productsAPI, categoriesAPI, combosAPI } from "@/lib/api";
+import { reviewsAPI, Review } from "@/lib/api/reviews";
 import { searchAPI } from "@/lib/api/search";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -52,6 +53,11 @@ const Index = () => {
   const [combos, setCombos] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<ProductData[]>([]);
   const [recommended, setRecommended] = useState<ProductData[]>([]);
+  // Real customer reviews for the testimonials strip: the ones an admin pinned,
+  // topped up to three by the backend. This section used to render three
+  // invented testimonials from the translation files, each labelled
+  // "Verified Buyer" — copy that asserts something untrue about real customers.
+  const [featuredReviews, setFeaturedReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const features = [
     { icon: <Truck className="h-5 w-5 sm:h-8 sm:w-8" />, title: t('home.features.freeShippingTitle'), description: t('home.features.freeShippingDesc') },
@@ -66,12 +72,15 @@ const Index = () => {
       try {
         // Products/combos/sections endpoints return plain arrays (pagination_class = None);
         // categories is DRF-paginated ({ results }).
-        const [sectionsRes, categoriesRes, combosRes, productsRes] = await Promise.all([
+        const [sectionsRes, categoriesRes, combosRes, productsRes, reviewsRes] = await Promise.all([
           productsAPI.getSections().catch(() => []),
           categoriesAPI.getAll().catch(() => ({ results: [] })),
           combosAPI.getAll().catch(() => []),
           productsAPI.getAll().catch(() => []),
+          reviewsAPI.getFeatured().catch(() => ({ count: 0, results: [] })),
         ]);
+
+        setFeaturedReviews(reviewsRes?.results || []);
 
         // /products/sections/ may return a plain array or a DRF-style { results }
         // envelope depending on backend version; normalise to an array either way.
@@ -377,7 +386,10 @@ const Index = () => {
           </section>
         )}
 
-        {/* Testimonials */}
+        {/* Testimonials — real reviews, chosen in the admin panel. The section
+            is omitted entirely when the store has none rather than falling back
+            to invented ones. */}
+        {featuredReviews.length > 0 && (
         <section className="py-7 sm:py-10">
           <div className="container mx-auto px-2 sm:px-4">
             <div className="text-center mb-4 sm:mb-6">
@@ -386,24 +398,30 @@ const Index = () => {
               <p className="text-xs sm:text-base text-muted-foreground">{t('home.testimonials.subtitle')}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-5">
-              {(t('home.testimonials.items', { returnObjects: true }) as { name: string; review: string; rating: number }[]).map((testimonial, index) => (
-                <div key={index} className="bg-card rounded-lg p-4 sm:p-6 border border-border/80 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+              {featuredReviews.map((review) => (
+                <div key={review.id} className="bg-card rounded-lg p-4 sm:p-6 border border-border/80 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col">
                   <div className="flex mb-2 sm:mb-4 text-accent">
-                    {[...Array(testimonial.rating)].map((_, i) => (
+                    {[...Array(Math.max(0, Math.min(5, review.rating)))].map((_, i) => (
                       <span key={i} className="text-accent text-sm sm:text-base">★</span>
                     ))}
                   </div>
-                  <p className="text-muted-foreground text-xs sm:text-base mb-3 sm:mb-4">"{testimonial.review}"</p>
+                  {review.title && (
+                    <p className="font-semibold text-foreground text-sm sm:text-base mb-1">{review.title}</p>
+                  )}
+                  <p className="text-muted-foreground text-xs sm:text-base mb-3 sm:mb-4 flex-1">"{review.comment}"</p>
                   <div className="flex items-center gap-3">
                     <span className="h-9 w-9 sm:h-10 sm:w-10 rounded-full spice-backdrop grid place-items-center font-bold text-primary text-sm">
-                      {testimonial.name.charAt(0)}
+                      {(review.user_name || '?').charAt(0).toUpperCase()}
                     </span>
-                    <div>
-                      <p className="font-semibold text-foreground text-sm sm:text-base">{testimonial.name}</p>
-                      <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs text-green-600 dark:text-green-500 font-medium">
-                        <Check className="h-3 w-3" />
-                        {t('home.testimonials.verified')}
-                      </span>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-sm sm:text-base truncate">{review.user_name}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{review.item_name}</p>
+                      {review.is_verified_purchase && (
+                        <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs text-green-600 dark:text-green-500 font-medium">
+                          <Check className="h-3 w-3" />
+                          {t('home.testimonials.verified')}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -411,6 +429,7 @@ const Index = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* CTA Section */}
         <section className="py-8 sm:py-14">
