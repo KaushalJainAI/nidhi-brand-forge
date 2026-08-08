@@ -15,6 +15,14 @@ export interface AssistantReply {
   reply: string;
   proposed_action: ProposedAction | null;
   sources?: { tool: string; args: Record<string, unknown> }[];
+  /** True when the thread outgrew the model's context window and its oldest
+   *  turns were dropped from the prompt — prompt the user to start a new chat. */
+  history_truncated?: boolean;
+  /** True when a team member has taken over this thread — the AI deliberately
+   *  did not reply. `reply` is empty in that case. */
+  ai_paused?: boolean;
+  /** Display name of the admin handling the thread ('' if unknown). */
+  handled_by?: string;
 }
 
 export interface ConversationSummary {
@@ -22,6 +30,8 @@ export interface ConversationSummary {
   title: string;
   status: "active" | "resolved" | "archived";
   needs_human: boolean;
+  ai_paused: boolean;
+  ai_paused_by: string;
   last_message: string;
   user_email: string | null;
   updated_at: string;

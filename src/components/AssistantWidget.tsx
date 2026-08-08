@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Bot, User, Send, Mic, MicOff, X, Loader2,
-  ArrowRight, ShoppingCart, Plus, ChevronLeft, Shield,
+  ArrowRight, ShoppingCart, Plus, ChevronLeft, Shield, AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,6 +74,12 @@ const AssistantWidget = () => {
   const [activeConvId, setActiveConvId] = useState<string | null>(
     () => localStorage.getItem("assistant_conversation_id")
   );
+  // Set once the backend reports the thread outgrew the model's context window
+  // (its oldest turns are no longer in the prompt) — we nudge a fresh chat.
+  const [contextFull, setContextFull] = useState(false);
+  // Set when the backend reports a team member has taken this thread over — the
+  // AI deliberately stays silent, so the customer must be told why.
+  const [handoff, setHandoff] = useState<{ name: string } | null>(null);
   const [language, setLanguage] = useState<string>(
     () => localStorage.getItem("assistant_lang") || localStorage.getItem("site_lang") || "auto"
   );
@@ -168,6 +174,9 @@ const AssistantWidget = () => {
     (convId: string) => {
       setActiveConvId(convId);
       localStorage.setItem("assistant_conversation_id", convId);
+      // Both notices describe a thread, not the widget.
+      setContextFull(false);
+      setHandoff(null);
       setView("chat");
       loadThread(convId);
     },
@@ -182,6 +191,8 @@ const AssistantWidget = () => {
       setActiveConvId(convo.conversation_id);
       localStorage.setItem("assistant_conversation_id", convo.conversation_id);
       setTurns([GREETING]);
+      setContextFull(false);
+      setHandoff(null);
       setView("chat");
     },
   });
@@ -193,6 +204,17 @@ const AssistantWidget = () => {
     onSuccess: (data: AssistantReply) => {
       setActiveConvId(data.conversation_id);
       localStorage.setItem("assistant_conversation_id", data.conversation_id);
+      if (data.history_truncated) setContextFull(true);
+
+      // A team member owns this thread: there is no AI turn to append, and the
+      // admin's own replies arrive via the poll below.
+      if (data.ai_paused) {
+        setHandoff({ name: data.handled_by || "" });
+        queryClient.invalidateQueries({ queryKey: ["assistant-threads"] });
+        return;
+      }
+      setHandoff(null);
+
       setTurns((prev) => [
         ...prev,
         { role: "assistant", text: data.reply, action: data.proposed_action },
@@ -227,6 +249,30 @@ const AssistantWidget = () => {
 
   // Expose the latest `send` to the voice hook's onTranscript callback.
   sendRef.current = send;
+
+  // ── Handoff detection on open ─────────────────────────────────────────────
+  // Reopening a thread a team member already took over must show the notice
+  // without the customer having to send a message first. Set-only, never
+  // cleared here: a stale list must not flicker the banner off. It is cleared
+  // by an explicit signal — switching threads, a new thread, or a chat reply
+  // that comes back un-paused (i.e. the AI is answering again).
+  useEffect(() => {
+    if (!open || !activeConvId) return;
+    const thread = threads.find((th) => th.conversation_id === activeConvId);
+    if (thread?.ai_paused) setHandoff({ name: thread.ai_paused_by || "" });
+  }, [open, activeConvId, threads]);
+
+  // ── Poll the open thread while a human is handling it ─────────────────────
+  // The AI produces no turns during a handoff, so without this the chat looks
+  // dead until the customer closes and reopens the widget. Only runs while
+  // paused, so it can't clobber an in-flight optimistic turn in normal use.
+  useEffect(() => {
+    if (!open || view !== "chat" || !handoff || !activeConvId) return;
+    const id = window.setInterval(() => {
+      if (!mutation.isPending) loadThread(activeConvId);
+    }, 8000);
+    return () => window.clearInterval(id);
+  }, [open, view, handoff, activeConvId, loadThread, mutation.isPending]);
 
   const handleAction = async (action: ProposedAction) => {
     switch (action.type) {
@@ -453,6 +499,42 @@ const AssistantWidget = () => {
             )}
             <div ref={endRef} />
           </div>
+
+          {/* Human handoff: a team member owns this thread, so the AI is quiet.
+              Without this the missing AI reply just reads as broken. */}
+          {handoff && (
+            <div className="mx-3 mb-2 p-2 rounded-md border border-orange-200 bg-orange-50 text-xs text-orange-900 flex items-start gap-2">
+              <Shield className="h-4 w-4 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">
+                  {handoff.name
+                    ? t('assistant.humanHandoffNamed', { name: handoff.name })
+                    : t('assistant.humanHandoff')}
+                </p>
+                <p className="opacity-80">{t('assistant.humanHandoffWait')}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Context-window notice: the thread no longer fits, so the earliest
+              turns are gone from the prompt. Offer a one-click fresh thread. */}
+          {contextFull && (
+            <div className="mx-3 mb-2 p-2 rounded-md border border-amber-300 bg-amber-50 text-xs text-amber-900 flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p>{t('assistant.contextFull')}</p>
+                {user && (
+                  <button
+                    type="button"
+                    onClick={() => newThreadMutation.mutate()}
+                    className="font-medium underline underline-offset-2"
+                  >
+                    {t('assistant.contextFullCta')}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Input */}
           <form

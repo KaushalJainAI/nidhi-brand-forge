@@ -7,7 +7,9 @@ import { toWav16kMono } from "@/lib/audio";
  *
  * Replaces the old browser Web Speech API (unreliable, Chrome/Edge-only, weak on
  * Hindi/Hinglish). Records audio in-browser, converts it to 16 kHz mono WAV, and
- * POSTs it to /assistant/transcribe/ (whisper.cpp). The resulting text is handed
+ * POSTs it to /assistant/transcribe/, which transcribes it server-side (Voxtral
+ * over OpenRouter, or a self-hosted whisper.cpp container — the backend picks;
+ * nothing here is provider-specific). The resulting text is handed
  * back via `onTranscript`, then flows through the normal chat path as if typed.
  *
  * Works in every browser with getUserMedia + MediaRecorder (incl. Firefox/Safari).

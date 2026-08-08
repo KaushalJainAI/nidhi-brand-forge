@@ -1,9 +1,10 @@
 // Audio helpers for voice input.
 //
-// The self-hosted whisper.cpp server decodes 16 kHz mono 16-bit WAV natively
-// (no ffmpeg build required), so we convert the browser's recording — WebM/Opus
-// on Chrome/Firefox, MP4/AAC on Safari — into that format before upload. This
-// keeps the whisper container tiny and the upload small (~32 KB/s).
+// Both transcription backends take 16 kHz mono 16-bit WAV, so we convert the
+// browser's recording — WebM/Opus on Chrome/Firefox, MP4/AAC on Safari — into
+// that format before upload. The hosted backend (Voxtral over OpenRouter) would
+// accept the raw recording too, but converting keeps the self-hosted whisper.cpp
+// fallback usable without an ffmpeg build, and keeps the upload small (~32 KB/s).
 
 /** Decode an arbitrary recorded audio Blob and re-encode it as 16 kHz mono WAV. */
 export async function toWav16kMono(blob: Blob): Promise<Blob> {
